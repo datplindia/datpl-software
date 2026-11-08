@@ -6,6 +6,7 @@ Windows software by Digital Arts: downloads, screenshots and notes, one folder p
 | सॉफ्टवेयर / Software | फ़ोल्डर / Folder | स्थिति / Status |
 |---|---|---|
 | DA Design Studio: PSD, Pen Tool, AI Remove Background | [da-design-studio](da-design-studio/) | v1.1.1, [डाउनलोड / Download](https://github.com/datplindia/datpl-software/releases/download/da-design-studio-v1.1.1/DA-Design-Studio-1.1.1-windows-x64.zip) |
+| DA Print Desk: प्रिंट की दुकान के ऑनलाइन ऑर्डर अपने आप प्रिंट (print.datpl.com) | [da-print](da-print/) | v1.0.0, [डाउनलोड / Download](https://github.com/datplindia/datpl-software/releases/download/da-print-desk-v1.0.0/DAPrintDesk-1.0.0.zip) |
 
 ## पुराने सॉफ्टवेयर / Older software
 

@@ -6,8 +6,16 @@ Digital Arts का Windows इमेज एडिटर: PSD फाइल ख�
 
 Windows image editor by Digital Arts: open and save PSD files, Pen tool, layers and masks, offline AI background removal, and Save As in many formats. It needs a licence key from DA Workforce.
 
-**स्थिति / Status:** टेस्ट बिल्ड (v1.1.0)। इंस्टॉलर अभी यहाँ नहीं डाला गया है। CorelDRAW (.cdr) सपोर्ट अगले चरण में आएगा।
-Test build (v1.1.0). The installer is not published here yet; CorelDRAW (.cdr) support comes next.
+## डाउनलोड / Download
+
+**[DA-Design-Studio-1.1.0-windows-x64.zip](https://github.com/datplindia/datpl-software/releases/download/da-design-studio-v1.1.0/DA-Design-Studio-1.1.0-windows-x64.zip)**: Windows 10 / 11 (64-bit), लगभग 245 MB (AI मॉडल सहित)।
+
+1. ज़िप खोलें, फिर "DA Design Studio.exe" चलाएँ।
+2. Windows "Windows protected your PC" दिखाए तो **More info › Run anyway** दबाएँ।
+3. DA Workforce से मिली Licence Key डालें। पहली बार इंटरनेट चाहिए, उसके बाद सॉफ्टवेयर ऑफलाइन चलता है।
+
+Unzip, run "DA Design Studio.exe" and enter your licence key. CorelDRAW (.cdr) support comes next.
+सभी वर्जन / All versions: [Releases](https://github.com/datplindia/datpl-software/releases)
 
 ## स्क्रीनशॉट / Screenshots: Windows software
 

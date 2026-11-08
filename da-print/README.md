@@ -11,7 +11,7 @@ Self-service printing for print shops. Customers scan the counter QR code, send 
 
 ## डाउनलोड / Download: DA Print Desk
 
-**[DAPrintDesk-1.0.0.zip](https://github.com/datplindia/datpl-software/releases/download/da-print-desk-v1.0.0/DAPrintDesk-1.0.0.zip)**: Windows 10 / 11, लगभग 8 MB, इंस्टॉल की ज़रूरत नहीं।
+**[DAPrintDesk-1.0.0.zip](https://github.com/datplindia/datpl-software/raw/main/da-print/DAPrintDesk-1.0.0.zip)**: Windows 10 / 11, लगभग 8 MB, इंस्टॉल की ज़रूरत नहीं।
 
 1. ज़िप खोलें। पूरा फ़ोल्डर साथ रखें (`DAPrintDesk.exe` के साथ `x64` और `x86` फ़ोल्डर)।
 2. `DAPrintDesk.exe` चलाएँ। Windows "Windows protected your PC" दिखाए तो **More info › Run anyway** दबाएँ।
@@ -20,7 +20,7 @@ Self-service printing for print shops. Customers scan the counter QR code, send 
 
 Word, Excel और PowerPoint फ़ाइलें कंप्यूटर में लगे Microsoft Office (या मुफ़्त LibreOffice) से PDF बनती हैं।
 Unzip, run `DAPrintDesk.exe`, sign in with the print.datpl.com account, choose the printers and press Test print.
-सभी वर्जन / All versions: [Releases](https://github.com/datplindia/datpl-software/releases)
+ज़िप इसी फ़ोल्डर में है / The ZIP is in this folder: [DAPrintDesk-1.0.0.zip](DAPrintDesk-1.0.0.zip)
 
 ## क्या-क्या है / Features
 

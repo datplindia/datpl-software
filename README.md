@@ -5,7 +5,7 @@ Windows software by Digital Arts: downloads, screenshots and notes, one folder p
 
 | सॉफ्टवेयर / Software | फ़ोल्डर / Folder | स्थिति / Status |
 |---|---|---|
-| DA Design Studio: PSD, Pen Tool, AI Remove Background | [da-design-studio](da-design-studio/) | v1.1.0, [डाउनलोड / Download](https://github.com/datplindia/datpl-software/releases/download/da-design-studio-v1.1.0/DA-Design-Studio-1.1.0-windows-x64.zip) |
+| DA Design Studio: PSD, Pen Tool, AI Remove Background | [da-design-studio](da-design-studio/) | v1.1.1, [डाउनलोड / Download](https://github.com/datplindia/datpl-software/releases/download/da-design-studio-v1.1.1/DA-Design-Studio-1.1.1-windows-x64.zip) |
 
 ## पुराने सॉफ्टवेयर / Older software
 

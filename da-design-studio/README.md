@@ -8,7 +8,7 @@ Windows image editor by Digital Arts: open and save PSD files, Pen tool, layers 
 
 ## डाउनलोड / Download
 
-**[DA-Design-Studio-1.1.0-windows-x64.zip](https://github.com/datplindia/datpl-software/releases/download/da-design-studio-v1.1.0/DA-Design-Studio-1.1.0-windows-x64.zip)**: Windows 10 / 11 (64-bit), लगभग 245 MB (AI मॉडल सहित)।
+**[DA-Design-Studio-1.1.1-windows-x64.zip](https://github.com/datplindia/datpl-software/releases/download/da-design-studio-v1.1.1/DA-Design-Studio-1.1.1-windows-x64.zip)**: Windows 10 / 11 (64-bit), लगभग 245 MB (AI मॉडल सहित)।
 
 1. ज़िप खोलें, फिर "DA Design Studio.exe" चलाएँ।
 2. Windows "Windows protected your PC" दिखाए तो **More info › Run anyway** दबाएँ।

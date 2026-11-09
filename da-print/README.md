@@ -23,6 +23,11 @@ Word, Excel और PowerPoint फ़ाइलें कंप्यूटर म
 Unzip, run `DAPrintDesk.exe`, sign in with the print.datpl.com account, choose the printers and press Test print.
 ज़िप इसी फ़ोल्डर में है / The ZIP is in this folder: [DAPrintDesk-1.4.0.zip](DAPrintDesk-1.4.0.zip)
 
+## PDF
+
+- [DA-Print-Features.pdf](docs/DA-Print-Features.pdf): सारे फ़ीचर / all features
+- [DA-Print-Installation-Guide.pdf](docs/DA-Print-Installation-Guide.pdf): दुकान बनाना + DA Print Desk इंस्टॉल करना / setup guide
+
 ## क्या-क्या है / Features
 
 - ग्राहक के लिए कोई ऐप या लॉगिन नहीं: फ़ोन के ब्राउज़र में खुलता है

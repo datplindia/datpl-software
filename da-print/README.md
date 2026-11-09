@@ -11,7 +11,7 @@ Self-service printing for print shops. Customers scan the counter QR code, send 
 
 ## डाउनलोड / Download: DA Print Desk
 
-**[DAPrintDesk-1.1.0.zip](https://github.com/datplindia/datpl-software/raw/main/da-print/DAPrintDesk-1.1.0.zip)**: Windows 10 / 11, लगभग 8 MB, इंस्टॉल की ज़रूरत नहीं।
+**[DAPrintDesk-1.2.0.zip](https://github.com/datplindia/datpl-software/raw/main/da-print/DAPrintDesk-1.2.0.zip)**: Windows 10 / 11, लगभग 8 MB, इंस्टॉल की ज़रूरत नहीं।
 
 1. ज़िप खोलें। पूरा फ़ोल्डर साथ रखें (`DAPrintDesk.exe` के साथ `x64` और `x86` फ़ोल्डर)।
 2. `DAPrintDesk.exe` चलाएँ। Windows "Windows protected your PC" दिखाए तो **More info › Run anyway** दबाएँ।
@@ -20,7 +20,7 @@ Self-service printing for print shops. Customers scan the counter QR code, send 
 
 Word, Excel और PowerPoint फ़ाइलें कंप्यूटर में लगे Microsoft Office (या मुफ़्त LibreOffice) से PDF बनती हैं।
 Unzip, run `DAPrintDesk.exe`, sign in with the print.datpl.com account, choose the printers and press Test print.
-ज़िप इसी फ़ोल्डर में है / The ZIP is in this folder: [DAPrintDesk-1.1.0.zip](DAPrintDesk-1.1.0.zip)
+ज़िप इसी फ़ोल्डर में है / The ZIP is in this folder: [DAPrintDesk-1.2.0.zip](DAPrintDesk-1.2.0.zip)
 
 ## क्या-क्या है / Features
 
@@ -33,7 +33,14 @@ Unzip, run `DAPrintDesk.exe`, sign in with the print.datpl.com account, choose t
 - अपने प्रिंट टाइप और रेट (जैसे B&W ₹5, कलर ₹15, फ़ोटो पेपर ₹80), हर टाइप का अपना प्रिंटर (B&W / कलर / फ़ोटो)
 - नया ऑर्डर आते ही आवाज़ और स्क्रीन पर पॉपअप (Accept बटन के साथ)
 
+## अपडेट / Updates
+
+ऐप हर 6 घंटे में [`version.json`](version.json) देखता है। नया वर्जन हो तो "Update available" दिखाता है और Yes दबाने पर डाउनलोड खोलता है।
+नया वर्जन जारी करने के लिए: नई ZIP इस फ़ोल्डर में डालें, फिर `version.json` में `version`, `url`, `sha256` और नोट्स बदलें।
+The app checks `version.json` every 6 hours and offers the download. To release: add the new ZIP here, then update `version.json`.
+
 ## बदलाव / Changes
+- **1.2.0** (9 Nov 2026): **More printers…** से हर प्रिंट टाइप का अपना प्रिंटर (जितने चाहें उतने प्रिंटर); नया वर्जन आने पर ऐप खुद बताता है। A printer for each print type (any number of printers); built-in update check.
 - **1.1.0** (9 Nov 2026): फ़ोटो प्रिंटर, प्रिंट टाइप के हिसाब से प्रिंटर, नए ऑर्डर पर तेज़ आवाज़ + पॉपअप + टास्कबार ब्लिंक। Photo printer, printer per print type, loud chime + popup for new orders.
 - **1.0.0** (8 Nov 2026): पहला वर्जन / First release.
 

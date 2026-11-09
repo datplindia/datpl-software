@@ -11,7 +11,7 @@ Self-service printing for print shops. Customers scan the counter QR code, send 
 
 ## डाउनलोड / Download: DA Print Desk
 
-**[DAPrintDesk-1.0.0.zip](https://github.com/datplindia/datpl-software/raw/main/da-print/DAPrintDesk-1.0.0.zip)**: Windows 10 / 11, लगभग 8 MB, इंस्टॉल की ज़रूरत नहीं।
+**[DAPrintDesk-1.1.0.zip](https://github.com/datplindia/datpl-software/raw/main/da-print/DAPrintDesk-1.1.0.zip)**: Windows 10 / 11, लगभग 8 MB, इंस्टॉल की ज़रूरत नहीं।
 
 1. ज़िप खोलें। पूरा फ़ोल्डर साथ रखें (`DAPrintDesk.exe` के साथ `x64` और `x86` फ़ोल्डर)।
 2. `DAPrintDesk.exe` चलाएँ। Windows "Windows protected your PC" दिखाए तो **More info › Run anyway** दबाएँ।
@@ -20,7 +20,7 @@ Self-service printing for print shops. Customers scan the counter QR code, send 
 
 Word, Excel और PowerPoint फ़ाइलें कंप्यूटर में लगे Microsoft Office (या मुफ़्त LibreOffice) से PDF बनती हैं।
 Unzip, run `DAPrintDesk.exe`, sign in with the print.datpl.com account, choose the printers and press Test print.
-ज़िप इसी फ़ोल्डर में है / The ZIP is in this folder: [DAPrintDesk-1.0.0.zip](DAPrintDesk-1.0.0.zip)
+ज़िप इसी फ़ोल्डर में है / The ZIP is in this folder: [DAPrintDesk-1.1.0.zip](DAPrintDesk-1.1.0.zip)
 
 ## क्या-क्या है / Features
 
@@ -30,6 +30,12 @@ Unzip, run `DAPrintDesk.exe`, sign in with the print.datpl.com account, choose t
 - रोज़ 1 से शुरू होने वाले टोकन, TV पर "Ready" टोकन स्क्रीन, A4 QR पोस्टर
 - दुकान की UPI ID पर सही रकम का UPI बटन और QR; कोई कमीशन नहीं
 - रोज़ की रिपोर्ट (ऑर्डर, पेज, कैश, UPI); प्रिंट के बाद फ़ाइलें अपने आप डिलीट
+- अपने प्रिंट टाइप और रेट (जैसे B&W ₹5, कलर ₹15, फ़ोटो पेपर ₹80), हर टाइप का अपना प्रिंटर (B&W / कलर / फ़ोटो)
+- नया ऑर्डर आते ही आवाज़ और स्क्रीन पर पॉपअप (Accept बटन के साथ)
+
+## बदलाव / Changes
+- **1.1.0** (9 Nov 2026): फ़ोटो प्रिंटर, प्रिंट टाइप के हिसाब से प्रिंटर, नए ऑर्डर पर तेज़ आवाज़ + पॉपअप + टास्कबार ब्लिंक। Photo printer, printer per print type, loud chime + popup for new orders.
+- **1.0.0** (8 Nov 2026): पहला वर्जन / First release.
 
 ## स्क्रीनशॉट / Screenshots
 

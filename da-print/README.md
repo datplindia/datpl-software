@@ -11,7 +11,7 @@ Self-service printing for print shops. Customers scan the counter QR code, send 
 
 ## डाउनलोड / Download: DA Print Desk
 
-**[DAPrintDesk-1.6.2.zip](https://github.com/datplindia/datpl-software/raw/main/da-print/DAPrintDesk-1.6.2.zip)**: Windows 10 / 11, लगभग 8 MB, इंस्टॉल की ज़रूरत नहीं।
+**[DAPrintDesk-1.6.3.zip](https://github.com/datplindia/datpl-software/raw/main/da-print/DAPrintDesk-1.6.3.zip)**: Windows 10 / 11, लगभग 8 MB, इंस्टॉल की ज़रूरत नहीं।
 
 1. ज़िप खोलें। पूरा फ़ोल्डर साथ रखें (`DAPrintDesk.exe` के साथ `x64` और `x86` फ़ोल्डर)।
 2. `DAPrintDesk.exe` चलाएँ। Windows "Windows protected your PC" दिखाए तो **More info › Run anyway** दबाएँ।
@@ -21,7 +21,7 @@ Self-service printing for print shops. Customers scan the counter QR code, send 
 
 Word, Excel और PowerPoint फ़ाइलें कंप्यूटर में लगे Microsoft Office (या मुफ़्त LibreOffice) से PDF बनती हैं।
 Unzip, run `DAPrintDesk.exe`, sign in with the print.datpl.com account, choose the printers and press Test print.
-ज़िप इसी फ़ोल्डर में है / The ZIP is in this folder: [DAPrintDesk-1.6.2.zip](DAPrintDesk-1.6.2.zip)
+ज़िप इसी फ़ोल्डर में है / The ZIP is in this folder: [DAPrintDesk-1.6.3.zip](DAPrintDesk-1.6.3.zip)
 
 ## PDF
 
@@ -47,6 +47,7 @@ Unzip, run `DAPrintDesk.exe`, sign in with the print.datpl.com account, choose t
 The app checks `version.json` every 6 hours and offers the download. To release: add the new ZIP here, then update `version.json`.
 
 ## बदलाव / Changes
+- **1.6.3** (9 Nov 2026): वर्ज़न के बगल में अपडेट बटन (Check for updates / ⬇ Update to …)। Update button next to the version.
 - **1.6.2** (9 Nov 2026): Excel कॉलम पेज की चौड़ाई में, CSV, ऑर्डर आते ही पेज गिनती, ग्राहक का पेमेंट तरीका (UPI/कैश), अपडेट सूचना print.datpl.com से + विंडो में पट्टी। Excel fit to width, CSV, early page count, payment choice, update check via own domain.
 - **1.6.1** (9 Nov 2026): रंग थीम चुनें – Orange, Blue, Green, Purple, Red, Dark। Colour themes incl. Dark.
 - **1.6.0** (9 Nov 2026): वेब डैशबोर्ड से हर प्रिंट टाइप का प्रिंटर और Auto print; "Print now" बटन; बीच में बड़ा Accept; Shop printers – एक या कई प्रिंटर, दोनों तरफ़ (duplex) का टिक। Printer per print type from the dashboard, Auto print switch, big Accept window, shop printers with duplex tick.

@@ -1,7 +1,7 @@
 {
-  "version": "1.6.1",
-  "url": "https://print.datpl.com/files/DAPrintDesk-1.6.1.zip",
-  "sha256": "3a6402d71a3f37f0f56bc95a6b45ae03f6b896bf4fcefedd0639c521d305926c",
-  "notes_en": "Colour themes: choose Orange, Blue, Green, Purple, Red or Dark at the bottom of the window. Also everything in 1.6: printer and Auto print per print type from the dashboard, Print now, big Accept window, shop printers with a both-sides tick.",
-  "notes_hi": "रंग थीम: विंडो के नीचे Orange, Blue, Green, Purple, Red या Dark चुनें। साथ में 1.6 की सारी सुविधाएँ: डैशबोर्ड से हर प्रिंट टाइप का प्रिंटर और Auto print, Print now, बड़ा Accept बटन, दोनों तरफ़ छापने वाले प्रिंटर का टिक।"
+  "version": "1.6.2",
+  "url": "https://print.datpl.com/files/DAPrintDesk-1.6.2.zip",
+  "sha256": "cbb7ca43327bb704551b6642cf2c29d6ffe53c6ef6f466590a181021843d843c",
+  "notes_en": "Excel: columns fit the page width (customer can choose), CSV files print. Pages of Word/Excel files are counted as soon as an order arrives, so the customer sees the price. Shows how the customer will pay (UPI / cash). Update check also works where raw GitHub is blocked, and a waiting update is shown at the top of the window. Includes 1.6.1 colour themes.",
+  "notes_hi": "Excel: सारे कॉलम पेज की चौड़ाई में (ग्राहक चुन सकता है), CSV फ़ाइल भी छपेगी। ऑर्डर आते ही Word/Excel के पेज गिनकर ग्राहक को दाम दिखता है। ग्राहक UPI से देगा या कैश, ये दिखता है। अपडेट की सूचना अब हर नेटवर्क पर आएगी और विंडो के ऊपर भी दिखेगी।"
 }

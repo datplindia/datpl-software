@@ -1,7 +1,7 @@
 {
-  "version": "1.5.0",
-  "url": "https://print.datpl.com/files/DAPrintDesk-1.5.0.zip",
-  "sha256": "a59f42b4bb5db2eab9c58039bb9b37ec9bed6bec9c3a7ebc1977457e3811c639",
-  "notes_en": "New setting 'Print only after payment': accepted orders wait until you press Paid cash / Paid UPI, then print by themselves. Page counts are checked first so the customer sees the exact amount.",
-  "notes_hi": "नई सेटिंग 'Print only after payment': ऑर्डर तभी छपेगा जब आप Paid cash / Paid UPI दबाएँगे। ग्राहक को पहले सही रकम दिखती है।"
+  "version": "1.6.0",
+  "url": "https://print.datpl.com/files/DAPrintDesk-1.6.0.zip",
+  "sha256": "fd2e77d018de5d58f13b29f3b84015a3028a359daba8a8b23f1d927dfaa2f89a",
+  "notes_en": "Pick printers in the web dashboard for each print type, with an Auto print switch (photo paper waits for Print now). New big Accept window for new orders. Choose the shop's printers and tick which can print both sides.",
+  "notes_hi": "हर प्रिंट टाइप के लिए वेब डैशबोर्ड में प्रिंटर चुनें और Auto print चालू/बंद करें (फ़ोटो पेपर 'Print now' दबाने पर छपेगा)। नए ऑर्डर पर स्क्रीन के बीच बड़ा Accept बटन। दुकान के प्रिंटर चुनें और बताएँ कौन दोनों तरफ़ छाप सकता है।"
 }

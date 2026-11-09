@@ -1,7 +1,7 @@
 {
-  "version": "1.2.0",
-  "url": "https://github.com/datplindia/datpl-software/raw/main/da-print/DAPrintDesk-1.2.0.zip",
-  "sha256": "c1912bffa3181261f0d08fcd2c57eaa1b1c7793a7ee14ef85d95c4f745333586",
-  "notes_en": "Choose a printer for each print type (More printers...), and the app now tells you when a new version is ready.",
-  "notes_hi": "हर प्रिंट टाइप के लिए अलग प्रिंटर (More printers...), और नया वर्जन आने पर ऐप खुद बताएगा।"
+  "version": "1.3.0",
+  "url": "https://github.com/datplindia/datpl-software/raw/main/da-print/DAPrintDesk-1.3.0.zip",
+  "sha256": "f30dbf45440e534f95606d49d10db11aeace5c49ed809d58d68a9c75391b92eb",
+  "notes_en": "One printer for everything: tick 'Ask first (load paper)' in More printers... and the app asks you to load photo paper before printing those orders.",
+  "notes_hi": "एक ही प्रिंटर वाली दुकान के लिए: More printers... में 'Ask first' टिक करें, फ़ोटो पेपर वाला ऑर्डर छापने से पहले ऐप पेपर डालने को कहेगा।"
 }

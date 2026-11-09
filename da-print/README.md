@@ -11,7 +11,7 @@ Self-service printing for print shops. Customers scan the counter QR code, send 
 
 ## डाउनलोड / Download: DA Print Desk
 
-**[DAPrintDesk-1.3.0.zip](https://github.com/datplindia/datpl-software/raw/main/da-print/DAPrintDesk-1.3.0.zip)**: Windows 10 / 11, लगभग 8 MB, इंस्टॉल की ज़रूरत नहीं।
+**[DAPrintDesk-1.4.0.zip](https://github.com/datplindia/datpl-software/raw/main/da-print/DAPrintDesk-1.4.0.zip)**: Windows 10 / 11, लगभग 8 MB, इंस्टॉल की ज़रूरत नहीं।
 
 1. ज़िप खोलें। पूरा फ़ोल्डर साथ रखें (`DAPrintDesk.exe` के साथ `x64` और `x86` फ़ोल्डर)।
 2. `DAPrintDesk.exe` चलाएँ। Windows "Windows protected your PC" दिखाए तो **More info › Run anyway** दबाएँ।
@@ -21,7 +21,7 @@ Self-service printing for print shops. Customers scan the counter QR code, send 
 
 Word, Excel और PowerPoint फ़ाइलें कंप्यूटर में लगे Microsoft Office (या मुफ़्त LibreOffice) से PDF बनती हैं।
 Unzip, run `DAPrintDesk.exe`, sign in with the print.datpl.com account, choose the printers and press Test print.
-ज़िप इसी फ़ोल्डर में है / The ZIP is in this folder: [DAPrintDesk-1.3.0.zip](DAPrintDesk-1.3.0.zip)
+ज़िप इसी फ़ोल्डर में है / The ZIP is in this folder: [DAPrintDesk-1.4.0.zip](DAPrintDesk-1.4.0.zip)
 
 ## क्या-क्या है / Features
 
@@ -30,7 +30,8 @@ Unzip, run `DAPrintDesk.exe`, sign in with the print.datpl.com account, choose t
 - फ़ोटो लेआउट: 1/2/4 प्रति पेज, पासपोर्ट साइज़ (35×45 mm), आधार / ID कार्ड आगे-पीछे एक पेज पर
 - रोज़ 1 से शुरू होने वाले टोकन, TV पर "Ready" टोकन स्क्रीन, A4 QR पोस्टर
 - दुकान की UPI ID पर सही रकम का UPI बटन और QR; कोई कमीशन नहीं
-- रोज़ की रिपोर्ट (ऑर्डर, पेज, कैश, UPI); प्रिंट के बाद फ़ाइलें अपने आप डिलीट
+- रोज़ की रिपोर्ट (ऑर्डर, पेज, कैश, UPI)
+- फ़ाइलें कितने दिन रहें: दुकान अधिकतम समय चुनती है (2 घंटे / 1 / 3 / 7 दिन), ग्राहक उसके अंदर अपनी पसंद चुनता है और "Delete my files now" भी दबा सकता है
 - अपने प्रिंट टाइप और रेट (जैसे B&W ₹5, कलर ₹15, फ़ोटो पेपर ₹80), हर टाइप का अपना प्रिंटर (B&W / कलर / फ़ोटो)
 - नया ऑर्डर आते ही आवाज़ और स्क्रीन पर पॉपअप (Accept बटन के साथ)
 
@@ -41,6 +42,7 @@ Unzip, run `DAPrintDesk.exe`, sign in with the print.datpl.com account, choose t
 The app checks `version.json` every 6 hours and offers the download. To release: add the new ZIP here, then update `version.json`.
 
 ## बदलाव / Changes
+- **1.4.0** (9 Nov 2026): फ़ाइलें उतने समय तक रहती हैं जितना दुकान/ग्राहक ने चुना (2 घंटे, 1, 3, 7 दिन)। Files kept as long as the shop and customer chose.
 - **1.3.0** (9 Nov 2026): एक ही प्रिंटर वाली दुकान: प्रिंट टाइप पर "Ask first (load paper)", फ़ोटो पेपर से पहले ऐप पूछता है और बाद में सादा पेपर वापस डालने को कहता है। One-printer shops: "Ask first" per print type.
 - **1.2.0** (9 Nov 2026): **More printers…** से हर प्रिंट टाइप का अपना प्रिंटर (जितने चाहें उतने प्रिंटर); नया वर्जन आने पर ऐप खुद बताता है। A printer for each print type (any number of printers); built-in update check.
 - **1.1.0** (9 Nov 2026): फ़ोटो प्रिंटर, प्रिंट टाइप के हिसाब से प्रिंटर, नए ऑर्डर पर तेज़ आवाज़ + पॉपअप + टास्कबार ब्लिंक। Photo printer, printer per print type, loud chime + popup for new orders.

@@ -79,3 +79,17 @@ The app checks `version.json` every 6 hours and offers the download. To release:
 ---
 
 PDF engine in DA Print Desk: [PDFium](https://pdfium.googlesource.com/pdfium/) (BSD / Apache-2.0), binaries from [bblanchon/pdfium-binaries](https://github.com/bblanchon/pdfium-binaries) chromium/8138.
+
+## DA Print Mobile (Android) – फ़ोन से प्रिंट / print from a phone
+
+कंप्यूटर नहीं है? फ़ोन पर DA Print Mobile लगाइए: नए ऑर्डर पर घंटी और बड़ा **Accept** बटन, और फ़ोन से जुड़े प्रिंटर (Wi-Fi, USB-OTG, Bluetooth) पर प्रिंट।
+No computer? Install DA Print Mobile on an Android phone (7 or newer): new orders ring with a big **Accept** button, and you print from the phone.
+
+- Download: https://print.datpl.com/files/mobile.apk
+- Two ways to print (Settings ⚙):
+  - **Android print screen** – any printer the phone can use; you tap Print for each order.
+  - **Wi-Fi printer** – accepted orders print by themselves (IPP; PDF or PWG raster). Finds printers on the Wi-Fi.
+- PDFs and photos print from the phone. Word/Excel open in WPS/Word on the phone (type the page count for the price), or let DA Print Desk on a computer do them.
+- Keep only one of them on auto print, so orders don't print twice.
+
+Changelog: **1.0.0** (10 Nov 2026) – first version.

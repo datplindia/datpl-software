@@ -1,0 +1,8 @@
+{
+  "version": "1.0.0",
+  "versionCode": 1,
+  "url": "https://print.datpl.com/files/mobile/DAPrintMobile-1.0.0.apk",
+  "sha256": "2bfb6c2861ec3ee198f8d29adc8e06b10ad92a9a9458aec0f04c0d4b796d0526",
+  "notes_en": "First version: new orders ring with a big Accept button, print from the phone (Android print screen or straight to a Wi-Fi printer), payments, amounts.",
+  "notes_hi": "पहला वर्ज़न: नए ऑर्डर पर घंटी और बड़ा Accept बटन, फ़ोन से प्रिंट (Android print screen या सीधे Wi-Fi प्रिंटर), पेमेंट और अमाउंट।"
+}

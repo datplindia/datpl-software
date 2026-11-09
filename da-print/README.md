@@ -11,7 +11,7 @@ Self-service printing for print shops. Customers scan the counter QR code, send 
 
 ## डाउनलोड / Download: DA Print Desk
 
-**[DAPrintDesk-1.6.0.zip](https://github.com/datplindia/datpl-software/raw/main/da-print/DAPrintDesk-1.6.0.zip)**: Windows 10 / 11, लगभग 8 MB, इंस्टॉल की ज़रूरत नहीं।
+**[DAPrintDesk-1.6.1.zip](https://github.com/datplindia/datpl-software/raw/main/da-print/DAPrintDesk-1.6.1.zip)**: Windows 10 / 11, लगभग 8 MB, इंस्टॉल की ज़रूरत नहीं।
 
 1. ज़िप खोलें। पूरा फ़ोल्डर साथ रखें (`DAPrintDesk.exe` के साथ `x64` और `x86` फ़ोल्डर)।
 2. `DAPrintDesk.exe` चलाएँ। Windows "Windows protected your PC" दिखाए तो **More info › Run anyway** दबाएँ।
@@ -21,7 +21,7 @@ Self-service printing for print shops. Customers scan the counter QR code, send 
 
 Word, Excel और PowerPoint फ़ाइलें कंप्यूटर में लगे Microsoft Office (या मुफ़्त LibreOffice) से PDF बनती हैं।
 Unzip, run `DAPrintDesk.exe`, sign in with the print.datpl.com account, choose the printers and press Test print.
-ज़िप इसी फ़ोल्डर में है / The ZIP is in this folder: [DAPrintDesk-1.6.0.zip](DAPrintDesk-1.6.0.zip)
+ज़िप इसी फ़ोल्डर में है / The ZIP is in this folder: [DAPrintDesk-1.6.1.zip](DAPrintDesk-1.6.1.zip)
 
 ## PDF
 
@@ -47,6 +47,7 @@ Unzip, run `DAPrintDesk.exe`, sign in with the print.datpl.com account, choose t
 The app checks `version.json` every 6 hours and offers the download. To release: add the new ZIP here, then update `version.json`.
 
 ## बदलाव / Changes
+- **1.6.1** (9 Nov 2026): रंग थीम चुनें – Orange, Blue, Green, Purple, Red, Dark। Colour themes incl. Dark.
 - **1.6.0** (9 Nov 2026): वेब डैशबोर्ड से हर प्रिंट टाइप का प्रिंटर और Auto print; "Print now" बटन; बीच में बड़ा Accept; Shop printers – एक या कई प्रिंटर, दोनों तरफ़ (duplex) का टिक। Printer per print type from the dashboard, Auto print switch, big Accept window, shop printers with duplex tick.
 - **1.5.0** (9 Nov 2026): "Print only after payment" सेटिंग के साथ: पेमेंट (Paid cash / UPI) के बाद ही प्रिंट; उससे पहले पेज गिनकर सही रकम। Waits for payment when the shop turns it on.
 - **1.4.0** (9 Nov 2026): फ़ाइलें उतने समय तक रहती हैं जितना दुकान/ग्राहक ने चुना (2 घंटे, 1, 3, 7 दिन)। Files kept as long as the shop and customer chose.

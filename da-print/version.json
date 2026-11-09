@@ -1,7 +1,7 @@
 {
-  "version": "1.6.0",
-  "url": "https://print.datpl.com/files/DAPrintDesk-1.6.0.zip",
-  "sha256": "fd2e77d018de5d58f13b29f3b84015a3028a359daba8a8b23f1d927dfaa2f89a",
-  "notes_en": "Pick printers in the web dashboard for each print type, with an Auto print switch (photo paper waits for Print now). New big Accept window for new orders. Choose the shop's printers and tick which can print both sides.",
-  "notes_hi": "हर प्रिंट टाइप के लिए वेब डैशबोर्ड में प्रिंटर चुनें और Auto print चालू/बंद करें (फ़ोटो पेपर 'Print now' दबाने पर छपेगा)। नए ऑर्डर पर स्क्रीन के बीच बड़ा Accept बटन। दुकान के प्रिंटर चुनें और बताएँ कौन दोनों तरफ़ छाप सकता है।"
+  "version": "1.6.1",
+  "url": "https://print.datpl.com/files/DAPrintDesk-1.6.1.zip",
+  "sha256": "3a6402d71a3f37f0f56bc95a6b45ae03f6b896bf4fcefedd0639c521d305926c",
+  "notes_en": "Colour themes: choose Orange, Blue, Green, Purple, Red or Dark at the bottom of the window. Also everything in 1.6: printer and Auto print per print type from the dashboard, Print now, big Accept window, shop printers with a both-sides tick.",
+  "notes_hi": "रंग थीम: विंडो के नीचे Orange, Blue, Green, Purple, Red या Dark चुनें। साथ में 1.6 की सारी सुविधाएँ: डैशबोर्ड से हर प्रिंट टाइप का प्रिंटर और Auto print, Print now, बड़ा Accept बटन, दोनों तरफ़ छापने वाले प्रिंटर का टिक।"
 }

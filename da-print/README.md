@@ -11,7 +11,7 @@ Self-service printing for print shops. Customers scan the counter QR code, send 
 
 ## डाउनलोड / Download: DA Print Desk
 
-**[DAPrintDesk-1.6.5.zip](https://github.com/datplindia/datpl-software/raw/main/da-print/DAPrintDesk-1.6.5.zip)**: Windows 10 / 11, लगभग 8 MB, इंस्टॉल की ज़रूरत नहीं।
+**[DAPrintDesk-1.6.6.zip](https://github.com/datplindia/datpl-software/raw/main/da-print/DAPrintDesk-1.6.6.zip)**: Windows 10 / 11, लगभग 8 MB, इंस्टॉल की ज़रूरत नहीं।
 
 1. ज़िप खोलें। पूरा फ़ोल्डर साथ रखें (`DAPrintDesk.exe` के साथ `x64` और `x86` फ़ोल्डर)।
 2. `DAPrintDesk.exe` चलाएँ। Windows "Windows protected your PC" दिखाए तो **More info › Run anyway** दबाएँ।
@@ -21,7 +21,7 @@ Self-service printing for print shops. Customers scan the counter QR code, send 
 
 Word, Excel और PowerPoint फ़ाइलें कंप्यूटर में लगे Microsoft Office (या मुफ़्त LibreOffice) से PDF बनती हैं।
 Unzip, run `DAPrintDesk.exe`, sign in with the print.datpl.com account, choose the printers and press Test print.
-ज़िप इसी फ़ोल्डर में है / The ZIP is in this folder: [DAPrintDesk-1.6.5.zip](DAPrintDesk-1.6.5.zip)
+ज़िप इसी फ़ोल्डर में है / The ZIP is in this folder: [DAPrintDesk-1.6.6.zip](DAPrintDesk-1.6.6.zip)
 
 ## PDF
 
@@ -47,6 +47,7 @@ Unzip, run `DAPrintDesk.exe`, sign in with the print.datpl.com account, choose t
 The app checks `version.json` every 6 hours and offers the download. To release: add the new ZIP here, then update `version.json`.
 
 ## बदलाव / Changes
+- **1.6.6** (10 Nov 2026): "पेमेंट के बाद ही प्रिंट" वाली दुकानों में Accept नहीं – सीधे Paid UPI/cash → print। Pay-first shops: Paid → print instead of Accept.
 - **1.6.5** (10 Nov 2026): लाइव प्रिंट प्रगति (प्रिंटर, पेज, पेपर ख़त्म/फँसा), Windows जॉब पूरा होने पर Printed, नया प्रिंटर अपने-आप डैशबोर्ड में, + Add printer। Live progress, Windows queue watch, new printers auto-reported.
 - **1.6.4** (10 Nov 2026): ✓ Mark ready (पेपर जाँचने के बाद) + टोकन नंबर की आवाज़ में घोषणा। Mark ready + voice announcement.
 - **1.6.3** (9 Nov 2026): वर्ज़न के बगल में अपडेट बटन (Check for updates / ⬇ Update to …)। Update button next to the version.
@@ -94,4 +95,4 @@ No computer? Install DA Print Mobile on an Android phone (7 or newer): new order
 - PDFs and photos print from the phone. Word/Excel open in WPS/Word on the phone (type the page count for the price), or let DA Print Desk on a computer do them.
 - Keep only one of them on auto print, so orders don't print twice.
 
-Changelog: **1.0.2** (10 Nov 2026) – live print progress. **1.0.1** (10 Nov 2026) – Mark ready + voice announcement. **1.0.0** (10 Nov 2026) – first version.
+Changelog: **1.0.3** (10 Nov 2026) – pay-first: Paid → print instead of Accept. **1.0.2** (10 Nov 2026) – live print progress. **1.0.1** (10 Nov 2026) – Mark ready + voice announcement. **1.0.0** (10 Nov 2026) – first version.

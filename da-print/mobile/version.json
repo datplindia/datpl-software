@@ -1,8 +1,8 @@
 {
-  "version": "1.0.2",
-  "versionCode": 3,
-  "url": "https://print.datpl.com/files/mobile/DAPrintMobile-1.0.2.apk",
-  "sha256": "f1b455a8fecc6865ee473b2199fe49d0f9a830b7641ac8e2535430ea2fec766f",
-  "notes_en": "Live print progress (printer, pages) for Wi-Fi printing, shown in the app, dashboard and TV screen.",
-  "notes_hi": "Wi-Fi प्रिंटिंग की लाइव प्रगति (प्रिंटर, पेज) – ऐप, डैशबोर्ड और TV स्क्रीन पर।"
+  "version": "1.0.3",
+  "versionCode": 4,
+  "url": "https://print.datpl.com/files/mobile/DAPrintMobile-1.0.3.apk",
+  "sha256": "927c1445d47acbf149fefb60cde84a436101c878af4acb0f51ac70dd2bc253d7",
+  "notes_en": "Print only after payment: Paid UPI → print / Paid cash → print instead of Accept.",
+  "notes_hi": "पेमेंट के बाद ही प्रिंट: Accept की जगह Paid UPI → print / Paid cash → print।"
 }

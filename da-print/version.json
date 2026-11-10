@@ -1,7 +1,7 @@
 {
-  "version": "1.6.5",
-  "url": "https://print.datpl.com/files/DAPrintDesk-1.6.5.zip",
-  "sha256": "11ca0441d3493ec4e6c598d5538cea9ec23ff50f698ab014a0ec194681296d82",
-  "notes_en": "Live print progress: which printer, pages printed, and printer problems (paper out, jam, offline) – shown in the web dashboard, TV screen and to the customer. An order becomes Printed only when Windows has finished the job. New printers added in Windows appear in the dashboard within a minute; Shop printers → + Add printer.",
-  "notes_hi": "प्रिंट की लाइव प्रगति: कौन सा प्रिंटर, कितने पेज छपे, और प्रिंटर की दिक्कत (पेपर ख़त्म, फँसा, ऑफ़लाइन) – डैशबोर्ड, TV स्क्रीन और ग्राहक को दिखेगा। Windows में जॉब पूरा होने पर ही Printed होगा। Windows में नया प्रिंटर जोड़ते ही एक मिनट में डैशबोर्ड में दिखेगा; Shop printers → + Add printer।"
+  "version": "1.6.6",
+  "url": "https://print.datpl.com/files/DAPrintDesk-1.6.6.zip",
+  "sha256": "216257cef44cf035a746a5b49f0a4ac6133bb271bbdc771431ce6d350f086a90",
+  "notes_en": "Print only after payment: no Accept step any more – new orders show \"Paid UPI → print\" / \"Paid cash → print\" (accepts and prints in one go). Includes 1.6.5: live print progress, Add printer.",
+  "notes_hi": "पेमेंट के बाद ही प्रिंट: अब Accept का अलग स्टेप नहीं – नए ऑर्डर पर सीधे \"Paid UPI → print\" / \"Paid cash → print\" (एक बटन से स्वीकार और प्रिंट)। साथ में 1.6.5: लाइव प्रिंट प्रगति, Add printer।"
 }

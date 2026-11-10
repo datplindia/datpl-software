@@ -1,7 +1,7 @@
 {
-  "version": "1.6.4",
-  "url": "https://print.datpl.com/files/DAPrintDesk-1.6.4.zip",
-  "sha256": "d270cf9c24f2bed1f677c9439364be3406da2ecc24d96926fbeb6f9dfeb56576",
-  "notes_en": "Mark ready: after printing, check the pages (paper jam?) and press ✓ Mark ready – only then the customer sees Ready, and the token number is announced by voice (Hindi/English). 🔊 Call again repeats it.",
-  "notes_hi": "Mark ready: प्रिंट के बाद पेज जाँचें (पेपर फँसा?) और ✓ Mark ready दबाएँ – तभी ग्राहक को Ready दिखेगा और टोकन नंबर आवाज़ में बोला जाएगा (हिंदी/अंग्रेज़ी)। 🔊 Call again से दोबारा बोलें।"
+  "version": "1.6.5",
+  "url": "https://print.datpl.com/files/DAPrintDesk-1.6.5.zip",
+  "sha256": "11ca0441d3493ec4e6c598d5538cea9ec23ff50f698ab014a0ec194681296d82",
+  "notes_en": "Live print progress: which printer, pages printed, and printer problems (paper out, jam, offline) – shown in the web dashboard, TV screen and to the customer. An order becomes Printed only when Windows has finished the job. New printers added in Windows appear in the dashboard within a minute; Shop printers → + Add printer.",
+  "notes_hi": "प्रिंट की लाइव प्रगति: कौन सा प्रिंटर, कितने पेज छपे, और प्रिंटर की दिक्कत (पेपर ख़त्म, फँसा, ऑफ़लाइन) – डैशबोर्ड, TV स्क्रीन और ग्राहक को दिखेगा। Windows में जॉब पूरा होने पर ही Printed होगा। Windows में नया प्रिंटर जोड़ते ही एक मिनट में डैशबोर्ड में दिखेगा; Shop printers → + Add printer।"
 }

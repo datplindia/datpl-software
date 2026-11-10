@@ -1,7 +1,7 @@
 {
-  "version": "1.6.3",
-  "url": "https://print.datpl.com/files/DAPrintDesk-1.6.3.zip",
-  "sha256": "c3ed0e45e7a7cdf1d2238c147347bb2c8daf77215fcc5d02c14d73a68981ad4f",
-  "notes_en": "Update button next to the version number (bottom right): shows 'Check for updates', or '⬇ Update to …' when a new version is out. Includes 1.6.2: Excel fit to page width, CSV, pages counted as soon as an order arrives, customer's payment choice, update check that works on every network.",
-  "notes_hi": "नीचे दाईं ओर वर्ज़न के बगल में अपडेट बटन: 'Check for updates', नया वर्ज़न आने पर '⬇ Update to …'। साथ में 1.6.2 की सुविधाएँ: Excel पेज की चौड़ाई में, CSV, ऑर्डर आते ही पेज गिनती, ग्राहक का पेमेंट तरीका।"
+  "version": "1.6.4",
+  "url": "https://print.datpl.com/files/DAPrintDesk-1.6.4.zip",
+  "sha256": "d270cf9c24f2bed1f677c9439364be3406da2ecc24d96926fbeb6f9dfeb56576",
+  "notes_en": "Mark ready: after printing, check the pages (paper jam?) and press ✓ Mark ready – only then the customer sees Ready, and the token number is announced by voice (Hindi/English). 🔊 Call again repeats it.",
+  "notes_hi": "Mark ready: प्रिंट के बाद पेज जाँचें (पेपर फँसा?) और ✓ Mark ready दबाएँ – तभी ग्राहक को Ready दिखेगा और टोकन नंबर आवाज़ में बोला जाएगा (हिंदी/अंग्रेज़ी)। 🔊 Call again से दोबारा बोलें।"
 }

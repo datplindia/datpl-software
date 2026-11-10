@@ -1,8 +1,8 @@
 {
-  "version": "1.0.3",
-  "versionCode": 4,
-  "url": "https://print.datpl.com/files/mobile/DAPrintMobile-1.0.3.apk",
-  "sha256": "927c1445d47acbf149fefb60cde84a436101c878af4acb0f51ac70dd2bc253d7",
-  "notes_en": "Print only after payment: Paid UPI → print / Paid cash → print instead of Accept.",
-  "notes_hi": "पेमेंट के बाद ही प्रिंट: Accept की जगह Paid UPI → print / Paid cash → print।"
+  "version": "1.0.4",
+  "versionCode": 5,
+  "url": "https://print.datpl.com/files/mobile/DAPrintMobile-1.0.4.apk",
+  "sha256": "3f74e2b41cfe5d01da46080cdeba3c0e12172f865901da1d3903ed8a2bc20a79",
+  "notes_en": "Ready announcement: a beep, then a female Indian voice calls the token number.",
+  "notes_hi": "टोकन घोषणा: पहले बीप, फिर महिला आवाज़ (भारतीय) में टोकन नंबर।"
 }

@@ -1,7 +1,7 @@
 {
-  "version": "1.6.6",
-  "url": "https://print.datpl.com/files/DAPrintDesk-1.6.6.zip",
-  "sha256": "216257cef44cf035a746a5b49f0a4ac6133bb271bbdc771431ce6d350f086a90",
-  "notes_en": "Print only after payment: no Accept step any more – new orders show \"Paid UPI → print\" / \"Paid cash → print\" (accepts and prints in one go). Includes 1.6.5: live print progress, Add printer.",
-  "notes_hi": "पेमेंट के बाद ही प्रिंट: अब Accept का अलग स्टेप नहीं – नए ऑर्डर पर सीधे \"Paid UPI → print\" / \"Paid cash → print\" (एक बटन से स्वीकार और प्रिंट)। साथ में 1.6.5: लाइव प्रिंट प्रगति, Add printer।"
+  "version": "1.6.7",
+  "url": "https://print.datpl.com/files/DAPrintDesk-1.6.7.zip",
+  "sha256": "3200b75e6bf65a15ae97fe1e988f5afb2995639e1295d4ec019d5531db499c96",
+  "notes_en": "No more blinking: the window redraws only when an order changes. Ready announcement: a beep, then a female Indian voice calls the token number.",
+  "notes_hi": "अब स्क्रीन ब्लिंक नहीं करेगी: लिस्ट तभी बदलती है जब ऑर्डर बदले। टोकन घोषणा: पहले बीप, फिर महिला आवाज़ (भारतीय) में टोकन नंबर।"
 }

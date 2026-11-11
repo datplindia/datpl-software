@@ -47,6 +47,7 @@ Unzip, run `DAPrintDesk.exe`, sign in with the print.datpl.com account, choose t
 The app checks `version.json` every 6 hours and offers the download. To release: add the new ZIP here, then update `version.json`.
 
 ## बदलाव / Changes
+- **1.7.1** (11 Nov 2026): अपडेट अपने आप डाउनलोड होता है, "Restart now" से इंस्टॉल; साफ़ "What's new" सूची। Automatic updates (Restart now, or on exit) and a clear What's new list.
 - **1.7.0** (11 Nov 2026): प्रिंटर कार्ड (क्वालिटी, मैनुअल फ्लिप, बॉर्डरलेस), प्रिंटर स्थिति + इंक लेवल, 8 टोन और घंटी कितनी बार। Printer cards (quality, manual flip, borderless), printer status + ink, 8 alert tones and ring count.
 - **1.6.7** (10 Nov 2026): स्क्रीन ब्लिंक होना बंद; टोकन घोषणा बीप के बाद महिला भारतीय आवाज़ में। No more window blinking; beep then female Indian voice for the token.
 - **1.6.6** (10 Nov 2026): "पेमेंट के बाद ही प्रिंट" वाली दुकानों में Accept नहीं – सीधे Paid UPI/cash → print। Pay-first shops: Paid → print instead of Accept.

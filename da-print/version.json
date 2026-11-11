@@ -1,7 +1,17 @@
 {
-  "version": "1.7.0",
-  "url": "https://print.datpl.com/files/DAPrintDesk-1.7.0.zip",
-  "sha256": "3c790d3009ea2e8ada357a7786829f5af85c26281c3b95d6b1adafcce1e8e92e",
-  "notes_en": "Printer cards from the dashboard: each print type prints on its card's printer with Draft / Normal / High quality, Manual flip for both sides, and Borderless. Printer status and ink levels (network printers) show in the dashboard. New order alert: 8 tones, ring 1/3/5/10 times or until accepted.",
-  "notes_hi": "डैशबोर्ड के प्रिंटर कार्ड: हर प्रिंट टाइप अपने कार्ड के प्रिंटर पर, ड्राफ्ट / नॉर्मल / हाई क्वालिटी, दोनों तरफ़ के लिए मैनुअल फ्लिप, बॉर्डरलेस। प्रिंटर की स्थिति और इंक लेवल (Wi-Fi प्रिंटर) डैशबोर्ड में। नए ऑर्डर की घंटी: 8 टोन, 1/3/5/10 बार या Accept तक।"
+  "version": "1.7.1",
+  "url": "https://print.datpl.com/files/DAPrintDesk-1.7.1.zip",
+  "sha256": "b08d1158688592fdfc54f162fa7429e7cb1fece755ce209d2d0a9b03097b90b1",
+  "notes_en": "• Updates now download by themselves. Press \"Restart now\" at the bottom – or the update installs when you close the app.\n• A clear \"What's new\" list for every update.\n• Printer cards from the dashboard: each print type prints on its card's printer.\n• Print quality Draft / Normal / High for each card.\n• Both sides by hand (\"Manual flip\") for printers without automatic both-sides printing.\n• Borderless photos (when the printer has a borderless paper size).\n• Printer status and ink levels (network printers) shown in the dashboard.\n• New order alert: 8 tones, ring 1 / 3 / 5 / 10 times or until accepted.",
+  "notes_hi": "",
+  "features": [
+    "Updates now download by themselves. Press \"Restart now\" at the bottom – or the update installs when you close the app.",
+    "A clear \"What's new\" list for every update.",
+    "Printer cards from the dashboard: each print type prints on its card's printer.",
+    "Print quality Draft / Normal / High for each card.",
+    "Both sides by hand (\"Manual flip\") for printers without automatic both-sides printing.",
+    "Borderless photos (when the printer has a borderless paper size).",
+    "Printer status and ink levels (network printers) shown in the dashboard.",
+    "New order alert: 8 tones, ring 1 / 3 / 5 / 10 times or until accepted."
+  ]
 }

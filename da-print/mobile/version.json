@@ -1,8 +1,8 @@
 {
-  "version": "1.0.4",
-  "versionCode": 5,
-  "url": "https://print.datpl.com/files/mobile/DAPrintMobile-1.0.4.apk",
-  "sha256": "3f74e2b41cfe5d01da46080cdeba3c0e12172f865901da1d3903ed8a2bc20a79",
-  "notes_en": "Ready announcement: a beep, then a female Indian voice calls the token number.",
-  "notes_hi": "टोकन घोषणा: पहले बीप, फिर महिला आवाज़ (भारतीय) में टोकन नंबर।"
+  "version": "1.0.5",
+  "versionCode": 6,
+  "url": "https://print.datpl.com/files/mobile/DAPrintMobile-1.0.5.apk",
+  "sha256": "fb39b93a990ff7c78cd81e1b3839b2d9c7f512ff4058f17431feced0e255741f",
+  "notes_en": "New order alert from the dashboard: 8 tones, ring 1/3/5/10 times or until accepted. Wi-Fi printing uses the print quality of the printer card.",
+  "notes_hi": "नए ऑर्डर की घंटी डैशबोर्ड से: 8 टोन, 1/3/5/10 बार या Accept तक। Wi-Fi प्रिंट में प्रिंटर कार्ड की क्वालिटी।"
 }

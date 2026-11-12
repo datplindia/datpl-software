@@ -1,1 +1,1 @@
-App updates: the TV checks display.datpl.com for new versions. Hold OK (or press MENU) on the remote for Reload, Check for updates and Exit.
+New: "Open with the TV" — hold OK on the remote › Open with the TV: ON makes Digital Display the TV's home screen, so it opens by itself after power-on, standby or the Home button. Menu also has TV settings.

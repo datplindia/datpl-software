@@ -22,7 +22,7 @@
 ## Features
 
 - **Link a TV with a code** — the TV's IP address or network does not matter; the shop can be anywhere
-- **Starts with the TV**, the screen never sleeps; BACK must be pressed twice to leave; hold OK for the menu
+- **Opens with the TV**: hold OK › *Open with the TV: ON* makes Digital Display the TV's home screen, so it opens after power-on, standby and the Home button (the menu also has *TV settings* to reach other apps). The screen never sleeps; hold OK for the menu
 - **Updates itself** from display.datpl.com, and shows its version and whether it is the latest
 - **Offline copy** — every file in the playlist is saved on the TV and keeps playing without internet
 - **Many TVs and many playlists** per account (e.g. "Reception", "Branch 2", "Festival offers"); choose what each TV plays

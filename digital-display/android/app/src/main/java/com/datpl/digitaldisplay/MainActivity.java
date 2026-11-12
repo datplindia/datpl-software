@@ -4,6 +4,9 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -155,7 +158,15 @@ public class MainActivity extends Activity {
 
     // ---------- auto start after the TV powers on ----------
     private void askForAutoStartPermission() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return;   // older Android: boot start works without it
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            // older Android: starting after a full restart needs nothing, but standby/Home need "Open with the TV"
+            SharedPreferences p = getSharedPreferences("dn", MODE_PRIVATE);
+            if (!isHomeApp() && !p.getBoolean("homeHint", false)) {
+                p.edit().putBoolean("homeHint", true).apply();
+                handler.postDelayed(() -> { if (!isFinishing()) offerHome(); }, 3000);
+            }
+            return;
+        }
         if (Settings.canDrawOverlays(this)) return;
         SharedPreferences p = getSharedPreferences("dn", MODE_PRIVATE);
         if (p.getInt("askedOverlay", 0) >= 3) return;                // don't nag forever
@@ -170,6 +181,15 @@ public class MainActivity extends Activity {
                 .setNegativeButton("Later", null)
                 .show();
         }, 2500);
+    }
+
+    private void offerHome() {
+        new AlertDialog.Builder(this)
+            .setTitle("Open Digital Display with the TV?")
+            .setMessage("Make Digital Display open by itself whenever the TV is turned on.\n\nYou can change this any time: hold OK on the remote › Open with the TV.")
+            .setPositiveButton("Yes", (d, w) -> becomeHome())
+            .setNegativeButton("Not now", null)
+            .show();
     }
 
     private void openOverlaySettings() {
@@ -208,9 +228,12 @@ public class MainActivity extends Activity {
 
     private void showMenu() {
         if (menu != null && menu.isShowing()) return;
+        boolean home = isHomeApp();
         String[] items = {
             "Reload display",
             "Check for updates",
+            home ? "Open with the TV: ON ✓  (turn off)" : "Open with the TV: OFF  (turn on)",
+            "TV settings",
             "Exit app",
         };
         menu = new AlertDialog.Builder(this)
@@ -218,11 +241,66 @@ public class MainActivity extends Activity {
             .setItems(items, (d, which) -> {
                 if (which == 0) web.reload();
                 else if (which == 1) updater.check(true);
+                else if (which == 2) { if (home) stopBeingHome(); else becomeHome(); }
+                else if (which == 3) openSettings(Settings.ACTION_SETTINGS);
                 else finish();
             })
             .setNegativeButton("Close", null)
             .create();
         menu.show();
+    }
+
+    // ---------- "Open with the TV": Digital Display as the TV's home screen ----------
+    private ComponentName homeAlias() { return new ComponentName(this, getPackageName() + ".HomeAlias"); }
+
+    /** true when the TV's Home button / power-on opens this app */
+    private boolean isHomeApp() {
+        Intent i = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME);
+        ResolveInfo r = getPackageManager().resolveActivity(i, PackageManager.MATCH_DEFAULT_ONLY);
+        return r != null && r.activityInfo != null && getPackageName().equals(r.activityInfo.packageName);
+    }
+
+    private void becomeHome() {
+        getPackageManager().setComponentEnabledSetting(homeAlias(),
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+        new AlertDialog.Builder(this)
+            .setTitle("Open Digital Display with the TV")
+            .setMessage("On the next screen choose \"Digital Display\", then \"Always\".\n\n"
+                    + "After that the TV opens Digital Display when it is turned on, wakes from standby or Home is pressed.\n"
+                    + "To use other TV apps later: hold OK › TV settings, or turn this option off.")
+            .setPositiveButton("OK", (d, w) -> {
+                try {
+                    // the "choose home app" screen appears because a second home app is now available
+                    startActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                } catch (ActivityNotFoundException ignored) { }
+                handler.postDelayed(() -> {
+                    if (!isHomeApp()) {
+                        Toast.makeText(this, "Not set yet: Settings › Apps › Default apps › Home app › Digital Display", Toast.LENGTH_LONG).show();
+                        openSettings(Build.VERSION.SDK_INT >= 21 ? Settings.ACTION_HOME_SETTINGS : Settings.ACTION_SETTINGS);
+                    }
+                }, 4000);
+            })
+            .setNegativeButton("Cancel", (d, w) -> getPackageManager().setComponentEnabledSetting(homeAlias(),
+                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP))
+            .show();
+    }
+
+    private void stopBeingHome() {
+        getPackageManager().setComponentEnabledSetting(homeAlias(),
+                PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+        Toast.makeText(this, "Turned off — the TV's own home screen opens on power-on again", Toast.LENGTH_LONG).show();
+        try {
+            startActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        } catch (ActivityNotFoundException ignored) { }
+    }
+
+    private void openSettings(String action) {
+        try { startActivity(new Intent(action).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)); }
+        catch (ActivityNotFoundException e) {
+            try { startActivity(new Intent(Settings.ACTION_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)); }
+            catch (ActivityNotFoundException ignored) { }
+        }
     }
 
     @Override
@@ -249,7 +327,10 @@ public class MainActivity extends Activity {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             // BACK twice within 2 s leaves the app, so a stray press doesn't stop the display
             long now = System.currentTimeMillis();
-            if (now - lastBack < 2000) { finish(); return true; }
+            if (now - lastBack < 2000) {
+                if (isHomeApp()) { showMenu(); return true; }   // home screen can't close; offer the menu instead
+                finish(); return true;
+            }
             lastBack = now;
             Toast.makeText(this, "Press BACK again to exit", Toast.LENGTH_SHORT).show();
             return true;

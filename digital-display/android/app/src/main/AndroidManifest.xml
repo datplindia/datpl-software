@@ -33,6 +33,20 @@
             </intent-filter>
         </activity>
 
+        <!-- Turned on from the app's menu ("Open with the TV"): makes Digital Display the TV's home screen,
+             so it opens on power-on, after standby and when Home is pressed -->
+        <activity-alias
+            android:name=".HomeAlias"
+            android:enabled="false"
+            android:exported="true"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity-alias>
+
         <receiver
             android:name=".BootReceiver"
             android:exported="true">

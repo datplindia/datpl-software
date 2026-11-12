@@ -7,6 +7,7 @@ Windows software by Digital Arts: downloads, screenshots and notes, one folder p
 |---|---|---|
 | DA Design Studio: PSD, Pen Tool, AI Remove Background | [da-design-studio](da-design-studio/) | v1.1.1, [डाउनलोड / Download](https://github.com/datplindia/datpl-software/releases/download/da-design-studio-v1.1.1/DA-Design-Studio-1.1.1-windows-x64.zip) |
 | DA Print Desk: प्रिंट की दुकान के ऑनलाइन ऑर्डर अपने आप प्रिंट (print.datpl.com) | [da-print](da-print/) | v1.6.6, [डाउनलोड / Download](https://github.com/datplindia/datpl-software/raw/main/da-print/DAPrintDesk-1.6.6.zip) |
+| Reminders: घड़ी के पास रिमाइंडर, दिन और अलार्म टोन (मुफ़्त) / Reminders with days and alarm tones (free) | [reminders](reminders/) | v1.2, [डाउनलोड / Download](https://apps.datpl.com/dl/datpl-software/raw/main/reminders/Reminders.exe) |
 
 ## पुराने सॉफ्टवेयर / Older software
 

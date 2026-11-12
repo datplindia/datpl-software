@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Display NOW · TV</title>
+<meta name="theme-color" content="#000000">
+<style>
+  :root { --accent: #f97316; }
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; cursor: none; }
+  body { font-family: system-ui, "Noto Sans Devanagari", sans-serif; }
+  .layer { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity .8s ease; background: #000; }
+  .layer.show { opacity: 1; }
+  .layer.notrans { transition: none; }
+  img.layer, video.layer { object-fit: contain; }
+  /* #screen is the logical display; rotated for portrait-mounted TVs */
+  #screen { position: fixed; top: 50%; left: 50%; width: 100vw; height: 100vh; transform: translate(-50%,-50%); overflow: hidden; background:#000; }
+  #screen.r90, #screen.r270 { width: 100vh; height: 100vw; }
+  #screen.r90  { transform: translate(-50%,-50%) rotate(90deg); }
+  #screen.r180 { transform: translate(-50%,-50%) rotate(180deg); }
+  #screen.r270 { transform: translate(-50%,-50%) rotate(270deg); }
+  #frame { position: absolute; inset: 0; overflow: hidden; background:#000; }
+  #stage { position: absolute; inset: 0; }
+  #msg { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+         color: #ccc; font: 500 4vmin/1.4 system-ui, sans-serif; text-align: center; padding: 5vmin; box-sizing: border-box; }
+  #msg small { font-size: 2vmin; color: #888; margin-top: 2vmin; }
+  #start { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,.85);
+           color: #fff; font: 600 3vw system-ui, sans-serif; cursor: pointer; z-index: 50; }
+
+  /* ---------- pairing screen (shown until a customer adds this TV) ---------- */
+  #pair { position: fixed; inset: 0; z-index: 60; display: none; color: #f5f5f7; text-align: center;
+          background: radial-gradient(90% 70% at 50% 0%, #4a2410 0%, #15100d 45%, #0b0c10 75%);
+          font-family: system-ui, "Noto Sans Devanagari", sans-serif; }
+  #pair.on { display: flex; align-items: center; justify-content: center; }
+  #pair .box { display: grid; grid-template-columns: auto auto; gap: 7vmin; align-items: center; text-align: left; max-width: 92vw; }
+  #pair .mark { width: 11vmin; height: 11vmin; border-radius: 2.6vmin; background: linear-gradient(145deg,#fb923c,#ea580c);
+                display: flex; align-items: center; justify-content: center; box-shadow: 0 2vmin 6vmin rgba(249,115,22,.35); }
+  #pair .mark svg { width: 6.4vmin; height: 6.4vmin; }
+  #pair h1 { font-size: 5.6vmin; margin: 3vmin 0 .6vmin; font-weight: 800; }
+  #pair .sub { font-size: 2.5vmin; color: #a1a1aa; }
+  #pair .lbl { font-size: 2.5vmin; letter-spacing: .04em; color: #fdba74; font-weight: 700; margin-top: 5vmin; }
+  #pair .code { font-size: 15vmin; font-weight: 800; letter-spacing: .08em; line-height: 1; margin: 1.5vmin 0 1vmin; font-variant-numeric: tabular-nums; }
+  #pair .exp { font-size: 2.1vmin; color: #a1a1aa; }
+  #pair ol { margin: 4vmin 0 0; padding-left: 3.2vmin; font-size: 2.6vmin; line-height: 1.6; color: #e4e4e7; }
+  #pair ol b { color: #fff; }
+  #pair .url { color: #fdba74; font-weight: 700; word-break: break-all; }
+  #pair .qr { background: #fff; padding: 2vmin; border-radius: 2vmin; }
+  #pair .qr canvas { display: block; width: 30vmin; height: 30vmin; image-rendering: pixelated; }
+  #pair .qr div { color: #111; font: 700 2vmin system-ui, sans-serif; text-align: center; margin-top: 1vmin; }
+  #net { position: fixed; right: 1.4vmin; bottom: 1.4vmin; z-index: 70; display: none; background: rgba(0,0,0,.6); color: #fca5a5;
+         font: 600 1.6vmin system-ui, sans-serif; padding: .6vmin 1.2vmin; border-radius: 99px; }
+
+  /* ---------- welcome slide (font-size set from the layout, everything else in em) ---------- */
+  .welcome { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #fff;
+             background: #14141c;
+             background: radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--accent) 45%, #111) 0%, #0b0b10 70%);
+             padding: 5%; box-sizing: border-box; line-height: 1.1; }
+  .welcome .wl img { max-height: .62em; max-width: 50%; margin-bottom: .22em; }
+  .welcome .wk { font-size: .2em; letter-spacing: .35em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+  .welcome .wn { font-size: 1em; font-weight: 800; margin: .14em 0 .08em; }
+  .welcome .wc { font-size: .26em; opacity: .9; }
+  .welcome .wm { font-size: .19em; opacity: .8; margin-top: .9em; max-width: 80%; line-height: 1.35; }
+  .welcome .bar { width: .55em; height: .045em; background: var(--accent); border-radius: .03em; margin-top: .25em; }
+</style>
+</head>
+<body>
+<div id="screen">
+  <div id="frame">
+    <div id="msg">Loading… / लोड हो रहा है…</div>
+    <div id="stage"></div>
+  </div>
+</div>
+<div id="start">▶ Press OK to start / शुरू करने के लिए OK दबाएँ</div>
+<div id="pair">
+  <div class="box">
+    <div>
+      <div class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M10 8.5l4 2-4 2z" fill="#fff"/></svg></div>
+      <h1>Display NOW</h1>
+      <div class="sub">इस TV को अपने खाते से जोड़ें · Link this TV to your account</div>
+      <div class="lbl">TV कोड · TV code</div>
+      <div class="code" id="pairCode">······</div>
+      <div class="exp" id="pairExp"></div>
+      <ol>
+        <li>मोबाइल या कंप्यूटर पर खोलें: <span class="url" id="pairUrl"></span></li>
+        <li>लॉगिन करें → <b>“TV जोड़ें”</b> → ऊपर वाला कोड डालें</li>
+        <li>बस! कुछ सेकंड में यहाँ आपका डिस्प्ले चलने लगेगा</li>
+      </ol>
+    </div>
+    <div class="qr"><canvas id="pairQr"></canvas><div>स्कैन करें · Scan</div></div>
+  </div>
+</div>
+<div id="net">● Offline — चल रहा है / playing saved copy</div>
+
+<script src="../config.js"></script>
+<script src="../qrcode.js"></script>
+<script src="../overlay.js"></script>
+<script>
+(() => {
+  const POLL_MS = 20000;
+  const $ = id => document.getElementById(id);
+  const stage = $('stage'), msg = $('msg'), startBtn = $('start');
+
+  let state = null, version = 0, pendingState = null;
+  let queue = [], qi = 0, adRotate = 0;
+  let current = null, timer = null, watchdog = null;
+  const playedFixed = new Set();   // "adId@YYYY-MM-DD HH:MM"
+
+  // Files live in cloud storage; `key` is the storage path, `path` the human name (its folder gives the caption)
+  const urlFor = it => DN.fileUrl(it.key || it.path);
+  const pad = n => String(n).padStart(2, '0');
+  const today = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const hhmm = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  const localStamp = d => `${today(d)}T${hhmm(d)}`;   // same format as <input type=datetime-local>
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+
+  // ---------- captions from folder names: "01-3d-led-board" -> "3D LED Board" ----------
+  const UPPER = new Set(['3d','2d','led','acp','cnc','ss','ms','mdf','pvc','rgb','gi','tv','uv','frp','wpc','hd','diy']);
+  function captionFor(it) {
+    if (it._ad || it.type === 'welcome') return '';
+    if (it.caption) return it.caption;
+    const parts = it.path.split('/');
+    const raw = parts.length > 1 ? parts[parts.length - 2] : parts[0].replace(/\.[^.]+$/, '');
+    return raw.replace(/^\d+[\s._-]*/, '').replace(/[-_.]+/g, ' ').trim().split(/\s+/)
+      .map(w => UPPER.has(w.toLowerCase()) ? w.toUpperCase() : w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+      .join(' ');
+  }
+  function setCaption(it) {
+    const s = state.settings;
+    Overlay.setCaption(ov, s.captions === false ? '' : captionFor(it), s.captionLabel || '');
+  }
+
+  // ---------- welcome guest ----------
+  function welcomeActive() {
+    const w = (state.settings.welcome || {});
+    if (!w.enabled || !(w.name || '').trim()) return false;
+    if (w.until && localStamp(new Date()) > w.until) return false;
+    return true;
+  }
+  function welcomeEl() {
+    const s = state.settings, w = s.welcome || {};
+    const el = document.createElement('div');
+    el.className = 'layer welcome' + (s.transition === false ? ' notrans' : '');
+    el.style.fontSize = (Overlay.layoutFor(s).welcome.fs * ov.k) + 'px';
+    el.innerHTML = `${s.logo ? `<div class="wl"><img src="${DN.fileUrl(s.logo)}" alt=""></div>` : ''}
+      <div class="wk">${esc(w.title || 'Welcome · स्वागत है')}</div>
+      <div class="wn">${esc(w.name || '')}</div>
+      ${w.company ? `<div class="wc">${esc(w.company)}</div>` : ''}
+      ${w.message ? `<div class="wm">${esc(w.message)}</div>` : ''}
+      <div class="bar"></div>`;
+    return el;
+  }
+
+  // Is an ad allowed to run right now (date range, weekdays, daily time window)?
+  function adActive(ad, now = new Date()) {
+    if (ad.enabled === false) return false;
+    const d = today(now), t = hhmm(now);
+    if (ad.startDate && d < ad.startDate) return false;
+    if (ad.endDate && d > ad.endDate) return false;
+    if (Array.isArray(ad.days) && ad.days.length && !ad.days.includes(now.getDay())) return false;
+    if (ad.startTime && ad.endTime) {
+      if (ad.startTime <= ad.endTime) { if (t < ad.startTime || t > ad.endTime) return false; }
+      else if (t < ad.startTime && t > ad.endTime) return false; // window crosses midnight
+    }
+    return true;
+  }
+
+  // Playlist with interval ads (every N items) and the welcome slide (start + every M items)
+  function buildQueue() {
+    const s = state.settings, list = state.playlist.slice();
+    const n = parseInt(s.adEveryN, 10) || 0;
+    const ads = state.ads.filter(a => a.useInterval !== false && adActive(a));
+    const wOn = welcomeActive(), wn = Math.max(1, parseInt((s.welcome || {}).everyN, 10) || 4);
+    const out = [];
+    if (wOn) out.push({ type: 'welcome' });
+    list.forEach((it, i) => {
+      out.push(it);
+      if (n && ads.length && (i + 1) % n === 0) out.push({ ...ads[adRotate++ % ads.length], _ad: true });
+      if (wOn && (i + 1) % wn === 0 && i < list.length - 1) out.push({ type: 'welcome' });
+    });
+    return out;
+  }
+
+  function dueFixedAd() {
+    const now = new Date(), t = hhmm(now), key = today(now) + ' ' + t;
+    for (const ad of state.ads) {
+      if (!Array.isArray(ad.fixedTimes) || !ad.fixedTimes.includes(t)) continue;
+      if (!adActive({ ...ad, startTime: '', endTime: '' }, now)) continue; // fixed time overrides daily window
+      const k = ad.id + '@' + key;
+      if (!playedFixed.has(k)) { playedFixed.add(k); return ad; }
+    }
+    return null;
+  }
+
+  function clearTimers() { clearTimeout(timer); clearTimeout(watchdog); timer = watchdog = null; }
+
+  function next() {
+    clearTimers();
+    if (pendingState) { state = pendingState; pendingState = null; applySettings(); queue = []; qi = 0; }
+    const fixed = dueFixedAd();
+    if (fixed) return show({ ...fixed, _ad: true });
+    if (qi >= queue.length) { queue = buildQueue(); qi = 0; }
+    if (!queue.length) return idle();
+    show(queue[qi++]);
+  }
+
+  function idle() {
+    stage.innerHTML = ''; current = null; Overlay.setCaption(ov, '');
+    msg.style.display = 'flex';
+    msg.innerHTML = 'Playlist is empty<br>प्लेलिस्ट खाली है<small>Add photos/videos in the Display NOW dashboard — this screen updates automatically<br>डैशबोर्ड से वीडियो/फोटो जोड़ें — ये स्क्रीन अपने-आप अपडेट हो जाएगी</small>';
+    timer = setTimeout(next, 10000);
+  }
+
+  // ---------- overlays (shared with the admin layout editor) ----------
+  const ov = Overlay.mount($('screen'), $('frame'));
+  const brandUrl = f => DN.fileUrl(f);
+  function applyOverlays() { Overlay.apply(ov, state.settings, { brandUrl }); }
+  window.addEventListener('resize', () => { if (state) Overlay.fit(ov); showInfo(); });
+
+  // Diagnostics: open /tv?info=1 to see what size this browser is drawing at
+  const INFO = /[?&]info=1/.test(location.search);
+  function showInfo() {
+    if (!INFO) return;
+    let el = $('dbg');
+    if (!el) { el = document.createElement('div'); el.id = 'dbg';
+      el.style.cssText = 'position:fixed;left:8px;top:8px;z-index:99;background:#ff0;color:#000;font:bold 22px/1.35 monospace;padding:10px 14px;border-radius:8px;max-width:90vw';
+      document.body.appendChild(el); }
+    const L = ov.L || {}, f = $('frame').getBoundingClientRect();
+    el.innerHTML = `Display NOW ${DN.version}${APP ? ' · app ' + esc(APP) : ''} · window ${innerWidth}×${innerHeight} · DPR ${devicePixelRatio}<br>` +
+      `screen ${screen.width}×${screen.height} · design ${L.W}×${L.H} · scale ${(ov.k || 0).toFixed(3)}<br>` +
+      `picture area ${Math.round(f.width)}×${Math.round(f.height)} at ${Math.round(f.left)},${Math.round(f.top)} · fit ${(state && state.settings.fit) || '-'}<br>` +
+      `<small>${esc(navigator.userAgent).slice(0, 140)}</small>`;
+  }
+  setInterval(showInfo, 2000);
+
+  function applySettings() {
+    const r = String(parseInt(state.settings.rotation, 10) || 0);
+    $('screen').className = ['90','180','270'].includes(r) ? 'r' + r : '';
+    applyOverlays();
+  }
+
+  function show(it) {
+    msg.style.display = 'none';
+    const s = state.settings;
+    const isWelcome = it.type === 'welcome';
+    const el = isWelcome ? welcomeEl() : document.createElement(it.type === 'video' ? 'video' : 'img');
+    if (!isWelcome) {
+      el.className = 'layer' + (s.transition === false ? ' notrans' : '');
+      el.style.objectFit = s.fit || 'contain';
+    }
+
+    let started = false;
+    const reveal = () => {
+      if (started) return; started = true;
+      const old = current; current = el;
+      requestAnimationFrame(() => el.classList.add('show'));
+      setCaption(it);
+      // the welcome slide has its own big logo; hide the corner one meanwhile
+      ov.logo.style.visibility = isWelcome ? 'hidden' : '';
+      if (old) setTimeout(() => { if (old.tagName === 'VIDEO') { old.pause(); old.removeAttribute('src'); old.load(); } old.remove(); }, 900);
+    };
+    const fail = () => { el.remove(); timer = setTimeout(next, 500); };
+
+    if (isWelcome) {
+      stage.appendChild(el); reveal();
+      timer = setTimeout(next, (parseFloat((s.welcome || {}).seconds) || 10) * 1000);
+    } else if (it.type === 'video') {
+      el.muted = !s.sound;
+      el.playsInline = true;
+      el.preload = 'auto';
+      el.addEventListener('playing', () => {
+        reveal();
+        const limit = parseFloat(it.duration) > 0 ? it.duration * 1000
+                    : isFinite(el.duration) ? (el.duration + 15) * 1000 : 3600000;
+        watchdog = setTimeout(next, limit);   // safety net if 'ended' never fires
+      }, { once: true });
+      el.addEventListener('ended', next);
+      el.addEventListener('error', fail);
+      el.src = urlFor(it);
+      stage.appendChild(el);
+      el.play().catch(() => {
+        if (!el.muted) { el.muted = true; el.play().catch(fail); askForClick(); }
+        else fail();
+      });
+      timer = setTimeout(() => { if (!started) fail(); }, 30000); // couldn't start in 30s
+    } else {
+      el.onload = () => { reveal(); timer = setTimeout(next, (parseFloat(it.duration) || s.imageDuration || 10) * 1000); };
+      el.onerror = fail;
+      el.src = urlFor(it);
+      stage.appendChild(el);
+    }
+
+    // Preload the next image so transitions are smooth
+    const up = queue[qi];
+    if (up && up.type === 'image') { const p = new Image(); p.src = urlFor(up); }
+  }
+
+  // Sound needs one user interaction on most TV browsers
+  function askForClick() { if (state.settings.sound) startBtn.style.display = 'flex'; }
+  startBtn.addEventListener('click', () => {
+    startBtn.style.display = 'none';
+    if (current && current.tagName === 'VIDEO') current.muted = false;
+    goFullscreen();
+  });
+
+  function goFullscreen() {
+    const d = document.documentElement;
+    (d.requestFullscreen || d.webkitRequestFullscreen || (() => {})).call(d)?.catch?.(() => {});
+  }
+  document.addEventListener('click', goFullscreen);
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') goFullscreen(); });
+
+  async function keepAwake() {
+    try { if ('wakeLock' in navigator) await navigator.wakeLock.request('screen'); } catch {}
+  }
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) keepAwake(); });
+
+  // ---------- cloud connection ----------
+  const PREVIEW = new URLSearchParams(location.search).get('preview');   // dashboard "TV preview" of one playlist
+  const APP = (window.DNApp && DNApp.version && DNApp.version()) || '';  // set by the Android TV app
+  const LS = { get: k => { try { return localStorage.getItem(k); } catch { return null; } },
+               set: (k, v) => { try { localStorage.setItem(k, v); } catch {} },
+               del: k => { try { localStorage.removeItem(k); } catch {} } };
+
+  function deviceSecret() {
+    let s = LS.get('dn_secret');
+    if (!s || s.length < 32) {
+      const b = new Uint8Array(32); crypto.getRandomValues(b);
+      s = Array.from(b, x => x.toString(16).padStart(2, '0')).join('');
+      LS.set('dn_secret', s);
+    }
+    return s;
+  }
+  async function rest(path, body, token) {
+    const r = await fetch(DN.supabaseUrl + '/rest/v1/' + path, {
+      method: body ? 'POST' : 'GET', cache: 'no-store',
+      headers: { apikey: DN.supabaseKey, Authorization: 'Bearer ' + (token || DN.supabaseKey), 'Content-Type': 'application/json' },
+      body: body ? JSON.stringify(body) : undefined
+    });
+    if (!r.ok) throw new Error('server ' + r.status);
+    return r.json();
+  }
+  function userToken() {   // the dashboard's login (same website) — only used for preview
+    try {
+      const ref = new URL(DN.supabaseUrl).hostname.split('.')[0];
+      return JSON.parse(localStorage.getItem(`sb-${ref}-auth-token`)).access_token;
+    } catch { return null; }
+  }
+  const norm = c => ({ settings: (c && c.settings) || {}, playlist: (c && c.playlist) || [], ads: (c && c.ads) || [] });
+
+  // Ask the cloud for this TV's content. Returns {paired:false, code} or {paired:true, state|null(unchanged)}
+  async function hello() {
+    if (PREVIEW) {
+      const rows = await rest(`dn_playlists?id=eq.${encodeURIComponent(PREVIEW)}&select=config,version`, null, userToken());
+      if (!rows.length) throw new Error('preview: login in the dashboard first');
+      return { paired: true, version: rows[0].version, state: rows[0].version === version ? null : norm(rows[0].config) };
+    }
+    const info = { ua: navigator.userAgent.slice(0, 180), w: screen.width, h: screen.height, app: APP, player: DN.version };
+    const r = await rest('rpc/dn_device_hello', { p_secret: deviceSecret(), p_info: info, p_version: version || null });
+    if (r.status !== 'paired') return { paired: false, code: r.code, expires: r.expires };
+    return { paired: true, version: r.version, name: r.screen && r.screen.name, state: r.config ? norm(r.config) : null };
+  }
+
+  // ---------- pairing screen ----------
+  const dashUrl = new URL('../', location.href).href;
+  let pairShown = false;
+  function showPair(code, expires) {
+    pairShown = true;
+    clearTimers(); stage.innerHTML = ''; current = null; state = null; version = 0;
+    LS.del('dn_state');
+    $('pair').classList.add('on');
+    $('pairCode').textContent = code ? code.slice(0, 3) + ' ' + code.slice(3) : '······';
+    $('pairExp').textContent = expires ? `कोड ${new Date(expires).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })} तक · then a new one appears` : '';
+    $('pairUrl').textContent = dashUrl.replace(/^https?:\/\//, '');
+    const target = dashUrl + '?code=' + (code || '');
+    const c = $('pairQr');
+    if (c.dataset.t !== target && typeof qrcode === 'function') {
+      const q = qrcode(0, 'M'); q.addData(target, 'Byte'); q.make();
+      const n = q.getModuleCount(), sc = 8; c.width = c.height = (n + 4) * sc;
+      const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.fillStyle = '#111';
+      for (let r = 0; r < n; r++) for (let k = 0; k < n; k++) if (q.isDark(r, k)) g.fillRect((k + 2) * sc, (r + 2) * sc, sc, sc);
+      c.dataset.t = target;
+    }
+  }
+  function hidePair() { if (pairShown) { pairShown = false; $('pair').classList.remove('on'); } }
+
+  // ---------- offline copy (service worker keeps the files; we keep the last playlist) ----------
+  function saveState(s, v) { LS.set('dn_state', JSON.stringify({ s, v })); }
+  function loadSaved() { try { const o = JSON.parse(LS.get('dn_state')); return o && o.s ? o : null; } catch { return null; } }
+  function prefetch(s) {
+    if (PREVIEW || !navigator.serviceWorker || !navigator.serviceWorker.controller) return;
+    const urls = new Set();
+    for (const it of [...s.playlist, ...s.ads]) if (it.key || it.path) urls.add(urlFor(it));
+    if (s.settings.logo) urls.add(DN.fileUrl(s.settings.logo));
+    navigator.serviceWorker.controller.postMessage({ type: 'cache', urls: [...urls] });
+  }
+  if ('serviceWorker' in navigator && !PREVIEW) {
+    navigator.serviceWorker.register('sw.js').then(() => navigator.serviceWorker.ready)
+      .then(() => { if (state) prefetch(state); }).catch(() => {});
+    navigator.serviceWorker.addEventListener('controllerchange', () => { if (state) prefetch(state); });
+  }
+  const setNet = ok => { $('net').style.display = ok ? 'none' : 'block'; };
+
+  function adopt(s, v) {
+    version = v;
+    if (!PREVIEW) { saveState(s, v); prefetch(s); }
+    if (!current) { state = s; applySettings(); queue = []; qi = 0; next(); }
+    else { pendingState = s; const keep = state; state = s; applyOverlays(); state = keep; }
+  }
+
+  // Check for changes; playlist changes take effect from the next item, overlays immediately
+  async function poll() {
+    try {
+      const r = await hello();
+      setNet(true);
+      if (!r.paired) { showPair(r.code, r.expires); return; }
+      hidePair();
+      if (r.state) adopt(r.state, r.version);
+      else if (!state) { const sv = loadSaved(); if (sv) adopt(sv.s, sv.v); }
+    } catch { setNet(!state); /* offline: keep playing what we have */ }
+    // Fixed-time ads can interrupt immediately
+    if (state && state.ads.some(a => (a.fixedTimes || []).includes(hhmm(new Date())))) {
+      const ad = dueFixedAd();
+      if (ad) { clearTimers(); show({ ...ad, _ad: true }); }
+    }
+  }
+
+  let bootFails = 0, booted = false, booting = false, bootTimer = null;
+  window.addEventListener('online', () => { if (!booted && !booting) { clearTimeout(bootTimer); boot(); } else poll(); });
+  async function boot() {
+    if (booted || booting) return;
+    booting = true;
+    try {
+      const r = await hello();
+      if (!r.paired) showPair(r.code, r.expires);
+      else if (r.state) { state = r.state; adopt(r.state, r.version); }
+    } catch (e) {
+      // No internet? Play the copy saved on this TV.
+      const sv = !PREVIEW && loadSaved();
+      if (sv) { state = sv.s; version = sv.v; applySettings(); next(); setNet(false); }
+      else {
+        bootFails++;
+        const why = (e && e.message) || String(e);
+        const net = navigator.onLine === false ? 'TV is OFFLINE (Wi-Fi not connected) / TV का Wi-Fi/इंटरनेट कनेक्ट नहीं है' : 'Error: ' + esc(why);
+        msg.innerHTML = 'Cannot reach Display NOW… / इंटरनेट से कनेक्ट नहीं हो पा रहा…' +
+          `<small>${net}<br>try ${bootFails} · ${new Date().toLocaleTimeString('en-IN')}<br>Retrying / फिर से कोशिश हो रही है</small>`;
+        booting = false;
+        bootTimer = setTimeout(boot, 5000);
+        return;
+      }
+    }
+    booting = false; booted = true;
+    keepAwake();
+    // unpaired TVs check often so pairing feels instant
+    (function loop() { setTimeout(async () => { await poll(); loop(); }, pairShown || PREVIEW ? 4000 : POLL_MS); })();
+    setInterval(() => Overlay.tick(ov), 10000);
+    // Fixed-time ads need minute precision
+    setInterval(() => {
+      const ad = state && dueFixedAd();
+      if (ad) { clearTimers(); show({ ...ad, _ad: true }); }
+    }, 15000);
+    // Daily reload at 04:00 keeps long-running TV browsers healthy
+    setInterval(() => { if (hhmm(new Date()) === '04:00' && navigator.onLine !== false) location.reload(); }, 60000);
+  }
+  boot();
+})();
+</script>
+</body>
+</html>

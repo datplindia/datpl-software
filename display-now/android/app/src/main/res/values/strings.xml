@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Display NOW</string>
+    <!-- The TV player page. Change here (and rebuild) if the website moves, e.g. to a custom domain. -->
+    <string name="player_url">https://datplindia.github.io/datpl-software/display-now/web/tv/</string>
+</resources>

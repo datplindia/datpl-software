@@ -1,0 +1,70 @@
+name: Display NOW TV app (APK)
+
+# Builds the Android TV app whenever display-now/android changes and publishes it at
+# https://github.com/datplindia/datpl-software/releases/download/display-now-latest/DisplayNOW.apk
+on:
+  push:
+    branches: [main, 'display-now-*']
+    paths:
+      - 'display-now/android/**'
+      - '.github/workflows/display-now-apk.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: display-now-apk
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      # Optional: store your own signing key as secrets to replace the one in display-now/android/keystore
+      DN_KS_B64: ${{ secrets.DN_KEYSTORE_B64 }}
+      DN_KEYSTORE_PASSWORD: ${{ secrets.DN_KEYSTORE_PASSWORD }}
+      DN_KEY_ALIAS: ${{ secrets.DN_KEY_ALIAS }}
+    defaults:
+      run:
+        working-directory: display-now/android
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Use the signing key from GitHub secrets (if set)
+        if: env.DN_KS_B64 != ''
+        run: |
+          echo "$DN_KS_B64" | base64 -d > "$RUNNER_TEMP/dn.jks"
+          echo "DN_KEYSTORE_FILE=$RUNNER_TEMP/dn.jks" >> "$GITHUB_ENV"
+
+      - name: Build
+        run: gradle assembleRelease --no-daemon --stacktrace
+
+      - name: Publish to the release "display-now-latest"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(grep -oP "versionName '\K[^']+" app/build.gradle)
+          cp app/build/outputs/apk/release/app-release.apk DisplayNOW.apk
+          cp DisplayNOW.apk "DisplayNOW-$V.apk"
+          if ! gh release view display-now-latest >/dev/null 2>&1; then
+            gh release create display-now-latest --latest=false \
+              --title "Display NOW — TV app" \
+              --notes "Android / Google TV app for Display NOW. Install DisplayNOW.apk on the TV; it opens by itself when the TV turns on and shows a code to link the TV in the dashboard."
+          fi
+          gh release upload display-now-latest DisplayNOW.apk "DisplayNOW-$V.apk" --clobber
+          echo "### Display NOW $V built" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DisplayNOW-apk
+          path: display-now/android/DisplayNOW*.apk

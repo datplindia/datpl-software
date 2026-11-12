@@ -4,7 +4,7 @@
  *   from that copy with byte ranges so they can seek and loop offline. */
 importScripts('../config.js');
 
-const SHELL = 'dn-shell-v1';
+const SHELL = 'dn-shell-v2';
 const MEDIA = 'dn-media-v1';
 const SHELL_FILES = ['./', './index.html', '../config.js', '../qrcode.js', '../overlay.js'];
 const FILES_PREFIX = `${self.DN.supabaseUrl}/storage/v1/object/public/${self.DN.bucket}/`;
@@ -25,12 +25,14 @@ async function shell(req) {
   try {
     const ctl = new AbortController();
     const t = setTimeout(() => ctl.abort(), 6000);
-    const r = await fetch(req, { signal: ctl.signal, cache: 'no-store' });
+    // fetch by URL: older Chrome (66) throws when a navigation Request is copied with options,
+    // which used to leave TVs stuck on their first saved copy of the page
+    const r = await fetch(req.url, { signal: ctl.signal, cache: 'no-store', credentials: 'same-origin' });
     clearTimeout(t);
-    if (r.ok) c.put(req, r.clone());
+    if (r.ok) c.put(req.url.split('?')[0], r.clone());
     return r;
   } catch {
-    const hit = await c.match(req, { ignoreSearch: true }) || await c.match('./index.html');
+    const hit = await c.match(req.url.split('?')[0]) || await c.match(new URL('./', self.location).href) || await c.match(new URL('./index.html', self.location).href);
     return hit || Response.error();
   }
 }

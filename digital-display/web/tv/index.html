@@ -291,7 +291,7 @@
         if (!el.muted) { el.muted = true; el.play().catch(fail); askForClick(); }
         else fail();
       });
-      timer = setTimeout(() => { if (!started) fail(); }, 30000); // couldn't start in 30s
+      timer = setTimeout(() => { if (!started) fail(); }, 20000); // couldn't start in 20s (e.g. a format the TV can't play)
     } else {
       el.onload = () => { reveal(); timer = setTimeout(next, (parseFloat(it.duration) || s.imageDuration || 10) * 1000); };
       el.onerror = fail;
@@ -305,7 +305,10 @@
   }
 
   // Sound needs one user interaction on most TV browsers
-  function askForClick() { if (state.settings.sound) startBtn.style.display = 'flex'; }
+  function askForClick() { if (state.settings.sound && !APP) startBtn.style.display = 'flex'; }
+  document.addEventListener('keydown', e => {
+    if (startBtn.style.display === 'flex' && (e.key === 'Enter' || e.keyCode === 13 || e.keyCode === 23)) startBtn.click();
+  });
   startBtn.addEventListener('click', () => {
     startBtn.style.display = 'none';
     if (current && current.tagName === 'VIDEO') current.muted = false;
@@ -431,9 +434,13 @@
     navigator.serviceWorker.controller.postMessage({ type: 'cache', urls: [...urls] });
   }
   if ('serviceWorker' in navigator && !PREVIEW) {
-    navigator.serviceWorker.register('sw.js').then(() => navigator.serviceWorker.ready)
+    navigator.serviceWorker.register('sw.js').then(reg => { setInterval(() => reg.update().catch(() => {}), 3600000); return navigator.serviceWorker.ready; })
       .then(() => { if (state) prefetch(state); }).catch(() => {});
-    navigator.serviceWorker.addEventListener('controllerchange', () => { if (state) prefetch(state); });
+    const hadWorker = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (hadWorker && !sessionStorage.getItem('dn_swreload')) { sessionStorage.setItem('dn_swreload', '1'); location.reload(); return; }
+      if (state) prefetch(state);
+    });
   }
   const setNet = ok => { $('net').style.display = ok ? 'none' : 'block'; };
 

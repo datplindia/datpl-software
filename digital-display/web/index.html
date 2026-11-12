@@ -379,11 +379,12 @@ const I18N = {
     aPassChanged: 'Password changed ✓', aWrong: 'Wrong email or password',
     screensTitle: '📺 My TVs', screensHelp: 'Open the Digital Display app on the TV — it shows a 6-digit code. Type it here to link the TV. A green dot means the TV is on.',
     getApp: '⬇ TV app (APK)', addTvTitle: '+ Add a TV',
+    fmtWarn: 'Heads up: iPhone videos (.mov) and HEIC photos often do not play on TVs — the TV will skip them.\n\nFor videos use MP4 (H.264): on iPhone, Settings › Camera › Formats › Most Compatible, or convert the file before uploading. For photos use JPG or PNG.',
     updAvail: v => `⬆ Update ${v} available — on the TV hold OK › Check for updates`, updLatest: '✓ Latest app version', addTvHelp: 'Code shown on the TV screen', addTvName: 'TV name, e.g. Reception', addTvBtn: 'Link TV',
     addTvOk: 'TV linked ✓ — it starts playing in a few seconds', addTvBad: 'Code not found or expired — check the 6 digits on the TV',
     online: 'On now', offlineFor: d => `Off · last seen ${d} ago`, neverSeen: 'Not seen yet', scrPlaylist: 'Plays',
     scrRemove: 'Remove', scrRenameHint: 'Click to rename', confirmScrRemove: n => `Remove "${n}"? The TV will show a new code.`, saved: 'Saved ✓',
-    folderLbl: 'Folder / caption (optional):', folderPh: 'e.g. 3D LED Board', uploadHint: 'Photos & videos up to 50 MB each. The folder name is shown as the caption on the TV.',
+    folderLbl: 'Folder / caption (optional):', folderPh: 'e.g. 3D LED Board', uploadHint: 'Photos (JPG, PNG) and videos (MP4) up to 50 MB each. The folder name is shown as the caption on the TV.',
     notMedia: n => `"${n}" is not a photo or video`, tooBig: (n, mb) => `"${n}" is bigger than ${mb} MB`, upErr: 'Upload failed',
     plEditing: 'Editing:', plNew: '+ New', plRename: 'Rename', plDelete: 'Delete', plNewName: 'Name of the new playlist (e.g. Branch 2, Festival offers)',
     confirmPlDelete: n => `Delete the playlist "${n}"? TVs playing it switch to another playlist.`,
@@ -738,6 +739,8 @@ async function uploadFiles(files) {
     } catch (e) { toast(e.message); }
   }
   $('#upProgress').textContent = ok === files.length ? t('uploadDone') : t('uploadFail')(files.length - ok);
+  if (files.some(f => /\.(mov|hevc|heic|heif|mkv|avi|wmv)$/i.test(f.name) || /quicktime|hevc|heic/i.test(f.type)))
+    alert(t('fmtWarn'));
   $('#fileInput').value = '';
   lib = await DB.library(); renderLib();
 }

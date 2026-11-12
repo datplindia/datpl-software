@@ -26,7 +26,11 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.EditText;
+import android.text.InputType;
 import android.widget.Toast;
+
+import java.util.List;
 
 /**
  * Digital Display TV app: a full-screen, always-on window around the Digital Display player page.
@@ -42,6 +46,8 @@ public class MainActivity extends Activity {
     private boolean useFallback = false;      // primary address unreachable -> try the backup address
     private Updater updater;
     private volatile String linkInfo = null;   // JSON from the player page: TV name, business, account e-mail
+    private long unlockedUntil = 0;            // after the right PIN, the full menu is open for a few minutes
+    private static final long UNLOCK_MS = 5 * 60 * 1000L;
     private static final long UPDATE_EVERY_MS = 6 * 60 * 60 * 1000L;   // automatic update check every 6 hours
     private final Runnable autoUpdate = new Runnable() {
         @Override public void run() { updater.check(false); handler.postDelayed(this, UPDATE_EVERY_MS); }
@@ -51,6 +57,14 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Switched OFF from the dashboard: don't show the display, hand the screen to the TV's own launcher
+        if ("off".equals(prefs().getString("mode", "on"))) {
+            goOff();
+            return;
+        }
+        OffWatcher.stop(this);   // the player page takes over checking in with the server
+
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         web = new WebView(this);
@@ -84,6 +98,77 @@ public class MainActivity extends Activity {
         Toast.makeText(this, "Digital Display " + appVersion(), Toast.LENGTH_SHORT).show();
     }
 
+    private SharedPreferences prefs() { return getSharedPreferences("dn", MODE_PRIVATE); }
+
+    /** Locked = linked to an account and switched ON: the remote can't exit, change the home app or open TV settings. */
+    private boolean isLocked() {
+        String pin = prefs().getString("pin", "");
+        return pin.length() > 0 && System.currentTimeMillis() > unlockedUntil;
+    }
+
+    /** Remember what the dashboard says (ON/OFF, emergency PIN); act when it is switched OFF. */
+    private void applyInfo(String json) {
+        try {
+            org.json.JSONObject j = new org.json.JSONObject(json);
+            String mode = "on", pin = "";
+            if (j.optBoolean("linked")) {
+                mode = "off".equals(j.optString("mode")) ? "off" : "on";
+                pin = j.optString("pin", "");
+            }
+            prefs().edit().putString("mode", mode).putString("pin", pin).apply();
+            if ("off".equals(mode) && !isFinishing()) {
+                Toast.makeText(this, "Digital Display was switched off from the dashboard", Toast.LENGTH_LONG).show();
+                goOff();
+            }
+        } catch (Exception ignored) { }
+    }
+
+    /** Close Digital Display and open the TV's own launcher; a small background check waits to be switched ON again. */
+    private void goOff() {
+        OffWatcher.start(this);
+        if (isHomeApp()) openTvLauncher();
+        finish();
+    }
+
+    /** Start the TV's original home screen directly (Digital Display may be the default home app). */
+    private void openTvLauncher() {
+        Intent home = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME);
+        List<ResolveInfo> all = getPackageManager().queryIntentActivities(home, 0);
+        for (ResolveInfo r : all) {
+            if (r.activityInfo == null || getPackageName().equals(r.activityInfo.packageName)) continue;
+            try {
+                startActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
+                        .setComponent(new ComponentName(r.activityInfo.packageName, r.activityInfo.name))
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                return;
+            } catch (Exception ignored) { }
+        }
+        openSettings(Settings.ACTION_SETTINGS);   // no other launcher found: at least leave the user somewhere useful
+    }
+
+    /** Emergency unlock on the TV: the 4-digit PIN shown for this TV in the dashboard. */
+    private void askPin() {
+        final EditText in = new EditText(this);
+        in.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+        in.setHint("4-digit PIN");
+        new AlertDialog.Builder(this)
+            .setTitle("Unlock with PIN")
+            .setMessage("Find the PIN for this TV in the dashboard › My TVs.")
+            .setView(in)
+            .setPositiveButton("Unlock", (d, w) -> {
+                if (in.getText().toString().trim().equals(prefs().getString("pin", "#"))) {
+                    unlockedUntil = System.currentTimeMillis() + UNLOCK_MS;
+                    Toast.makeText(this, "Unlocked for 5 minutes", Toast.LENGTH_SHORT).show();
+                    showMenu();
+                } else {
+                    Toast.makeText(this, "Wrong PIN", Toast.LENGTH_SHORT).show();
+                }
+            })
+            .setNegativeButton("Cancel", null)
+            .show();
+        in.requestFocus();
+    }
+
     private String playerUrl() { return getString(useFallback ? R.string.player_url_fallback : R.string.player_url); }
 
     private boolean isPlayer(String url) {
@@ -115,7 +200,7 @@ public class MainActivity extends Activity {
         @JavascriptInterface public String version() { return appVersion(); }
         @JavascriptInterface public String deviceSecret() { return MainActivity.this.deviceSecret(); }
         @JavascriptInterface public void checkUpdate() { handler.post(() -> updater.check(true)); }
-        @JavascriptInterface public void setInfo(String json) { linkInfo = json; }
+        @JavascriptInterface public void setInfo(String json) { linkInfo = json; handler.post(() -> applyInfo(json)); }
         @JavascriptInterface public String model() { return Build.MANUFACTURER + " " + Build.MODEL; }
     }
 
@@ -215,14 +300,14 @@ public class MainActivity extends Activity {
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) hideSystemUi();
+        if (hasFocus && web != null) hideSystemUi();
     }
 
     @Override
-    protected void onResume() { super.onResume(); web.onResume(); hideSystemUi(); }
+    protected void onResume() { super.onResume(); if (web != null) { web.onResume(); hideSystemUi(); } }
 
     @Override
-    protected void onPause() { web.onPause(); super.onPause(); }
+    protected void onPause() { if (web != null) web.onPause(); super.onPause(); }
 
     // ---------- remote menu: MENU key, or hold OK for 2 seconds ----------
     private AlertDialog menu;
@@ -230,7 +315,23 @@ public class MainActivity extends Activity {
 
     private void showMenu() {
         if (menu != null && menu.isShowing()) return;
+        if (web == null) return;
         boolean home = isHomeApp();
+        if (isLocked()) {
+            String[] few = { "Account & TV info", "Reload display", "Check for updates", "Unlock with PIN" };
+            menu = new AlertDialog.Builder(this)
+                .setTitle("Digital Display " + appVersion() + " — locked")
+                .setItems(few, (d, which) -> {
+                    if (which == 0) showInfo();
+                    else if (which == 1) web.reload();
+                    else if (which == 2) updater.check(true);
+                    else askPin();
+                })
+                .setNegativeButton("Close", null)
+                .create();
+            menu.show();
+            return;
+        }
         String[] items = {
             "Account & TV info",
             "Reload display",
@@ -273,6 +374,7 @@ public class MainActivity extends Activity {
             if (j.has("player")) m.append("Player ").append(j.optString("player")).append('\n');
         } catch (Exception e) { m.append("App ").append(appVersion()); }
         m.append("Open with the TV: ").append(isHomeApp() ? "ON" : "OFF").append('\n');
+        m.append("Remote lock: ").append(isLocked() ? "ON (switch off or unlink from the dashboard)" : "OFF").append('\n');
         m.append("Device: ").append(Build.MANUFACTURER).append(' ').append(Build.MODEL).append(", Android ").append(Build.VERSION.RELEASE);
         new AlertDialog.Builder(this)
             .setTitle("Account & TV info")
@@ -356,6 +458,7 @@ public class MainActivity extends Activity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (isLocked()) return true;   // locked: BACK can't close the display (switch it off from the dashboard)
             // BACK twice within 2 s leaves the app, so a stray press doesn't stop the display
             long now = System.currentTimeMillis();
             if (now - lastBack < 2000) {

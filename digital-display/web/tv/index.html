@@ -387,6 +387,7 @@
     const r = await rest('rpc/dn_device_hello', { p_secret: deviceSecret(), p_info: info, p_version: version || null });
     tellApp(r);
     if (r.status !== 'paired') return { paired: false, code: r.code, expires: r.expires };
+    setOff(r.mode === 'off');
     meta = { account: r.account || '', org: (r.org && r.org.name) || '', name: (r.screen && r.screen.name) || '', playlist: r.playlist || '', at: new Date() };
     return { paired: true, version: r.version, name: r.screen && r.screen.name, state: r.config ? norm(r.config) : null };
   }
@@ -417,9 +418,23 @@
     try {
       if (!window.DNApp || !DNApp.setInfo) return;
       DNApp.setInfo(JSON.stringify(r.status === 'paired'
-        ? { linked: true, tv: (r.screen || {}).name || '', business: (r.org || {}).name || '', account: r.account || '', playlist: r.playlist || '', player: DN.version }
+        ? { linked: true, tv: (r.screen || {}).name || '', business: (r.org || {}).name || '', account: r.account || '', playlist: r.playlist || '', player: DN.version,
+            mode: r.mode || 'on', pin: r.pin || '' }
         : { linked: false, code: r.code || '', player: DN.version }));
     } catch (e) {}
+  }
+
+  // ---------- switched OFF from the dashboard (the TV app closes itself; a plain browser shows this) ----------
+  function setOff(off) {
+    let el = $('offScr');
+    if (!off) { if (el) el.remove(); return; }
+    if (APP) return;   // the app hands the TV back to its own home screen instead
+    if (!el) {
+      el = document.createElement('div'); el.id = 'offScr';
+      el.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:90;background:#000;color:#52525b;display:flex;align-items:center;justify-content:center;font:500 2.4vmin system-ui,sans-serif';
+      el.textContent = 'Display switched off from the dashboard';
+      document.body.appendChild(el);
+    }
   }
 
   // ---------- hidden info screen: which account this TV belongs to (DOWN on the remote, or the app menu) ----------

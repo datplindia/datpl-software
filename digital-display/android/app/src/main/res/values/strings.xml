@@ -4,4 +4,7 @@
     <!-- The TV player page. The app tries the first address and falls back to the second. -->
     <string name="player_url">https://display.datpl.com/tv/</string>
     <string name="player_url_fallback">https://datplindia.github.io/datpl-software/tv/</string>
+    <!-- Supabase (publishable key: meant to be public) — used while the display is switched OFF, to notice when it is switched ON again -->
+    <string name="supabase_url">https://chpxvjqfwoxtndilmpox.supabase.co</string>
+    <string name="supabase_key">sb_publishable_GZvaCNNytfgJnn-2jaoDSg_s9dNzrif</string>
 </resources>

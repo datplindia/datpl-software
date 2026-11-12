@@ -377,8 +377,13 @@ const I18N = {
     aToSignup: 'New here? Create an account', aToLogin: '← Back to login', aForgot: 'Forgot password?',
     aCheckEmail: 'Almost done! Open the link we emailed you, then log in.', aResetSent: 'Check your email for the reset link.',
     aPassChanged: 'Password changed ✓', aWrong: 'Wrong email or password',
-    screensTitle: '📺 My TVs', screensHelp: 'Open the Digital Display app on the TV — it shows a 6-digit code. Type it here to link the TV. A green dot means the TV is on.',
+    screensTitle: '📺 My TVs', screensHelp: 'Open the Digital Display app on the TV — it shows a 6-digit code. Type it here to link the TV. A green dot means the TV is on. Display ON/OFF switches Digital Display on the TV from here; the PIN unlocks the TV menu in an emergency.',
     getApp: '⬇ TV app (APK)', addTvTitle: '+ Add a TV',
+    modeOn: '● Display ON — tap to turn off', modeOff: '○ Display OFF — tap to turn on',
+    confirmOff: n => `Turn the display OFF on "${n}"? The TV goes back to its own home screen within about 30 seconds.`,
+    confirmOn: n => `Turn the display ON on "${n}"? Digital Display opens on the TV within about 30 seconds.`,
+    offToast: 'Turning off — the TV shows its own home screen in ~30 s', onToast: 'Turning on — Digital Display opens in ~30 s',
+    pinHint: 'Emergency PIN: on the TV hold OK › Unlock with PIN, if this phone cannot reach the TV (e.g. no internet)',
     fmtWarn: 'Heads up: iPhone videos (.mov) and HEIC photos often do not play on TVs — the TV will skip them.\n\nFor videos use MP4 (H.264): on iPhone, Settings › Camera › Formats › Most Compatible, or convert the file before uploading. For photos use JPG or PNG.',
     updAvail: v => `⬆ Update ${v} available — on the TV hold OK › Check for updates`, updLatest: '✓ Latest app version', addTvHelp: 'Code shown on the TV screen', addTvName: 'TV name, e.g. Reception', addTvBtn: 'Link TV',
     addTvOk: 'TV linked ✓ — it starts playing in a few seconds', addTvBad: 'Code not found or expired — check the 6 digits on the TV',
@@ -1048,7 +1053,7 @@ const DB = {
     if (error) throw error;
   },
   async screensList() {
-    const { data, error } = await sb.from('dn_screens').select('id,name,playlist_id,last_seen,paired_at,info').eq('org_id', this.orgId).order('paired_at');
+    const { data, error } = await sb.from('dn_screens').select('id,name,playlist_id,last_seen,paired_at,info,mode,pin').eq('org_id', this.orgId).order('paired_at');
     if (error) throw error;
     this.screens = data;
     return data;
@@ -1104,6 +1109,10 @@ function renderScreens() {
       <div class="top"><span class="dot ${on ? 'on' : ''}"></span><input type="text" value="${esc(sc.name)}" data-scrname="${i}" title="${t('scrRenameHint')}"></div>
       <div class="meta">${ago(sc.last_seen)}${model ? ' · ' + model : ''}${inf.w ? ` · ${inf.w}×${inf.h}` : ''}</div>${vNote}
       <label class="meta">${t('scrPlaylist')}<select data-scrpl="${i}">${plOpts(sc.playlist_id)}</select></label>
+      <div class="pw" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <button data-scrmode="${i}" class="${sc.mode === 'off' ? '' : 'primary'}" style="flex:1">${sc.mode === 'off' ? t('modeOff') : t('modeOn')}</button>
+        <span class="meta" title="${t('pinHint')}">PIN ${esc(sc.pin || '----')}</span>
+      </div>
       <div style="text-align:right"><button class="danger" data-scrrm="${i}">${t('scrRemove')}</button></div>
     </div>`;
   }).join('') + `<form class="addtv" id="addTv">
@@ -1124,6 +1133,14 @@ $('#screens').addEventListener('change', async e => {
   } catch (err) { alert(err.message); }
 });
 $('#screens').addEventListener('click', async e => {
+  const mi = e.target.dataset.scrmode;
+  if (mi !== undefined) {
+    const sc = DB.screens[+mi], off = sc.mode !== 'off';
+    if (!confirm(off ? t('confirmOff')(sc.name) : t('confirmOn')(sc.name))) return;
+    try { await DB.updateScreen(sc.id, { mode: off ? 'off' : 'on' }); await refreshScreens(); toast(off ? t('offToast') : t('onToast')); }
+    catch (err) { alert(err.message); }
+    return;
+  }
   const i = e.target.dataset.scrrm; if (i === undefined) return;
   const sc = DB.screens[+i];
   if (!confirm(t('confirmScrRemove')(sc.name))) return;

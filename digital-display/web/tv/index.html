@@ -9,7 +9,7 @@
   :root { --accent: #f97316; }
   html, body { margin: 0; height: 100%; background: #000; overflow: hidden; cursor: none; }
   body { font-family: system-ui, "Noto Sans Devanagari", sans-serif; }
-  .layer { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity .8s ease; background: #000; }
+  .layer { position: absolute; top: 0; right: 0; bottom: 0; left: 0; width: 100%; height: 100%; opacity: 0; transition: opacity .8s ease; background: #000; }
   .layer.show { opacity: 1; }
   .layer.notrans { transition: none; }
   img.layer, video.layer { object-fit: contain; }
@@ -19,20 +19,20 @@
   #screen.r90  { transform: translate(-50%,-50%) rotate(90deg); }
   #screen.r180 { transform: translate(-50%,-50%) rotate(180deg); }
   #screen.r270 { transform: translate(-50%,-50%) rotate(270deg); }
-  #frame { position: absolute; inset: 0; overflow: hidden; background:#000; }
-  #stage { position: absolute; inset: 0; }
-  #msg { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  #frame { position: absolute; top: 0; right: 0; bottom: 0; left: 0; overflow: hidden; background:#000; }
+  #stage { position: absolute; top: 0; right: 0; bottom: 0; left: 0; }
+  #msg { position: absolute; top: 0; right: 0; bottom: 0; left: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
          color: #ccc; font: 500 4vmin/1.4 system-ui, sans-serif; text-align: center; padding: 5vmin; box-sizing: border-box; }
   #msg small { font-size: 2vmin; color: #888; margin-top: 2vmin; }
-  #start { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,.85);
+  #start { position: absolute; top: 0; right: 0; bottom: 0; left: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,.85);
            color: #fff; font: 600 3vw system-ui, sans-serif; cursor: pointer; z-index: 50; }
 
   /* ---------- pairing screen (shown until a customer adds this TV) ---------- */
-  #pair { position: fixed; inset: 0; z-index: 60; display: none; color: #f5f5f7; text-align: center;
+  #pair { position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 60; display: none; color: #f5f5f7; text-align: center;
           background: radial-gradient(90% 70% at 50% 0%, #4a2410 0%, #15100d 45%, #0b0c10 75%);
           font-family: system-ui, "Noto Sans Devanagari", sans-serif; }
   #pair.on { display: flex; align-items: center; justify-content: center; }
-  #pair .box { display: grid; grid-template-columns: auto auto; gap: 7vmin; align-items: center; text-align: left; max-width: 92vw; }
+  #pair .box { display: grid; grid-template-columns: auto auto; grid-gap: 7vmin; gap: 7vmin; align-items: center; text-align: left; max-width: 92vw; }
   #pair .mark { width: 11vmin; height: 11vmin; border-radius: 2.6vmin; background: linear-gradient(145deg,#fb923c,#ea580c);
                 display: flex; align-items: center; justify-content: center; box-shadow: 0 2vmin 6vmin rgba(249,115,22,.35); }
   #pair .mark svg { width: 6.4vmin; height: 6.4vmin; }

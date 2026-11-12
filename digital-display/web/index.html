@@ -89,7 +89,7 @@
   @media (max-width: 860px) { .ly { grid-template-columns:1fr; } }
   .lyWrap { display:flex; justify-content:center; background:#0b0b0f; border-radius:10px; padding:10px; }
   .lyStage { position:relative; overflow:hidden; background:#1f2430; border-radius:4px; touch-action:none; user-select:none; }
-  .lyStage > img.bg { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; opacity:.85; pointer-events:none; }
+  .lyStage > img.bg { position:absolute; top: 0; right: 0; bottom: 0; left: 0; width:100%; height:100%; object-fit:contain; opacity:.85; pointer-events:none; }
   .lyStage .ovl .ow { pointer-events:auto; cursor:move; outline:3px dashed rgba(255,255,255,.35); outline-offset:6px; }
   .lyStage .ovl .ow.sel { outline:5px solid #3b82f6; z-index:5; }
   .lyStage .ovl .ow.is-off { opacity:.35; }
@@ -98,7 +98,7 @@
   .lyStage .lyH { position:absolute; right:-14px; bottom:-14px; width:28px; height:28px; background:#3b82f6; border:3px solid #fff; border-radius:50%; cursor:nwse-resize; display:none; }
   .lyStage .ow.sel .lyH { display:block; }
   .lyStage .ow-ticker .lyH { right:50%; bottom:-14px; cursor:ns-resize; }
-  .lyStage .wPrev { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; color:#fff;
+  .lyStage .wPrev { position:absolute; top: 0; right: 0; bottom: 0; left: 0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; color:#fff;
                     background:#14141c; background:radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--accent) 45%, #111) 0%, #0b0b10 70%); line-height:1.1; z-index:6; }
   .lyStage .wPrev[hidden] { display:none; }
   .lyStage .wPrev .wk { font-size:.2em; letter-spacing:.35em; text-transform:uppercase; color:var(--accent); font-weight:700; }

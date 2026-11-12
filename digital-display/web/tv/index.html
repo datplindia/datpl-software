@@ -387,7 +387,7 @@
     const el = $('ver'), badge = $('updBadge');
     if (!APP) { el.textContent = `Player ${DN.version}`; badge.style.display = 'none'; return; }
     const old = latestApp && vcmp(APP, latestApp) < 0;
-    el.innerHTML = `App version ${esc(APP)} · ` + (latestApp ? (old ? `<b class="up">update ${esc(latestApp)} available — hold OK on the remote › Check for updates</b>` : '<b>latest version ✓</b>') : 'checking…');
+    el.innerHTML = `Player ${DN.version} · App version ${esc(APP)} · ` + (latestApp ? (old ? `<b class="up">update ${esc(latestApp)} available — hold OK on the remote › Check for updates</b>` : '<b>latest version ✓</b>') : 'checking…');
     badge.textContent = old ? `⬆ Update ${latestApp} available — hold OK on the remote` : '';
     badge.style.display = old ? 'block' : 'none';
   }

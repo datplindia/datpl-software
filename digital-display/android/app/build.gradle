@@ -1,0 +1,47 @@
+plugins {
+    id 'com.android.application'
+}
+
+// Signing: GitHub secrets DN_KEYSTORE_B64 / DN_KEYSTORE_PASSWORD (if set) win;
+// otherwise the key in ../keystore is used so every build can update the app already on a TV.
+def ksFile = file(System.getenv('DN_KEYSTORE_FILE') ?: '../keystore/digitaldisplay.jks')
+def ksPass = System.getenv('DN_KEYSTORE_PASSWORD') ?: 'digitaldisplay-sideload'
+
+android {
+    namespace 'com.datpl.digitaldisplay'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.datpl.digitaldisplay'
+        minSdk 21
+        targetSdk 34
+        versionCode 1
+        versionName '1.0.0'
+    }
+
+    signingConfigs {
+        release {
+            storeFile ksFile
+            storePassword ksPass
+            keyAlias System.getenv('DN_KEY_ALIAS') ?: 'digitaldisplay'
+            keyPassword ksPass
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+    }
+
+    lint {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}

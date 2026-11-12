@@ -1,0 +1,97 @@
+name: Digital Display (TV app + website)
+
+# On every change to digital-display/:
+#  1. builds the Android TV app (APK)
+#  2. publishes the website — dashboard at /, TV player at /tv/, the APK at /DigitalDisplay.apk —
+#     with GitHub Pages on the custom domain set in Settings › Pages (display.datpl.com)
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'digital-display/**'
+      - '.github/workflows/digital-display.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: digital-display
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    env:
+      # Optional: your own signing key as secrets replaces the one in digital-display/android/keystore
+      DN_KS_B64: ${{ secrets.DN_KEYSTORE_B64 }}
+      DN_KEYSTORE_PASSWORD: ${{ secrets.DN_KEYSTORE_PASSWORD }}
+      DN_KEY_ALIAS: ${{ secrets.DN_KEY_ALIAS }}
+    defaults:
+      run:
+        working-directory: digital-display/android
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Use the signing key from GitHub secrets (if set)
+        if: env.DN_KS_B64 != ''
+        run: |
+          echo "$DN_KS_B64" | base64 -d > "$RUNNER_TEMP/dn.jks"
+          echo "DN_KEYSTORE_FILE=$RUNNER_TEMP/dn.jks" >> "$GITHUB_ENV"
+
+      - name: Build
+        run: |
+          gradle assembleRelease --no-daemon --stacktrace
+          cp app/build/outputs/apk/release/app-release.apk DigitalDisplay.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DigitalDisplay-apk
+          path: digital-display/android/DigitalDisplay.apk
+
+      - name: Keep a copy in the release "digital-display-latest"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(grep -oP "versionName '\K[^']+" app/build.gradle)
+          cp DigitalDisplay.apk "DigitalDisplay-$V.apk"
+          if ! gh release view digital-display-latest >/dev/null 2>&1; then
+            gh release create digital-display-latest --latest=false --title "Digital Display — TV app" \
+              --notes "Android / Google TV app for Digital Display. Download from https://display.datpl.com/DigitalDisplay.apk"
+          fi
+          gh release upload digital-display-latest DigitalDisplay.apk "DigitalDisplay-$V.apk" --clobber
+          echo "### Digital Display $V built" >> "$GITHUB_STEP_SUMMARY"
+
+  website:
+    needs: apk
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: DigitalDisplay-apk
+          path: digital-display/web
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: digital-display/web
+
+      - id: deploy
+        uses: actions/deploy-pages@v4

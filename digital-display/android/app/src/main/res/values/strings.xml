@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Digital Display</string>
+    <!-- The TV player page. The app tries the first address and falls back to the second. -->
+    <string name="player_url">https://display.datpl.com/tv/</string>
+    <string name="player_url_fallback">https://datplindia.github.io/datpl-software/tv/</string>
+</resources>

@@ -8,7 +8,7 @@ Windows software by Digital Arts: downloads, screenshots and notes, one folder p
 | DA Design Studio: PSD, Pen Tool, AI Remove Background | [da-design-studio](da-design-studio/) | v1.1.1, [डाउनलोड / Download](https://github.com/datplindia/datpl-software/releases/download/da-design-studio-v1.1.1/DA-Design-Studio-1.1.1-windows-x64.zip) |
 | DA Print Desk: प्रिंट की दुकान के ऑनलाइन ऑर्डर अपने आप प्रिंट (print.datpl.com) | [da-print](da-print/) | v1.6.6, [डाउनलोड / Download](https://github.com/datplindia/datpl-software/raw/main/da-print/DAPrintDesk-1.6.6.zip) |
 | Unit Converter: टास्कबार से एक क्लिक में यूनिट बदलें (मुफ़्त) / taskbar unit converter (free) | [unit-converter](unit-converter/) | v1.0.1, [डाउनलोड / Download](https://github.com/datplindia/datpl-software/raw/main/unit-converter/UnitConverter.exe) |
-| Display NOW: अपने TV को बनाइए विज्ञापन का नया ज़रिया (डिजिटल साइनेज) / TV digital signage | [display-now](display-now/) | v1.0.0, [TV ऐप / TV app](https://github.com/datplindia/datpl-software/releases/download/display-now-latest/DisplayNOW.apk), [डैशबोर्ड / Dashboard](https://datplindia.github.io/datpl-software/display-now/web/) |
+| Digital Display: अपने TV को बनाइए विज्ञापन का नया ज़रिया (डिजिटल साइनेज) / make your TV a new way to advertise | [digital-display](digital-display/) | v1.0.0, [display.datpl.com](https://display.datpl.com), [TV app](https://display.datpl.com/DigitalDisplay.apk) |
 
 ## पुराने सॉफ्टवेयर / Older software
 

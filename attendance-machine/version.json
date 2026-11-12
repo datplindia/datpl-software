@@ -1,0 +1,8 @@
+{
+  "version": "1.0.8",
+  "versionCode": 9,
+  "url": "https://github.com/datplindia/datpl-software/raw/main/attendance-machine/SmartAttendance-1.0.8.apk",
+  "sha256": "9388e89cbe16b068ef9c7cbc12d7b8325a893bdbf9a111e8f32a6091d9c2fe63",
+  "notes_en": "Reception mode: silent during the day, ting + big tick only on check-in and check-out. Each person is recognised by one name only. Everyone visible on screen is marked; first seen = IN, last seen = OUT.",
+  "notes_hi": "रिसेप्शन मोड: दिन भर चुप, सिर्फ़ चेक-इन और चेक-आउट पर ting और बड़ा ✓। हर व्यक्ति एक ही नाम से पहचाना जाता है। स्क्रीन पर दिखे सबकी अटेंडेंस; पहली बार दिखे = IN, आख़िरी बार दिखे = OUT।"
+}

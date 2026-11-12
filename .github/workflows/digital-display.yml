@@ -87,6 +87,12 @@ jobs:
           name: DigitalDisplay-apk
           path: digital-display/web
 
+      - name: Easy-to-type copies of the APK (addresses are case-sensitive)
+        run: |
+          cd digital-display/web
+          cp DigitalDisplay.apk digitaldisplay.apk
+          cp DigitalDisplay.apk app.apk
+
       - name: Write version.json (read by the TV app's updater and the dashboard)
         run: |
           G=digital-display/android/app/build.gradle

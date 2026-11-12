@@ -5,7 +5,7 @@
 **Make your TV a new way to advertise.** Any Android / Google TV in a shop, showroom, hotel or clinic becomes a digital signage screen. Upload photos, videos and offers on the website; the TV plays them by itself and keeps a saved copy for when the internet drops. No IP addresses, NAS or network setup.
 
 - Dashboard: **https://display.datpl.com**
-- TV app: **https://display.datpl.com/DigitalDisplay.apk** (Android TV 5.0+, Google TV, Mi TV)
+- TV app: **https://display.datpl.com/app** (short) or **/DigitalDisplay.apk** (Android TV 5.0+, Google TV, Mi TV)
 - Without the app: open **display.datpl.com/tv** in the TV's browser
 
 ## Setup in 5 steps

@@ -51,6 +51,15 @@
   #ver b { color: #4ade80; font-weight: 600; } #ver b.up { color: #fdba74; }
   #updBadge { position: fixed; left: 1.4vmin; bottom: 1.4vmin; z-index: 70; display: none; background: rgba(0,0,0,.65); color: #fdba74;
               font: 600 1.6vmin system-ui, sans-serif; padding: .6vmin 1.2vmin; border-radius: 99px; }
+  #about { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 80; display: none; min-width: 46vmin; max-width: 86vw;
+           background: rgba(12,12,16,.94); color: #e4e4e7; border: .3vmin solid #f97316; border-radius: 2vmin; padding: 3.5vmin 4.5vmin;
+           font: 400 2.4vmin/1.7 system-ui, sans-serif; box-shadow: 0 2vmin 8vmin rgba(0,0,0,.6); }
+  #about h2 { margin: 0 0 1.6vmin; font-size: 3.2vmin; color: #fff; }
+  #about table { border-collapse: collapse; }
+  #about td { padding: .2vmin 2.4vmin .2vmin 0; vertical-align: top; }
+  #about td:first-child { color: #a1a1aa; white-space: nowrap; }
+  #about td b { color: #fdba74; }
+  #about .hint { margin-top: 1.6vmin; font-size: 1.8vmin; color: #71717a; }
   #net { position: fixed; right: 1.4vmin; bottom: 1.4vmin; z-index: 70; display: none; background: rgba(0,0,0,.6); color: #fca5a5;
          font: 600 1.6vmin system-ui, sans-serif; padding: .6vmin 1.2vmin; border-radius: 99px; }
 
@@ -96,6 +105,7 @@
 </div>
 <div id="net">● Offline — playing saved copy</div>
 <div id="updBadge"></div>
+<div id="about"></div>
 
 <script src="../config.js"></script>
 <script src="../qrcode.js"></script>
@@ -377,6 +387,7 @@
     const r = await rest('rpc/dn_device_hello', { p_secret: deviceSecret(), p_info: info, p_version: version || null });
     tellApp(r);
     if (r.status !== 'paired') return { paired: false, code: r.code, expires: r.expires };
+    meta = { account: r.account || '', org: (r.org && r.org.name) || '', name: (r.screen && r.screen.name) || '', playlist: r.playlist || '', at: new Date() };
     return { paired: true, version: r.version, name: r.screen && r.screen.name, state: r.config ? norm(r.config) : null };
   }
 
@@ -410,6 +421,30 @@
         : { linked: false, code: r.code || '', player: DN.version }));
     } catch (e) {}
   }
+
+  // ---------- hidden info screen: which account this TV belongs to (DOWN on the remote, or the app menu) ----------
+  let meta = null, aboutTimer = null;
+  function showAbout() {
+    const el = $('about');
+    const row = (k, v) => `<tr><td>${k}</td><td>${v}</td></tr>`;
+    const m = meta || {};
+    el.innerHTML = `<h2>Digital Display — this TV</h2><table>` +
+      (pairShown ? row('Status', '<b>Not linked yet</b> — code ' + esc($('pairCode').textContent)) :
+        row('Account', `<b>${esc(m.account || '—')}</b>`) + row('Business', esc(m.org || '—')) +
+        row('TV name', esc(m.name || '—')) + row('Playlist', esc(m.playlist || '—'))) +
+      row('Connection', navigator.onLine === false || $('net').style.display === 'block' ? 'offline — playing saved copy' : 'online' + (m.at ? ' · checked ' + m.at.toLocaleTimeString('en-IN') : '')) +
+      row('Versions', `player ${esc(DN.version)}${APP ? ' · app ' + esc(APP) : ' · in a browser'}${latestApp && APP ? (vcmp(APP, latestApp) < 0 ? ' · <b>update ' + esc(latestApp) + ' available</b>' : ' · latest ✓') : ''}`) +
+      row('Screen', `${screen.width}×${screen.height}`) +
+      `</table><div class="hint">Manage this TV at ${esc((DN.publicUrl || '').replace(/^https?:\/\//, '').replace(/\/$/, ''))} · closes by itself</div>`;
+    el.style.display = 'block';
+    clearTimeout(aboutTimer); aboutTimer = setTimeout(() => { el.style.display = 'none'; }, 15000);
+  }
+  window.dnShowAbout = showAbout;   // the Android app's menu calls this
+  document.addEventListener('keydown', e => {
+    const k = e.key || '', c = e.keyCode;
+    if (k === 'ArrowDown' || c === 40 || k === 'Info' || c === 457 || k === 'i') showAbout();
+    else if ((k === 'Escape' || k === 'Backspace' || c === 27) && $('about').style.display === 'block') $('about').style.display = 'none';
+  });
 
   // ---------- pairing screen ----------
   const dashUrl = DN.publicUrl || new URL('../', location.href).href;

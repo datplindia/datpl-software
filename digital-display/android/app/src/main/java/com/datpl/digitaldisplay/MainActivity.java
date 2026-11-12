@@ -37,6 +37,11 @@ public class MainActivity extends Activity {
     private long lastBack = 0;
     private boolean showingError = false;
     private boolean useFallback = false;      // primary address unreachable -> try the backup address
+    private Updater updater;
+    private static final long UPDATE_EVERY_MS = 6 * 60 * 60 * 1000L;   // automatic update check every 6 hours
+    private final Runnable autoUpdate = new Runnable() {
+        @Override public void run() { updater.check(false); handler.postDelayed(this, UPDATE_EVERY_MS); }
+    };
 
     @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
     @Override
@@ -69,6 +74,10 @@ public class MainActivity extends Activity {
 
         web.loadUrl(playerUrl());
         askForAutoStartPermission();
+
+        updater = new Updater(this);
+        handler.postDelayed(autoUpdate, 90 * 1000L);   // first check shortly after start
+        Toast.makeText(this, "Digital Display " + appVersion(), Toast.LENGTH_SHORT).show();
     }
 
     private String playerUrl() { return getString(useFallback ? R.string.player_url_fallback : R.string.player_url); }
@@ -101,6 +110,7 @@ public class MainActivity extends Activity {
     private class Bridge {
         @JavascriptInterface public String version() { return appVersion(); }
         @JavascriptInterface public String deviceSecret() { return MainActivity.this.deviceSecret(); }
+        @JavascriptInterface public void checkUpdate() { handler.post(() -> updater.check(true)); }
         @JavascriptInterface public String model() { return Build.MANUFACTURER + " " + Build.MODEL; }
     }
 
@@ -192,6 +202,48 @@ public class MainActivity extends Activity {
     @Override
     protected void onPause() { web.onPause(); super.onPause(); }
 
+    // ---------- remote menu: MENU key, or hold OK for 2 seconds ----------
+    private AlertDialog menu;
+    private boolean okHeldHandled = false;
+
+    private void showMenu() {
+        if (menu != null && menu.isShowing()) return;
+        String[] items = {
+            "Reload display",
+            "Check for updates",
+            "Exit app",
+        };
+        menu = new AlertDialog.Builder(this)
+            .setTitle("Digital Display " + appVersion() + " — " + updater.status())
+            .setItems(items, (d, which) -> {
+                if (which == 0) web.reload();
+                else if (which == 1) updater.check(true);
+                else finish();
+            })
+            .setNegativeButton("Close", null)
+            .create();
+        menu.show();
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent e) {
+        int k = e.getKeyCode();
+        if (k == KeyEvent.KEYCODE_DPAD_CENTER || k == KeyEvent.KEYCODE_ENTER || k == KeyEvent.KEYCODE_NUMPAD_ENTER) {
+            if (e.getAction() == KeyEvent.ACTION_DOWN) {
+                if (e.getRepeatCount() == 0) okHeldHandled = false;
+                else if (!okHeldHandled && e.getEventTime() - e.getDownTime() > 2000) {
+                    okHeldHandled = true;
+                    showMenu();
+                    return true;
+                }
+                if (okHeldHandled) return true;
+            } else if (e.getAction() == KeyEvent.ACTION_UP && okHeldHandled) {
+                return true;   // don't pass the long press on to the page
+            }
+        }
+        return super.dispatchKeyEvent(e);
+    }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
@@ -202,11 +254,11 @@ public class MainActivity extends Activity {
             Toast.makeText(this, "Press BACK again to exit", Toast.LENGTH_SHORT).show();
             return true;
         }
-        if (keyCode == KeyEvent.KEYCODE_MENU || keyCode == KeyEvent.KEYCODE_F5) {
-            web.reload();                                  // MENU = reload the display
-            Toast.makeText(this, "Reloading…", Toast.LENGTH_SHORT).show();
+        if (keyCode == KeyEvent.KEYCODE_MENU || keyCode == KeyEvent.KEYCODE_SETTINGS) {
+            showMenu();
             return true;
         }
+        if (keyCode == KeyEvent.KEYCODE_F5) { web.reload(); return true; }
         return super.onKeyDown(keyCode, event);
     }
 

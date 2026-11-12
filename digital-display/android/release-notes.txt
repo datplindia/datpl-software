@@ -1,0 +1,1 @@
+App updates: the TV checks display.datpl.com for new versions. Hold OK (or press MENU) on the remote for Reload, Check for updates and Exit.

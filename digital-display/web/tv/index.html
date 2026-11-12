@@ -47,6 +47,10 @@
   #pair .qr { background: #fff; padding: 2vmin; border-radius: 2vmin; }
   #pair .qr canvas { display: block; width: 30vmin; height: 30vmin; image-rendering: pixelated; }
   #pair .qr div { color: #111; font: 700 2vmin system-ui, sans-serif; text-align: center; margin-top: 1vmin; }
+  #ver { margin-top: 3vmin; font-size: 1.9vmin; color: #a1a1aa; }
+  #ver b { color: #4ade80; font-weight: 600; } #ver b.up { color: #fdba74; }
+  #updBadge { position: fixed; left: 1.4vmin; bottom: 1.4vmin; z-index: 70; display: none; background: rgba(0,0,0,.65); color: #fdba74;
+              font: 600 1.6vmin system-ui, sans-serif; padding: .6vmin 1.2vmin; border-radius: 99px; }
   #net { position: fixed; right: 1.4vmin; bottom: 1.4vmin; z-index: 70; display: none; background: rgba(0,0,0,.6); color: #fca5a5;
          font: 600 1.6vmin system-ui, sans-serif; padding: .6vmin 1.2vmin; border-radius: 99px; }
 
@@ -87,9 +91,11 @@
       </ol>
     </div>
     <div class="qr"><canvas id="pairQr"></canvas><div>Scan to add this TV</div></div>
+    <div id="ver" style="grid-column:1/-1"></div>
   </div>
 </div>
 <div id="net">● Offline — playing saved copy</div>
+<div id="updBadge"></div>
 
 <script src="../config.js"></script>
 <script src="../qrcode.js"></script>
@@ -361,6 +367,27 @@
     if (r.status !== 'paired') return { paired: false, code: r.code, expires: r.expires };
     return { paired: true, version: r.version, name: r.screen && r.screen.name, state: r.config ? norm(r.config) : null };
   }
+
+  // ---------- app version: shown on the code screen; a small badge when the TV app is out of date ----------
+  const vparts = v => String(v || '0').split('.').map(n => parseInt(n, 10) || 0);
+  const vcmp = (a, b) => { const x = vparts(a), y = vparts(b); for (let i = 0; i < 3; i++) if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) - (y[i] || 0); return 0; };
+  let latestApp = null;
+  function renderVersion() {
+    const el = $('ver'), badge = $('updBadge');
+    if (!APP) { el.textContent = `Player ${DN.version}`; badge.style.display = 'none'; return; }
+    const old = latestApp && vcmp(APP, latestApp) < 0;
+    el.innerHTML = `App version ${esc(APP)} · ` + (latestApp ? (old ? `<b class="up">update ${esc(latestApp)} available — hold OK on the remote › Check for updates</b>` : '<b>latest version ✓</b>') : 'checking…');
+    badge.textContent = old ? `⬆ Update ${latestApp} available — hold OK on the remote` : '';
+    badge.style.display = old ? 'block' : 'none';
+  }
+  async function checkVersion() {
+    try {
+      const v = await fetch('../version.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json());
+      latestApp = v.versionName || null;
+    } catch {}
+    renderVersion();
+  }
+  if (!PREVIEW) { checkVersion(); setInterval(checkVersion, 6 * 3600 * 1000); }
 
   // ---------- pairing screen ----------
   const dashUrl = DN.publicUrl || new URL('../', location.href).href;

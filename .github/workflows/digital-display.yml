@@ -87,6 +87,22 @@ jobs:
           name: DigitalDisplay-apk
           path: digital-display/web
 
+      - name: Write version.json (read by the TV app's updater and the dashboard)
+        run: |
+          G=digital-display/android/app/build.gradle
+          python3 - "$G" digital-display/android/release-notes.txt digital-display/web/version.json <<'PY'
+          import json, re, sys
+          g = open(sys.argv[1]).read()
+          info = {
+              "versionCode": int(re.search(r"versionCode (\d+)", g).group(1)),
+              "versionName": re.search(r"versionName '([^']+)'", g).group(1),
+              "apk": "DigitalDisplay.apk",
+              "notes": open(sys.argv[2]).read().strip(),
+          }
+          json.dump(info, open(sys.argv[3], "w"))
+          print(info)
+          PY
+
       - uses: actions/configure-pages@v5
 
       - uses: actions/upload-pages-artifact@v3

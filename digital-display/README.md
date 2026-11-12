@@ -22,13 +22,24 @@
 ## Features
 
 - **Link a TV with a code** — the TV's IP address or network does not matter; the shop can be anywhere
-- **Starts with the TV**, the screen never sleeps; BACK must be pressed twice to leave, MENU reloads
+- **Starts with the TV**, the screen never sleeps; BACK must be pressed twice to leave; hold OK for the menu
+- **Updates itself** from display.datpl.com, and shows its version and whether it is the latest
 - **Offline copy** — every file in the playlist is saved on the TV and keeps playing without internet
 - **Many TVs and many playlists** per account (e.g. "Reception", "Branch 2", "Festival offers"); choose what each TV plays
 - TV status: **green dot = on**, and when it was last seen
 - Ads: every N items, at fixed times, with date / weekday / time windows
 - Logo, clock, product captions (from the folder name), WhatsApp QR, scrolling ticker, guest welcome screen
 - Pixel-level **layout editor**, portrait TVs, screen shapes (16:9, 4:3, 21:9 …)
+
+## Updating the TV app
+
+The TV app updates itself from the website:
+
+- It checks **display.datpl.com/version.json** shortly after it starts and then every 6 hours. When a newer version is there it downloads it and shows *Update Digital Display?* for one minute; press **Install now** (Android asks once to allow the app to install apps, and then for one more *Install* press — ordinary apps can't update silently).
+- On the remote, **hold OK for 2 seconds** (or press MENU) → menu with the app version and *latest version ✓* / *update available*, **Reload display**, **Check for updates**, **Exit app**.
+- The TV's code screen shows the app version; a small *Update available* badge appears in the corner when the TV is behind. The dashboard shows each TV's app version and whether it is the latest.
+
+**Releasing a new version (when you want):** in [`android/app/build.gradle`](android/app/build.gradle) raise `versionCode` by 1 and set `versionName` (e.g. 1.2.0), write what changed in [`android/release-notes.txt`](android/release-notes.txt), and push to `main`. The workflow builds the APK and publishes it with the new `version.json`; TVs pick it up within 6 hours, or at once with *Check for updates*. The player page and dashboard (the website) update by themselves on every push — no app update needed for those.
 
 ## How it is built
 

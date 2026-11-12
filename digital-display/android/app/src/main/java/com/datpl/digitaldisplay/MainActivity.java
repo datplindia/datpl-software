@@ -41,6 +41,7 @@ public class MainActivity extends Activity {
     private boolean showingError = false;
     private boolean useFallback = false;      // primary address unreachable -> try the backup address
     private Updater updater;
+    private volatile String linkInfo = null;   // JSON from the player page: TV name, business, account e-mail
     private static final long UPDATE_EVERY_MS = 6 * 60 * 60 * 1000L;   // automatic update check every 6 hours
     private final Runnable autoUpdate = new Runnable() {
         @Override public void run() { updater.check(false); handler.postDelayed(this, UPDATE_EVERY_MS); }
@@ -114,6 +115,7 @@ public class MainActivity extends Activity {
         @JavascriptInterface public String version() { return appVersion(); }
         @JavascriptInterface public String deviceSecret() { return MainActivity.this.deviceSecret(); }
         @JavascriptInterface public void checkUpdate() { handler.post(() -> updater.check(true)); }
+        @JavascriptInterface public void setInfo(String json) { linkInfo = json; }
         @JavascriptInterface public String model() { return Build.MANUFACTURER + " " + Build.MODEL; }
     }
 
@@ -230,6 +232,7 @@ public class MainActivity extends Activity {
         if (menu != null && menu.isShowing()) return;
         boolean home = isHomeApp();
         String[] items = {
+            "Account & TV info",
             "Reload display",
             "Check for updates",
             home ? "Open with the TV: ON ✓  (turn off)" : "Open with the TV: OFF  (turn on)",
@@ -239,15 +242,43 @@ public class MainActivity extends Activity {
         menu = new AlertDialog.Builder(this)
             .setTitle("Digital Display " + appVersion() + " — " + updater.status())
             .setItems(items, (d, which) -> {
-                if (which == 0) web.reload();
-                else if (which == 1) updater.check(true);
-                else if (which == 2) { if (home) stopBeingHome(); else becomeHome(); }
-                else if (which == 3) openSettings(Settings.ACTION_SETTINGS);
+                if (which == 0) showInfo();
+                else if (which == 1) web.reload();
+                else if (which == 2) updater.check(true);
+                else if (which == 3) { if (home) stopBeingHome(); else becomeHome(); }
+                else if (which == 4) openSettings(Settings.ACTION_SETTINGS);
                 else finish();
             })
             .setNegativeButton("Close", null)
             .create();
         menu.show();
+    }
+
+    /** Which account this TV belongs to (from the player page), plus versions */
+    private void showInfo() {
+        StringBuilder m = new StringBuilder();
+        try {
+            org.json.JSONObject j = new org.json.JSONObject(linkInfo == null ? "{}" : linkInfo);
+            if (j.optBoolean("linked")) {
+                m.append("Account: ").append(j.optString("account", "-")).append('\n');
+                m.append("Business: ").append(j.optString("business", "-")).append('\n');
+                m.append("TV name: ").append(j.optString("tv", "-")).append('\n');
+                m.append("Playing: ").append(j.optString("playlist", "-")).append("\n\n");
+            } else if (linkInfo != null) {
+                m.append("Not linked to an account yet.\nCode on screen: ").append(j.optString("code", "-")).append("\n\n");
+            } else {
+                m.append("Connecting… try again in a few seconds.\n\n");
+            }
+            m.append("App ").append(appVersion()).append(" (").append(updater.status()).append(")\n");
+            if (j.has("player")) m.append("Player ").append(j.optString("player")).append('\n');
+        } catch (Exception e) { m.append("App ").append(appVersion()); }
+        m.append("Open with the TV: ").append(isHomeApp() ? "ON" : "OFF").append('\n');
+        m.append("Device: ").append(Build.MANUFACTURER).append(' ').append(Build.MODEL).append(", Android ").append(Build.VERSION.RELEASE);
+        new AlertDialog.Builder(this)
+            .setTitle("Account & TV info")
+            .setMessage(m.toString())
+            .setPositiveButton("OK", null)
+            .show();
     }
 
     // ---------- "Open with the TV": Digital Display as the TV's home screen ----------

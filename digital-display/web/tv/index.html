@@ -375,6 +375,7 @@
                    sw: !!(navigator.serviceWorker && navigator.serviceWorker.controller),
                    items: state ? state.playlist.length : -1, shown: diag.shown, failed: diag.failed, lastFail: diag.lastFail, err: diag.err };
     const r = await rest('rpc/dn_device_hello', { p_secret: deviceSecret(), p_info: info, p_version: version || null });
+    tellApp(r);
     if (r.status !== 'paired') return { paired: false, code: r.code, expires: r.expires };
     return { paired: true, version: r.version, name: r.screen && r.screen.name, state: r.config ? norm(r.config) : null };
   }
@@ -399,6 +400,16 @@
     renderVersion();
   }
   if (!PREVIEW) { checkVersion(); setInterval(checkVersion, 6 * 3600 * 1000); }
+
+  // Which account this TV is linked to — shown in the TV app's hidden menu (hold OK › Account & TV info)
+  function tellApp(r) {
+    try {
+      if (!window.DNApp || !DNApp.setInfo) return;
+      DNApp.setInfo(JSON.stringify(r.status === 'paired'
+        ? { linked: true, tv: (r.screen || {}).name || '', business: (r.org || {}).name || '', account: r.account || '', playlist: r.playlist || '', player: DN.version }
+        : { linked: false, code: r.code || '', player: DN.version }));
+    } catch (e) {}
+  }
 
   // ---------- pairing screen ----------
   const dashUrl = DN.publicUrl || new URL('../', location.href).href;

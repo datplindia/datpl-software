@@ -8,7 +8,7 @@ self.DN = {
   appName: 'Digital Display',
   // Public address of the website (dashboard at /, TV player at /tv/)
   publicUrl: 'https://display.datpl.com/',
-  version: '1.0.3'
+  version: '1.0.4'
 };
 // Public address of an uploaded file (photos, videos, logo)
 self.DN.fileUrl = key => `${self.DN.supabaseUrl}/storage/v1/object/public/${self.DN.bucket}/${String(key).split('/').map(encodeURIComponent).join('/')}`;

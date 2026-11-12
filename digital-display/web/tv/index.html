@@ -244,6 +244,10 @@
     applyOverlays();
   }
 
+  // ---------- diagnostics sent with each check-in (helps support see what a TV is doing) ----------
+  const diag = { shown: 0, failed: 0, lastFail: '', err: '' };
+  window.addEventListener('error', e => { diag.err = String((e && e.message) || e).slice(0, 160); });
+
   function show(it) {
     msg.style.display = 'none';
     const s = state.settings;
@@ -256,7 +260,7 @@
 
     let started = false;
     const reveal = () => {
-      if (started) return; started = true;
+      if (started) return; started = true; diag.shown++;
       const old = current; current = el;
       requestAnimationFrame(() => el.classList.add('show'));
       setCaption(it);
@@ -264,7 +268,7 @@
       ov.logo.style.visibility = isWelcome ? 'hidden' : '';
       if (old) setTimeout(() => { if (old.tagName === 'VIDEO') { old.pause(); old.removeAttribute('src'); old.load(); } old.remove(); }, 900);
     };
-    const fail = () => { el.remove(); timer = setTimeout(next, 500); };
+    const fail = () => { diag.failed++; diag.lastFail = (it.path || it.type || '').slice(0, 60); el.remove(); timer = setTimeout(next, 500); };
 
     if (isWelcome) {
       stage.appendChild(el); reveal();
@@ -362,7 +366,11 @@
       if (!rows.length) throw new Error('preview: login in the dashboard first');
       return { paired: true, version: rows[0].version, state: rows[0].version === version ? null : norm(rows[0].config) };
     }
-    const info = { ua: navigator.userAgent.slice(0, 180), w: screen.width, h: screen.height, app: APP, player: DN.version };
+    const fr = $('frame').getBoundingClientRect();
+    const info = { ua: navigator.userAgent.slice(0, 180), w: screen.width, h: screen.height, app: APP, player: DN.version,
+                   vw: innerWidth, vh: innerHeight, frame: Math.round(fr.width) + 'x' + Math.round(fr.height),
+                   sw: !!(navigator.serviceWorker && navigator.serviceWorker.controller),
+                   items: state ? state.playlist.length : -1, shown: diag.shown, failed: diag.failed, lastFail: diag.lastFail, err: diag.err };
     const r = await rest('rpc/dn_device_hello', { p_secret: deviceSecret(), p_info: info, p_version: version || null });
     if (r.status !== 'paired') return { paired: false, code: r.code, expires: r.expires };
     return { paired: true, version: r.version, name: r.screen && r.screen.name, state: r.config ? norm(r.config) : null };

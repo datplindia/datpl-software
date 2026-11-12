@@ -310,7 +310,7 @@
 
   function goFullscreen() {
     const d = document.documentElement;
-    (d.requestFullscreen || d.webkitRequestFullscreen || (() => {})).call(d)?.catch?.(() => {});
+    try { const r = (d.requestFullscreen || d.webkitRequestFullscreen || function () {}).call(d); if (r && r.catch) r.catch(() => {}); } catch (e) {}
   }
   document.addEventListener('click', goFullscreen);
   document.addEventListener('keydown', e => { if (e.key === 'Enter') goFullscreen(); });

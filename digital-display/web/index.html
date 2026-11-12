@@ -154,6 +154,22 @@
 </style>
 </head>
 <body>
+<div id="boot" style="min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;background:#14161c;color:#e4e4e7;font:16px/1.6 system-ui,sans-serif">
+  <div>
+    <div style="font-size:22px;font-weight:700;color:#fff">Digital Display</div>
+    <div id="bootMsg" style="margin-top:8px">Loading…</div>
+    <div style="margin-top:22px;font-size:14px;color:#a1a1aa">This is the control panel for phones and computers.<br>
+      On a TV, open <b style="color:#fdba74">display.datpl.com/tv</b> or install the TV app.</div>
+    <a href="tv/" style="display:inline-block;margin-top:16px;padding:10px 18px;border-radius:10px;background:#f97316;color:#fff;font-weight:700;text-decoration:none">Open the TV screen →</a>
+  </div>
+</div>
+<script>
+  // Plain old-style script: works even in browsers too old for the dashboard and explains instead of a blank page
+  window.onerror = function () {
+    var m = document.getElementById('bootMsg');
+    if (m) m.innerHTML = 'This browser is too old for the control panel. Please use a phone or computer (Chrome, Edge, Safari).';
+  };
+</script>
 <div id="auth" hidden>
   <form class="acard" id="authForm">
     <div class="ab"><div class="lg"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M10 8.5l4 2-4 2z" fill="#fff"/></svg></div><h2>Digital Display</h2><div class="tag" data-i18n="tagline"></div></div>
@@ -167,6 +183,7 @@
       <button type="button" class="link" id="aSwitch"></button>
       <button type="button" class="link" id="aForgot" data-i18n="aForgot"></button>
     </div>
+    <div class="arow" style="justify-content:center;gap:16px"><a class="link" href="tv/">Open TV screen</a><a class="link" href="DigitalDisplay.apk">Download TV app</a></div>
   </form>
 </div>
 <div id="app" hidden>
@@ -1174,7 +1191,8 @@ function renderAuth() {
   $('#aSwitch').textContent = m === 'login' ? t('aToSignup') : t('aToLogin');
   $('#aForgot').hidden = m !== 'login';
 }
-function showAuth(mode) { authMode = mode || authMode; $('#auth').hidden = false; $('#app').hidden = true; $('#aErr').textContent = ''; renderAuth(); }
+function hideBoot() { const b = document.getElementById('boot'); if (b) b.remove(); }
+function showAuth(mode) { hideBoot(); authMode = mode || authMode; $('#auth').hidden = false; $('#app').hidden = true; $('#aErr').textContent = ''; renderAuth(); }
 $('#aSwitch').onclick = () => showAuth(authMode === 'login' ? 'signup' : 'login');
 $('#aForgot').onclick = () => showAuth('forgot');
 $('#authForm').addEventListener('submit', async e => {
@@ -1213,7 +1231,7 @@ async function enterApp() {
     const biz = data.user && data.user.user_metadata && data.user.user_metadata.business;
     await DB.boot(biz);
     $('#orgName').textContent = DB.orgName + (data.user ? ' · ' + data.user.email : '');
-    $('#auth').hidden = true; $('#app').hidden = false;
+    hideBoot(); $('#auth').hidden = true; $('#app').hidden = false;
     $('#tvUrl').textContent = (DN.publicUrl || DASH_URL).replace(/^https?:\/\//, '') + 'tv/';
     renderPlSel();
     await Promise.all([loadAll(), refreshScreens()]);

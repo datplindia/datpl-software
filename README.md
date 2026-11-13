@@ -9,7 +9,7 @@ Windows software by Digital Arts: downloads, screenshots and notes, one folder p
 | DA Print Desk: प्रिंट की दुकान के ऑनलाइन ऑर्डर अपने आप प्रिंट (print.datpl.com) | [da-print](da-print/) | v1.6.6, [डाउनलोड / Download](https://github.com/datplindia/datpl-software/raw/main/da-print/DAPrintDesk-1.6.6.zip) |
 | Unit Converter: टास्कबार से एक क्लिक में यूनिट बदलें (मुफ़्त) / taskbar unit converter (free) | [unit-converter](unit-converter/) | v1.0.1, [डाउनलोड / Download](https://github.com/datplindia/datpl-software/raw/main/unit-converter/UnitConverter.exe) |
 | Digital Display: अपने TV को बनाइए विज्ञापन का नया ज़रिया (डिजिटल साइनेज) / make your TV a new way to advertise | [digital-display](digital-display/) | v1.0.0, [display.datpl.com](https://display.datpl.com), [TV app](https://display.datpl.com/DigitalDisplay.apk) |
-| Smart Attendance: फेस-रिकग्निशन अटेंडेंस मशीन, DA Workforce से जुड़ी (Android) / face-recognition attendance machine for DA Workforce | [attendance-machine](attendance-machine/) | v1.0.8, [डाउनलोड / Download](https://github.com/datplindia/datpl-software/raw/main/attendance-machine/SmartAttendance-1.0.8.apk) |
+| Smart Attendance: फेस-रिकग्निशन अटेंडेंस मशीन, DA Workforce से जुड़ी (Android) / face-recognition attendance machine for DA Workforce | [attendance-machine](attendance-machine/) | v1.0.9, [डाउनलोड / Download](https://github.com/datplindia/datpl-software/raw/main/attendance-machine/SmartAttendance-1.0.9.apk) |
 
 ## पुराने सॉफ्टवेयर / Older software
 

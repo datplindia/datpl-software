@@ -5,7 +5,7 @@
 **किसी भी Android फ़ोन या टैबलेट को फेस-रिकग्निशन अटेंडेंस मशीन बनाइए, जो सीधे DA Workforce से जुड़ी है।**
 Turn any Android phone or tablet into a face-recognition attendance machine connected to DA Workforce.
 
-- डाउनलोड / Download: **[SmartAttendance-1.0.8.apk](https://github.com/datplindia/datpl-software/raw/main/attendance-machine/SmartAttendance-1.0.8.apk)** (Android 8+, ~80 MB)
+- डाउनलोड / Download: **[SmartAttendance-1.0.9.apk](https://github.com/datplindia/datpl-software/raw/main/attendance-machine/SmartAttendance-1.0.9.apk)** (Android 8+, ~80 MB)
 - मशीन जोड़ने का कोड / pairing code: **DA Workforce → Settings → Attendance → Add machine**
 - आज की अटेंडेंस / today's attendance: **DA Workforce → Dashboard → "Attendance today"**
 
@@ -39,6 +39,7 @@ Install new versions over the old one (do not uninstall) to keep pairing and dat
 
 | वर्ज़न | मुख्य बदलाव |
 |---|---|
+| 1.0.9 | 10 सेकंड तक कोई न दिखे तो स्क्रीन बंद (काली), चेहरा दिखते ही चालू; बैटरी बचत |
 | 1.0.8 | एक व्यक्ति = एक नाम (सख़्त मिलान); रिसेप्शन मोड: ting + बड़ा ✓ सिर्फ़ IN/OUT पर, बाकी चुप; स्क्रीन धीमी |
 | 1.0.6 | पहली बार दिखे = IN, आख़िरी बार दिखे = OUT |
 | 1.0.5 | स्क्रीन पर एक साथ कई लोगों की अटेंडेंस |

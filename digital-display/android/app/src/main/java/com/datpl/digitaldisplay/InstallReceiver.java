@@ -15,6 +15,7 @@ public class InstallReceiver extends BroadcastReceiver {
             Intent confirm = intent.getParcelableExtra(Intent.EXTRA_INTENT);
             if (confirm != null) {
                 confirm.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                MainActivity.allowLeave();
                 try { context.startActivity(confirm); } catch (Exception ignored) { }
             }
         } else if (status != PackageInstaller.STATUS_SUCCESS) {

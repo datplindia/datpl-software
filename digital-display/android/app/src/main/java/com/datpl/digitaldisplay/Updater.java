@@ -139,6 +139,7 @@ final class Updater {
             if (Build.VERSION.SDK_INT >= 26 && !act.getPackageManager().canRequestPackageInstalls()) {
                 toast("Allow Digital Display to install apps, then choose Check for updates again.");
                 try {
+                    MainActivity.allowLeave();
                     act.startActivity(new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
                             Uri.parse("package:" + act.getPackageName())));
                 } catch (ActivityNotFoundException e) {
@@ -159,6 +160,7 @@ final class Updater {
             }
             int flags = PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= 31 ? PendingIntent.FLAG_MUTABLE : 0);
             PendingIntent done = PendingIntent.getBroadcast(act, id, new Intent(act, InstallReceiver.class), flags);
+            MainActivity.allowLeave();   // Android's "Install" screen must not be pushed away by the lock
             s.commit(done.getIntentSender());
             s.close();
         } catch (Exception e) {

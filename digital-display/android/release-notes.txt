@@ -1,1 +1,1 @@
-Fix: on Android 14 TVs the app could close by itself after being switched OFF and then not open again. Opening the app from its icon now always works and asks the dashboard again whether the display should be ON.
+Lock: when the TV is locked, pressing the TV / Home button or opening another app brings Digital Display back within a couple of seconds (needs "Display over other apps" allowed for Digital Display). Switch the display OFF from the dashboard to use the TV normally. Account & TV info now shows whether "Display over other apps" is allowed.

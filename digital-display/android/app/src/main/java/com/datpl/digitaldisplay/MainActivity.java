@@ -48,6 +48,20 @@ public class MainActivity extends Activity {
     private volatile String linkInfo = null;   // JSON from the player page: TV name, business, account e-mail
     private long unlockedUntil = 0;            // after the right PIN, the full menu is open for a few minutes
     private static final long UNLOCK_MS = 5 * 60 * 1000L;
+    /** Set while an Android screen we opened ourselves (update install, permission) must stay in front. */
+    private static volatile long leaveOkUntil = 0;
+    static void allowLeave() { leaveOkUntil = System.currentTimeMillis() + 5 * 60 * 1000L; }
+    /** Locked and something else (TV / Home button, another app) came to the front: bring the display back. */
+    private final Runnable comeBack = new Runnable() {
+        @Override public void run() {
+            if (isFinishing() || !mustStayInFront()) return;
+            try {
+                startActivity(new Intent(MainActivity.this, MainActivity.class)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
+            } catch (Exception ignored) { }
+            handler.postDelayed(this, 4000);   // keep trying while something else is in front
+        }
+    };
     private static final long UPDATE_EVERY_MS = 6 * 60 * 60 * 1000L;   // automatic update check every 6 hours
     private final Runnable autoUpdate = new Runnable() {
         @Override public void run() { updater.check(false); handler.postDelayed(this, UPDATE_EVERY_MS); }
@@ -105,6 +119,11 @@ public class MainActivity extends Activity {
         if (i == null) return true;
         if (i.getBooleanExtra("auto", false)) return true;
         return i.hasCategory(Intent.CATEGORY_HOME);
+    }
+
+    private boolean mustStayInFront() {
+        return web != null && isLocked() && "on".equals(prefs().getString("mode", "on"))
+                && System.currentTimeMillis() > leaveOkUntil;
     }
 
     private SharedPreferences prefs() { return getSharedPreferences("dn", MODE_PRIVATE); }
@@ -289,6 +308,7 @@ public class MainActivity extends Activity {
     }
 
     private void openOverlaySettings() {
+        allowLeave();
         try {
             startActivity(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName())));
         } catch (ActivityNotFoundException e) {
@@ -313,7 +333,19 @@ public class MainActivity extends Activity {
     }
 
     @Override
-    protected void onResume() { super.onResume(); if (web != null) { web.onResume(); hideSystemUi(); } }
+    protected void onResume() {
+        super.onResume();
+        handler.removeCallbacks(comeBack);
+        if (web != null) { web.onResume(); hideSystemUi(); }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // TV / Home button or another app took the screen while locked: come back in ~1.5 s.
+        // (Needs "Display over other apps" on Android 10+; switch OFF from the dashboard to leave on purpose.)
+        if (!isFinishing() && mustStayInFront()) handler.postDelayed(comeBack, 1500);
+    }
 
     @Override
     protected void onPause() { if (web != null) web.onPause(); super.onPause(); }
@@ -384,6 +416,8 @@ public class MainActivity extends Activity {
         } catch (Exception e) { m.append("App ").append(appVersion()); }
         m.append("Open with the TV: ").append(isHomeApp() ? "ON" : "OFF").append('\n');
         m.append("Remote lock: ").append(isLocked() ? "ON (switch off or unlink from the dashboard)" : "OFF").append('\n');
+        if (Build.VERSION.SDK_INT >= 23) m.append("Display over other apps: ").append(Settings.canDrawOverlays(this)
+                ? "allowed" : "NOT allowed — the TV button can leave the display").append('\n');
         m.append("Device: ").append(Build.MANUFACTURER).append(' ').append(Build.MODEL).append(", Android ").append(Build.VERSION.RELEASE);
         new AlertDialog.Builder(this)
             .setTitle("Account & TV info")
@@ -438,6 +472,7 @@ public class MainActivity extends Activity {
     }
 
     private void openSettings(String action) {
+        allowLeave();
         try { startActivity(new Intent(action).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)); }
         catch (ActivityNotFoundException e) {
             try { startActivity(new Intent(Settings.ACTION_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)); }
@@ -448,6 +483,14 @@ public class MainActivity extends Activity {
     @Override
     public boolean dispatchKeyEvent(KeyEvent e) {
         int k = e.getKeyCode();
+        // Locked: swallow the TV / input / guide / app buttons the TV lets an app see
+        if (isLocked() && (k == KeyEvent.KEYCODE_TV || k == KeyEvent.KEYCODE_TV_INPUT || k == KeyEvent.KEYCODE_GUIDE
+                || k == KeyEvent.KEYCODE_ALL_APPS || k == KeyEvent.KEYCODE_SEARCH || k == KeyEvent.KEYCODE_ASSIST
+                || k == KeyEvent.KEYCODE_TV_INPUT_HDMI_1 || k == KeyEvent.KEYCODE_TV_INPUT_HDMI_2
+                || k == KeyEvent.KEYCODE_TV_INPUT_HDMI_3 || k == KeyEvent.KEYCODE_TV_INPUT_HDMI_4
+                || k == KeyEvent.KEYCODE_CHANNEL_UP || k == KeyEvent.KEYCODE_CHANNEL_DOWN)) {
+            return true;
+        }
         if (k == KeyEvent.KEYCODE_DPAD_CENTER || k == KeyEvent.KEYCODE_ENTER || k == KeyEvent.KEYCODE_NUMPAD_ENTER) {
             if (e.getAction() == KeyEvent.ACTION_DOWN) {
                 if (e.getRepeatCount() == 0) okHeldHandled = false;

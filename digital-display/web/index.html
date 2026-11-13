@@ -202,6 +202,7 @@
       <a id="getApp" href="DigitalDisplay.apk" style="margin-left:auto;font-size:13px;font-weight:600;color:#c2410c" data-i18n="getApp"></a>
       <button id="refreshScr" data-i18n="refresh"></button></h2>
     <p class="status" style="margin-top:-4px" data-i18n="screensHelp"></p>
+    <div id="planNote" hidden style="margin:6px 0 10px;padding:10px 12px;border-radius:10px;background:linear-gradient(120deg,#f5f3ff,#fdf2f8);border:1px solid #e9d5ff;font-size:13px;line-height:1.45"></div>
     <div class="screens" id="screens"></div>
   </section>
 
@@ -977,8 +978,9 @@ const DB = {
     const { data, error } = await sb.rpc('dn_bootstrap', { p_name: bizName || null });
     if (error) throw error;
     this.orgId = data.org_id;
-    const o = await sb.from('dn_orgs').select('name').eq('id', this.orgId).single();
+    const o = await sb.from('dn_orgs').select('name,plan').eq('id', this.orgId).single();
     this.orgName = (o.data && o.data.name) || '';
+    this.plan = (o.data && o.data.plan) || 'free';
     await this.loadPlaylists();
     let last = null; try { last = localStorage.getItem('dn_pl_' + this.orgId); } catch {}
     this.playlistId = this.playlists.some(p => p.id === last) ? last : (this.playlists[0] || {}).id;
@@ -1251,6 +1253,16 @@ async function enterApp() {
     const biz = data.user && data.user.user_metadata && data.user.user_metadata.business;
     await DB.boot(biz);
     $('#orgName').textContent = DB.orgName + (data.user ? ' · ' + data.user.email : '');
+    const PLAN_NAMES = { free: 'Free', starter: 'Starter', business: 'Business', enterprise: 'Enterprise' };
+    const pn = $('#planNote');
+    if (DB.plan === 'free') {
+      pn.innerHTML = '<b>Free plan</b> — a short Digital Arts ad plays on your TVs after every 3 of your photos or videos. ' +
+        'Upgrade to Starter, Business or Enterprise to remove it: <a href="https://wa.me/919933211177?text=' +
+        encodeURIComponent('Hi, I want to upgrade my Digital Display plan (' + DB.orgName + ')') + '" target="_blank" rel="noopener">WhatsApp us</a>.';
+    } else {
+      pn.innerHTML = '<b>' + (PLAN_NAMES[DB.plan] || DB.plan) + ' plan</b> — no ads from us on your TVs.';
+    }
+    pn.hidden = false;
     hideBoot(); $('#auth').hidden = true; $('#app').hidden = false;
     $('#tvUrl').textContent = (DN.publicUrl || DASH_URL).replace(/^https?:\/\//, '') + 'tv/';
     renderPlSel();

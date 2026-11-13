@@ -118,11 +118,14 @@
 
   let state = null, version = 0, pendingState = null;
   let queue = [], qi = 0, adRotate = 0;
+  // Free plan: Digital Arts' ads ("house ads") after every N of the customer's items — sent by the server on each check-in
+  let house = null, houseCount = 0, houseRot = 0;
+  try { house = JSON.parse(localStorage.getItem('dn_house') || 'null'); } catch (e) { house = null; }
   let current = null, timer = null, watchdog = null;
   const playedFixed = new Set();   // "adId@YYYY-MM-DD HH:MM"
 
   // Files live in cloud storage; `key` is the storage path, `path` the human name (its folder gives the caption)
-  const urlFor = it => DN.fileUrl(it.key || it.path);
+  const urlFor = it => it.url || DN.fileUrl(it.key || it.path);
   const pad = n => String(n).padStart(2, '0');
   const today = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
   const hhmm = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
@@ -190,6 +193,10 @@
     if (wOn) out.push({ type: 'welcome' });
     list.forEach((it, i) => {
       out.push(it);
+      if (house) {
+        houseCount++;
+        if (houseCount % house.every === 0) out.push(Object.assign({}, house.items[houseRot++ % house.items.length], { id: 'house', _ad: true, _house: true }));
+      }
       if (n && ads.length && (i + 1) % n === 0) out.push({ ...ads[adRotate++ % ads.length], _ad: true });
       if (wOn && (i + 1) % wn === 0 && i < list.length - 1) out.push({ type: 'welcome' });
     });
@@ -388,6 +395,12 @@
     tellApp(r);
     if (r.status !== 'paired') return { paired: false, code: r.code, expires: r.expires };
     setOff(r.mode === 'off');
+    const h = r.house && r.house.items && r.house.items.length ? { every: Math.max(1, parseInt(r.house.every, 10) || 3), items: r.house.items } : null;
+    if (JSON.stringify(h) !== JSON.stringify(house)) {
+      house = h;
+      try { localStorage.setItem('dn_house', JSON.stringify(h)); } catch (e) {}
+      if (state) prefetch(state);
+    }
     meta = { account: r.account || '', org: (r.org && r.org.name) || '', name: (r.screen && r.screen.name) || '', playlist: r.playlist || '', at: new Date() };
     return { paired: true, version: r.version, name: r.screen && r.screen.name, state: r.config ? norm(r.config) : null };
   }
@@ -490,7 +503,7 @@
   function prefetch(s) {
     if (PREVIEW || !navigator.serviceWorker || !navigator.serviceWorker.controller) return;
     const urls = new Set();
-    for (const it of [...s.playlist, ...s.ads]) if (it.key || it.path) urls.add(urlFor(it));
+    for (const it of [...s.playlist, ...s.ads, ...(house ? house.items : [])]) if (it.url || it.key || it.path) urls.add(urlFor(it));
     if (s.settings.logo) urls.add(DN.fileUrl(s.settings.logo));
     navigator.serviceWorker.controller.postMessage({ type: 'cache', urls: [...urls] });
   }

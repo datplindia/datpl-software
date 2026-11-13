@@ -58,8 +58,10 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Switched OFF from the dashboard: don't show the display, hand the screen to the TV's own launcher
-        if ("off".equals(prefs().getString("mode", "on"))) {
+        // Switched OFF from the dashboard: on power-on / Home don't show the display, hand the screen to the TV's
+        // own launcher. Opened by hand from the app icon it always opens and asks the server again, so a TV can
+        // never be stuck on an old "off".
+        if ("off".equals(prefs().getString("mode", "on")) && startedAutomatically(getIntent())) {
             goOff();
             return;
         }
@@ -96,6 +98,13 @@ public class MainActivity extends Activity {
         updater = new Updater(this);
         handler.postDelayed(autoUpdate, 90 * 1000L);   // first check shortly after start
         Toast.makeText(this, "Digital Display " + appVersion(), Toast.LENGTH_SHORT).show();
+    }
+
+    /** true for power-on, app update, the Home button; false when someone opens the app icon */
+    private static boolean startedAutomatically(Intent i) {
+        if (i == null) return true;
+        if (i.getBooleanExtra("auto", false)) return true;
+        return i.hasCategory(Intent.CATEGORY_HOME);
     }
 
     private SharedPreferences prefs() { return getSharedPreferences("dn", MODE_PRIVATE); }

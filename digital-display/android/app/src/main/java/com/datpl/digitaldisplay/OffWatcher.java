@@ -7,6 +7,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ServiceInfo;
 import android.os.Build;
 import android.os.IBinder;
 
@@ -36,14 +37,24 @@ public class OffWatcher extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (Build.VERSION.SDK_INT >= 26) {
-            NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            nm.createNotificationChannel(new NotificationChannel("dn", "Digital Display", NotificationManager.IMPORTANCE_MIN));
-            startForeground(1, new Notification.Builder(this, "dn").setSmallIcon(R.mipmap.ic_launcher)
-                    .setContentTitle("Digital Display is switched off").setContentText("Turn it on from the dashboard").build());
-        } else {
-            startForeground(1, new Notification.Builder(this).setSmallIcon(R.mipmap.ic_launcher)
-                    .setContentTitle("Digital Display is switched off").setPriority(Notification.PRIORITY_MIN).build());
+        // Never let this helper crash the app (Android 14 is strict about background services):
+        // if Android refuses, the app simply checks again the next time it is opened.
+        try {
+            Notification n;
+            if (Build.VERSION.SDK_INT >= 26) {
+                NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                nm.createNotificationChannel(new NotificationChannel("dn", "Digital Display", NotificationManager.IMPORTANCE_MIN));
+                n = new Notification.Builder(this, "dn").setSmallIcon(R.mipmap.ic_launcher)
+                        .setContentTitle("Digital Display is switched off").setContentText("Turn it on from the dashboard").build();
+            } else {
+                n = new Notification.Builder(this).setSmallIcon(R.mipmap.ic_launcher)
+                        .setContentTitle("Digital Display is switched off").setPriority(Notification.PRIORITY_MIN).build();
+            }
+            if (Build.VERSION.SDK_INT >= 34) startForeground(1, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+            else startForeground(1, n);
+        } catch (Throwable t) {
+            stopSelf();
+            return START_NOT_STICKY;
         }
         if (!running) {
             running = true;

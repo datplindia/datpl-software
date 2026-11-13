@@ -11,6 +11,7 @@
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <!-- while switched OFF from the dashboard, a small background check notices when it is switched ON -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
     <uses-feature android:name="android.software.leanback" android:required="false" />
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
@@ -61,7 +62,12 @@
         </receiver>
         <service
             android:name=".OffWatcher"
-            android:exported="false" />
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Waits for the signage display to be switched on again from the web dashboard" />
+        </service>
 
         <receiver
             android:name=".InstallReceiver"

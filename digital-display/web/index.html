@@ -229,6 +229,8 @@
       <button class="gbtn" id="gConnect"><svg viewBox="0 0 48 48"><path fill="#4285F4" d="M45 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h11.8c-.5 2.8-2.1 5.1-4.4 6.7v5.6h7.1C42.7 36.9 45 31.2 45 24.5z"/><path fill="#34A853" d="M24 46c5.9 0 10.9-2 14.5-5.3l-7.1-5.6c-2 1.3-4.5 2.1-7.4 2.1-5.7 0-10.5-3.8-12.2-9H4.5v5.7C8.1 41.1 15.5 46 24 46z"/><path fill="#FBBC05" d="M11.8 28.2c-.4-1.3-.7-2.7-.7-4.2s.3-2.9.7-4.2v-5.7H4.5C3 17.1 2 20.4 2 24s1 6.9 2.5 9.9l7.3-5.7z"/><path fill="#EA4335" d="M24 10.8c3.2 0 6.1 1.1 8.4 3.3l6.3-6.3C34.9 4.2 29.9 2 24 2 15.5 2 8.1 6.9 4.5 14.1l7.3 5.7c1.7-5.2 6.5-9 12.2-9z"/></svg><span data-i18n="gConnect"></span></button>
       <div class="linkRow"><input type="url" id="cloudLink" data-i18n-ph="linkPh"> <button id="cloudAdd" data-i18n="linkAdd"></button></div>
       <div class="hint" data-i18n="linkHint"></div>
+      <div style="margin-top:12px"><button class="primary" id="upAny">⬆ <span data-i18n="upBtn"></span></button>
+        <input type="file" id="upFiles" multiple accept="image/*,video/*" hidden></div>
       <div class="status" id="cloudMsg" style="margin-top:6px"></div>
     </div>
     <div id="sources"></div>
@@ -449,6 +451,14 @@ const I18N = {
     savedToast: 'Saved — your TVs update within about 10 seconds', saveFail: 'Could not save: ', connFail: 'Could not connect to the server: ',
     rxTitle: '🏢 Reception display', rxHelp: 'Extras shown on top of the slideshow. Changes appear on the TV within 20 seconds after Save.',
     cloudIntro: 'Your photos and videos stay in your own Google Drive — Digital Display does not store them. Choose a folder once: everything you put in it plays on your TVs, and new files appear by themselves.',
+    upBtn: 'Upload photos/videos from this phone or computer', upHere: 'Upload here',
+    upNoFolder: 'First connect your Google Drive folder (button above) — your uploads are saved in that folder.',
+    upWhich: 'Which folder? Use "Upload here" on the folder below.',
+    upProgress: (i, n, p) => `Uploading ${i} of ${n} to your Google Drive… ${p}%`,
+    upDone: n => `${n} file${n > 1 ? 's' : ''} uploaded to your Google Drive — your TVs show them within a minute`,
+    upDoneSave: n => `${n} file${n > 1 ? 's' : ''} uploaded to your Google Drive. Press Save so your TVs pick them up now.`,
+    upNoAccess: 'Digital Display may not add files to this folder because it was added as a link. Use "Connect Google Drive & choose a folder" and pick this folder once, then upload again.',
+    upFail: n => `${n} file(s) could not be uploaded`,
     gConnect: 'Connect Google Drive & choose a folder', linkPh: 'Or paste a link: Google Drive folder or file, Dropbox file, or any photo/video web link',
     linkAdd: 'Add link', linkHint: 'OneDrive and Dropbox folders are coming soon. A pasted Google Drive folder must be shared as "Anyone with the link".',
     oldUpTitle: 'Earlier uploads', oldUpHint: 'These files were uploaded before we moved to your own cloud storage. They keep playing for now — please put them in your Google Drive folder, then delete them here.',
@@ -821,6 +831,7 @@ function renderSources() {
         <span class="status">${r.err ? '⚠ ' + t('srcErr') : folder ? t('srcCount')(files.length - nV, nV) : ''}</span>
         <span class="acts">
           ${folder ? `<button class="primary" data-sfold="${esc(src.id)}" title="${t('srcAllTitle')}" ${have.has('F' + src.ref) ? 'disabled' : ''}>${have.has('F' + src.ref) ? t('inPl') : t('srcAll')}</button>` : ''}
+          ${folder ? `<button data-sup="${esc(src.id)}">⬆ ${t('upHere')}</button>` : ''}
           <button class="danger" data-srm="${esc(src.id)}">${t('srcRemove')}</button></span></div>
       ${r.err && folder ? `<div class="status" style="padding:10px">${t('linkNoAccess')}</div>` : files.length ? `<div class="grid">${tiles}</div>` : folder ? `<div class="status" style="padding:10px">${t('srcEmpty')}</div>` : ''}
     </div>`;
@@ -840,6 +851,7 @@ $('#sources').addEventListener('click', async e => {
     cfg.playlist.push({ id: uid(), source: 'gfolder', fid: src.ref, path: src.name, type: 'folder', duration: '' });
     renderPlaylist(); renderSources(); setDirty(); toast(t('srcAdded'));
   }
+  if (d.sup) { upTarget = sources.find(x => x.id === d.sup); $('#upFiles').click(); return; }
   if (d.srm) {
     const src = sources.find(x => x.id === d.srm);
     if (!confirm(t('srcConfirmRm')(src.name))) return;
@@ -852,6 +864,66 @@ async function addSourceRow(kind, ref, name) {
   await loadSourceFiles(row); sources.push(row); renderSources();
   return srcFiles[row.id];
 }
+
+// ---------- upload from this phone / computer straight into the customer's Google Drive folder ----------
+let upTarget = null;
+async function driveUpload(file, folderId, token, onProgress) {
+  const type = file.type || (DN.isVideo(file.name) ? 'video/mp4' : 'image/jpeg');
+  const start = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&supportsAllDrives=true&fields=id,name', {
+    method: 'POST',
+    headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json; charset=UTF-8',
+               'X-Upload-Content-Type': type, 'X-Upload-Content-Length': String(file.size) },
+    body: JSON.stringify({ name: file.name, parents: [folderId] })
+  });
+  if (!start.ok) { const e = new Error('upload ' + start.status); e.status = start.status; throw e; }
+  const loc = start.headers.get('Location');
+  if (!loc) throw new Error('upload: no session');
+  await new Promise((resolve, reject) => {
+    const x = new XMLHttpRequest();
+    x.open('PUT', loc);
+    x.setRequestHeader('Content-Type', type);
+    x.upload.onprogress = e => { if (e.lengthComputable) onProgress(Math.round(e.loaded / e.total * 100)); };
+    x.onload = () => (x.status >= 200 && x.status < 300) ? resolve() : reject(new Error('upload ' + x.status));
+    x.onerror = () => reject(new Error('network'));
+    x.send(file);
+  });
+}
+async function uploadTo(src, files) {
+  files = [...files]; if (!files.length) return;
+  let token;
+  try { token = await googleToken(); } catch (e) { return cloudMsg(''); }
+  let ok = 0, noAccess = false;
+  for (let i = 0; i < files.length; i++) {
+    try {
+      await driveUpload(files[i], src.ref, token, p => cloudMsg(t('upProgress')(i + 1, files.length, p)));
+      ok++;
+    } catch (e) { if (e.status === 403 || e.status === 404) { noAccess = true; break; } }
+  }
+  $('#upFiles').value = '';
+  if (noAccess && !ok) return cloudMsg(t('upNoAccess'));
+  await loadSourceFiles(src); renderSources();
+  if (files.some(f => /\.(mov|hevc|heic|heif|mkv|avi|wmv)$/i.test(f.name) || /quicktime|hevc|heic/i.test(f.type))) alert(t('fmtWarn'));
+  // tell the TVs at once (saving bumps the playlist version) — only when there are no other unsaved changes
+  const used = cfg.playlist.some(it => it.source === 'gfolder' && it.fid === src.ref);
+  if (used && !dirty) { try { cfg = await DB.saveConfig(cfg); renderPlaylist(); } catch (e) {} cloudMsg(t('upDone')(ok)); }
+  else cloudMsg(used ? t('upDoneSave')(ok) : t('upDone')(ok));
+  if (ok < files.length) toast(t('upFail')(files.length - ok));
+}
+$('#upAny').onclick = () => {
+  const folders = sources.filter(x => x.kind === 'gdrive');
+  if (!folders.length) return cloudMsg(t('upNoFolder'));
+  if (folders.length > 1) return cloudMsg(t('upWhich'));
+  if (!DN.googleClientId) return alert(t('gNotReady'));
+  upTarget = folders[0]; $('#upFiles').click();
+};
+$('#upFiles').onchange = e => { if (upTarget) uploadTo(upTarget, e.target.files); };
+$('#cloudBox').addEventListener('dragover', e => { e.preventDefault(); });
+$('#cloudBox').addEventListener('drop', e => {
+  e.preventDefault();
+  const folders = sources.filter(x => x.kind === 'gdrive');
+  if (folders.length !== 1) return cloudMsg(folders.length ? t('upWhich') : t('upNoFolder'));
+  uploadTo(folders[0], e.dataTransfer.files);
+});
 
 // Paste a link
 $('#cloudAdd').onclick = async () => {

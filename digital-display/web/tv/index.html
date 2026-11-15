@@ -125,7 +125,7 @@
   const playedFixed = new Set();   // "adId@YYYY-MM-DD HH:MM"
 
   // Files live in cloud storage; `key` is the storage path, `path` the human name (its folder gives the caption)
-  const urlFor = it => it.url || DN.fileUrl(it.key || it.path);
+  const urlFor = it => DN.mediaUrl(it);
   const pad = n => String(n).padStart(2, '0');
   const today = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
   const hhmm = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
@@ -160,7 +160,7 @@
     const el = document.createElement('div');
     el.className = 'layer welcome' + (s.transition === false ? ' notrans' : '');
     el.style.fontSize = (Overlay.layoutFor(s).welcome.fs * ov.k) + 'px';
-    el.innerHTML = `${s.logo ? `<div class="wl"><img src="${DN.fileUrl(s.logo)}" alt=""></div>` : ''}
+    el.innerHTML = `${s.logo ? `<div class="wl"><img src="${DN.assetUrl(s.logo)}" alt=""></div>` : ''}
       <div class="wk">${esc(w.title || 'Welcome')}</div>
       <div class="wn">${esc(w.name || '')}</div>
       ${w.company ? `<div class="wc">${esc(w.company)}</div>` : ''}
@@ -183,9 +183,52 @@
     return true;
   }
 
+  // ---------- customers' Google Drive folders: a folder item plays every photo/video in it ----------
+  const FOLDER_TTL = 5 * 60 * 1000;           // look for new / removed files every 5 minutes
+  let folders = {};
+  try { folders = JSON.parse(localStorage.getItem('dn_folders') || '{}') || {}; } catch (e) { folders = {}; }
+  function expand(list) {
+    const out = [];
+    for (const it of list) {
+      if (it.source !== 'gfolder') { out.push(it); continue; }
+      const f = folders[it.fid];
+      for (const x of (f && f.files) || []) {
+        out.push({ id: it.id + ':' + x.fid, source: 'gdrive', fid: x.fid, type: x.type,
+                   path: (it.path ? it.path + '/' : '') + x.path, caption: it.caption || '', duration: it.duration || '' });
+      }
+    }
+    return out;
+  }
+  let folderBusy = false;
+  async function refreshFolders(force) {
+    const st = pendingState || state;
+    if (folderBusy || !st || !DN.googleApiKey) return;
+    folderBusy = true;
+    let changed = false;
+    try {
+      const ids = new Set(st.playlist.filter(it => it.source === 'gfolder' && it.fid).map(it => it.fid));
+      for (const id of ids) {
+        const f = folders[id];
+        if (!force && f && Date.now() - f.at < FOLDER_TTL) continue;
+        try {
+          const files = await DN.listDrive(id);
+          if (!f || JSON.stringify(f.files) !== JSON.stringify(files)) changed = true;
+          folders[id] = { at: Date.now(), files };
+        } catch (e) { if (f) f.at = Date.now() - FOLDER_TTL + 60000; }   // offline / no access: keep the last list, retry in a minute
+      }
+      for (const id of Object.keys(folders)) if (!ids.has(id)) { delete folders[id]; changed = true; }
+      try { localStorage.setItem('dn_folders', JSON.stringify(folders)); } catch (e) {}
+    } finally { folderBusy = false; }
+    if (changed) {
+      if (!PREVIEW) prefetch(st);
+      if (!current) { queue = []; qi = 0; next(); } else if (!pendingState) pendingState = st;
+    }
+  }
+  setInterval(() => refreshFolders(false), 60000);
+
   // Playlist with interval ads (every N items) and the welcome slide (start + every M items)
   function buildQueue() {
-    const s = state.settings, list = state.playlist.slice();
+    const s = state.settings, list = expand(state.playlist);
     const n = parseInt(s.adEveryN, 10) || 0;
     const ads = state.ads.filter(a => a.useInterval !== false && adActive(a));
     const wOn = welcomeActive(), wn = Math.max(1, parseInt((s.welcome || {}).everyN, 10) || 4);
@@ -235,7 +278,7 @@
 
   // ---------- overlays (shared with the admin layout editor) ----------
   const ov = Overlay.mount($('screen'), $('frame'));
-  const brandUrl = f => DN.fileUrl(f);
+  const brandUrl = f => DN.assetUrl(f);
   function applyOverlays() { Overlay.apply(ov, state.settings, { brandUrl }); }
   window.addEventListener('resize', () => { if (state) Overlay.fit(ov); showInfo(); });
 
@@ -503,8 +546,8 @@
   function prefetch(s) {
     if (PREVIEW || !navigator.serviceWorker || !navigator.serviceWorker.controller) return;
     const urls = new Set();
-    for (const it of [...s.playlist, ...s.ads, ...(house ? house.items : [])]) if (it.url || it.key || it.path) urls.add(urlFor(it));
-    if (s.settings.logo) urls.add(DN.fileUrl(s.settings.logo));
+    for (const it of [...expand(s.playlist), ...s.ads, ...(house ? house.items : [])]) if (it.fid || it.url || it.key || it.path) urls.add(urlFor(it));
+    if (s.settings.logo) urls.add(DN.assetUrl(s.settings.logo));
     navigator.serviceWorker.controller.postMessage({ type: 'cache', urls: [...urls] });
   }
   if ('serviceWorker' in navigator && !PREVIEW) {
@@ -523,6 +566,7 @@
     if (!PREVIEW) { saveState(s, v); prefetch(s); }
     if (!current) { state = s; applySettings(); queue = []; qi = 0; next(); }
     else { pendingState = s; const keep = state; state = s; applyOverlays(); state = keep; }
+    setTimeout(() => refreshFolders(false), 0);
   }
 
   // Check for changes; playlist changes take effect from the next item, overlays immediately

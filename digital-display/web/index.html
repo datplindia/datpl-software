@@ -13,6 +13,21 @@
   header h1 { font-size:18px; margin:0; flex:1; }
   .status { font-size:13px; color:var(--mute); }
   button { font:inherit; border:1px solid var(--line); background:var(--card); border-radius:8px; padding:7px 12px; cursor:pointer; }
+  .cloud { border:2px dashed var(--line); border-radius:12px; padding:14px; margin-bottom:12px; background:linear-gradient(135deg,#f5f9ff,#fdf4ff); }
+  .cloud .gbtn { display:inline-flex; align-items:center; gap:10px; background:#fff; color:#1f1f1f; border:1px solid #c6c6c6; border-radius:24px; padding:10px 18px; font-weight:600; font-size:15px; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,.12); }
+  .cloud .gbtn svg { width:20px; height:20px; }
+  .cloud .linkRow { display:flex; gap:6px; margin-top:12px; }
+  .cloud .linkRow input { flex:1; min-width:0; }
+  .cloud .hint { margin-top:6px; }
+  .src { border:1px solid var(--line); border-radius:12px; margin-bottom:12px; overflow:hidden; background:#fff; }
+  .src .srcHead { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:10px 12px; background:#f8fafc; border-bottom:1px solid var(--line); }
+  .src .srcHead b { font-size:15px; }
+  .src .srcHead .acts { margin-left:auto; display:flex; gap:6px; flex-wrap:wrap; }
+  .src .grid { padding:10px; max-height:40vh; }
+  .fold { display:flex; align-items:center; justify-content:center; width:100%; height:100%; font-size:28px; background:#fef3c7; }
+  #logoPick { margin-top:8px; }
+  #logoPick .grid { grid-template-columns:repeat(auto-fill,minmax(90px,1fr)); max-height:220px; }
+  #logoPick .tile { cursor:pointer; }
   button.primary { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
   button.danger { color:var(--danger); }
   button:disabled { opacity:.5; cursor:default; }
@@ -208,14 +223,18 @@
 
   <!-- LIBRARY -->
   <section>
-    <h2><span data-i18n="library"></span> <span class="count" id="libCount"></span> <button id="refreshLib" style="margin-left:auto" data-i18n="refresh"></button></h2>
-    <div class="upload" id="dropZone">
-      <span data-i18n="dropHint"></span> <button id="pickBtn" data-i18n="pickFiles"></button>
-      <input type="file" id="fileInput" multiple accept="video/*,image/*" hidden>
-      <div class="folderRow"><span data-i18n="folderLbl"></span> <input type="text" id="upFolder" data-i18n-ph="folderPh"></div>
-      <div class="hint" data-i18n="uploadHint"></div>
-      <div id="upProgress"></div>
+    <h2><span data-i18n="library"></span> <button id="refreshLib" style="margin-left:auto" data-i18n="refresh"></button></h2>
+    <div class="cloud" id="cloudBox">
+      <p class="hint" style="margin:0 0 10px" data-i18n="cloudIntro"></p>
+      <button class="gbtn" id="gConnect"><svg viewBox="0 0 48 48"><path fill="#4285F4" d="M45 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h11.8c-.5 2.8-2.1 5.1-4.4 6.7v5.6h7.1C42.7 36.9 45 31.2 45 24.5z"/><path fill="#34A853" d="M24 46c5.9 0 10.9-2 14.5-5.3l-7.1-5.6c-2 1.3-4.5 2.1-7.4 2.1-5.7 0-10.5-3.8-12.2-9H4.5v5.7C8.1 41.1 15.5 46 24 46z"/><path fill="#FBBC05" d="M11.8 28.2c-.4-1.3-.7-2.7-.7-4.2s.3-2.9.7-4.2v-5.7H4.5C3 17.1 2 20.4 2 24s1 6.9 2.5 9.9l7.3-5.7z"/><path fill="#EA4335" d="M24 10.8c3.2 0 6.1 1.1 8.4 3.3l6.3-6.3C34.9 4.2 29.9 2 24 2 15.5 2 8.1 6.9 4.5 14.1l7.3 5.7c1.7-5.2 6.5-9 12.2-9z"/></svg><span data-i18n="gConnect"></span></button>
+      <div class="linkRow"><input type="url" id="cloudLink" data-i18n-ph="linkPh"> <button id="cloudAdd" data-i18n="linkAdd"></button></div>
+      <div class="hint" data-i18n="linkHint"></div>
+      <div class="status" id="cloudMsg" style="margin-top:6px"></div>
     </div>
+    <div id="sources"></div>
+    <div id="oldUp" hidden>
+    <h3 style="margin:14px 0 4px"><span data-i18n="oldUpTitle"></span> <span class="count" id="libCount"></span></h3>
+    <p class="hint" style="margin:0 0 8px" data-i18n="oldUpHint"></p>
     <input type="search" id="search" data-i18n-ph="searchPh">
     <div class="bulk">
       <label><input type="checkbox" id="libAll"> <span id="libSelTxt"></span></label>
@@ -224,6 +243,7 @@
       <button class="danger" id="libRmSel" disabled></button>
     </div>
     <div class="grid" id="lib"></div>
+    </div>
   </section>
 
   <!-- PLAYLIST -->
@@ -280,8 +300,8 @@
             <button id="logoUp" data-i18n="logoUpload"></button>
             <button id="logoRm" class="danger" data-i18n="logoRemove"></button>
           </div>
-          <input type="file" id="logoFile" accept="image/png,image/jpeg,image/webp,image/svg+xml,image/gif" hidden>
         </div>
+        <div id="logoPick" hidden></div>
         <div class="hint" data-i18n="logoHint"></div>
         <label><span data-i18n="accent"></span><input type="color" id="rAccent" style="width:64px;height:32px;padding:0;border:none"></label>
         <label class="chk"><input type="checkbox" id="rClock"> <span data-i18n="clockOn"></span></label>
@@ -394,7 +414,7 @@ const I18N = {
     notMedia: n => `"${n}" is not a photo or video`, tooBig: (n, mb) => `"${n}" is bigger than ${mb} MB`, upErr: 'Upload failed',
     plEditing: 'Editing:', plNew: '+ New', plRename: 'Rename', plDelete: 'Delete', plNewName: 'Name of the new playlist (e.g. Branch 2, Festival offers)',
     confirmPlDelete: n => `Delete the playlist "${n}"? TVs playing it switch to another playlist.`,
-    library: '📁 My photos & videos', refresh: '↻ Refresh', tabMedia: 'Videos/Photos', tabAds: 'Ad files',
+    library: '☁ My cloud storage', refresh: '↻ Refresh', tabMedia: 'Videos/Photos', tabAds: 'Ad files',
     dropHint: 'Drag photos/videos here or', pickFiles: 'Choose files', searchPh: 'Search by name/folder…',
     playlist: '▶ Playlist', clearAll: 'Clear all', logout: 'Logout',
     selAll: n => `Select all (${n})`, selN: (n, all) => `${n} of ${all} selected`,
@@ -428,7 +448,26 @@ const I18N = {
     uploadFail: n => `${n} file(s) not uploaded (only videos/photos are allowed)`,
     savedToast: 'Saved — the TV updates within 20 seconds', saveFail: 'Could not save: ', connFail: 'Could not connect to the server: ',
     rxTitle: '🏢 Reception display', rxHelp: 'Extras shown on top of the slideshow. Changes appear on the TV within 20 seconds after Save.',
-    rxBrand: 'Logo, colour & clock', logoUpload: 'Upload logo', logoRemove: 'Remove', logoNone: 'No logo',
+    cloudIntro: 'Your photos and videos stay in your own Google Drive — Digital Display does not store them. Choose a folder once: everything you put in it plays on your TVs, and new files appear by themselves.',
+    gConnect: 'Connect Google Drive & choose a folder', linkPh: 'Or paste a link: Google Drive folder or file, Dropbox file, or any photo/video web link',
+    linkAdd: 'Add link', linkHint: 'OneDrive and Dropbox folders are coming soon. A pasted Google Drive folder must be shared as "Anyone with the link".',
+    oldUpTitle: 'Earlier uploads', oldUpHint: 'These files were uploaded before we moved to your own cloud storage. They keep playing for now — please put them in your Google Drive folder, then delete them here.',
+    gNotReady: 'Google Drive connection is being set up by Digital Arts — please try again soon, or paste a shared folder link for now.',
+    gWorking: 'Opening Google…', gSharing: 'Getting the folder ready for your TVs…', gAdded: n => `Folder added — ${n} photos/videos found`,
+    gShareFail: 'Google did not allow sharing this folder by link (your organisation may block it). Choose a folder in a personal Google account, or ask your Google admin.',
+    gPickTitle: 'Choose the folder for your TVs',
+    gShareNote: 'To let your TVs show the files, this folder will be set to "Anyone with the link can view". Only put things in it that may be shown in public.',
+    linkBad: 'That does not look like a web link (it must start with https://).',
+    linkOneDrive: 'OneDrive is coming soon. For now, put the files in Google Drive, or paste a direct link to a photo/video.',
+    linkDropboxFolder: 'Dropbox folders are coming soon. You can paste the link of a single Dropbox file, or use Google Drive.',
+    linkNoAccess: 'We cannot open this Google Drive folder. In Drive: Share › General access › "Anyone with the link" › Viewer — or use "Connect Google Drive" above.',
+    linkAdded: 'Link added', srcAll: '+ Add whole folder', srcAllTitle: 'Plays every photo and video in this folder — new files appear on the TV by themselves',
+    srcRemove: 'Remove', srcConfirmRm: n => `Remove "${n}" from Digital Display? (Nothing is deleted from your Drive.)`,
+    srcCount: (i, v) => `${i} photos · ${v} videos`, srcEmpty: 'No photos or videos in this folder yet — add some in Google Drive, then press Refresh.',
+    srcErr: 'Could not read this folder right now', folderBadge: 'Folder · auto', srcAdded: 'Folder added to the playlist',
+    noSources: 'Nothing connected yet — connect your Google Drive folder above.',
+    logoPickHint: 'Click a picture from your cloud folders, or paste a link to your logo:', logoNoImages: 'Connect a Google Drive folder that has your logo in it, or paste a link:',
+    rxBrand: 'Logo, colour & clock', logoUpload: 'Choose logo', logoRemove: 'Remove', logoNone: 'No logo',
     logoHint: 'PNG with transparent background looks best. Shown in the top-left corner.',
     accent: 'Brand colour (ticker, caption bar, welcome screen)', clockOn: 'Show time & date (top-right)',
     rxCaptions: 'Product captions', captionsOn: 'Show product name on each photo',
@@ -468,7 +507,7 @@ function applyLang() {
 let cfg = null, lib = { media: [], ads: [] }, tab = 'media', dirty = false;
 
 const uid = () => Math.random().toString(36).slice(2, 10);
-const urlFor = it => DN.fileUrl(it.key || it.path);
+const urlFor = it => DN.mediaUrl(it);
 const base = p => p.split('/').pop();
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 const fmtSize = b => b > 1e9 ? (b/1e9).toFixed(1)+' GB' : b > 1e6 ? (b/1e6).toFixed(0)+' MB' : (b/1e3).toFixed(0)+' KB';
@@ -480,6 +519,8 @@ function setDirty(d = true) { dirty = d; $('#saveBtn').disabled = !d; $('#status
 
 // Thumbnails: images load directly; videos show the first frame (metadata only, so it stays light)
 function thumbHTML(it) {
+  if (it.type === 'folder') return '<div class="fold">📁</div>';
+  if (it.fid) return `<img loading="lazy" src="https://drive.google.com/thumbnail?id=${encodeURIComponent(it.fid)}&sz=w320" onerror="if(!this.dataset.f){this.dataset.f=1;this.src='${it.type === 'image' ? DN.driveUrl(it.fid) : ''}'}">`;
   if (it.type === 'image') return `<img loading="lazy" src="${urlFor(it)}">`;
   return `<video preload="metadata" muted src="${urlFor(it)}#t=1"></video>`;
 }
@@ -526,6 +567,7 @@ function updateLibBulk() {
 }
 
 function renderLib() {
+  $('#oldUp').hidden = !(lib.media || []).length;
   const items = libItems = libFiltered();
   const sel = libSel[tab], have = inPlaylist();
   $('#libCount').textContent = `(${items.length})`;
@@ -617,7 +659,7 @@ function renderPlaylist() {
       <span class="handle" title="${t('dragHint')}">⠿</span>
       <div class="mini">${thumbHTML(it)}</div>
       <div class="label" title="${esc(it.path)}">${i + 1}. ${esc(base(it.path))}
-        <span class="badge ${it.source === 'ads' ? 'ad' : ''}">${it.type === 'video' ? t('video') : t('photo')}</span></div>
+        <span class="badge ${it.source === 'ads' ? 'ad' : ''}">${it.type === 'folder' ? t('folderBadge') : it.type === 'video' ? t('video') : t('photo')}</span></div>
       <input type="text" class="cap" placeholder="${t('capPh')}" value="${esc(it.caption || '')}" data-cap="${i}">
       <input type="number" min="1" placeholder="${it.type === 'image' ? cfg.settings.imageDuration : t('full')}" value="${esc(it.duration || '')}" data-dur="${i}" title="${t('durTitle')}">
       <button data-up="${i}">↑</button><button data-down="${i}">↓</button>
@@ -631,7 +673,7 @@ $('#playlist').addEventListener('click', e => {
   if (d.rm) pl.splice(+d.rm, 1);
   if (d.up && +d.up > 0) [pl[+d.up - 1], pl[+d.up]] = [pl[+d.up], pl[+d.up - 1]];
   if (d.down && +d.down < pl.length - 1) [pl[+d.down + 1], pl[+d.down]] = [pl[+d.down], pl[+d.down + 1]];
-  renderPlaylist(); if (d.rm) renderLib(); setDirty();
+  renderPlaylist(); if (d.rm) { renderLib(); renderSources(); } setDirty();
 });
 $('#playlist').addEventListener('change', e => {
   const i = e.target.dataset.psel; if (i === undefined) return;
@@ -731,31 +773,165 @@ function renderSettings() {
 
 // Tabs & search
 $('#search').addEventListener('input', renderLib);
-$('#refreshLib').onclick = async () => { lib = await DB.library(); renderLib(); toast(t('libRefreshed')); };
+$('#refreshLib').onclick = async () => { [lib] = await Promise.all([DB.library(), loadSources()]); renderLib(); renderSources(); toast(t('libRefreshed')); };
 
-// Upload photos/videos straight to cloud storage (one by one, with progress)
-async function uploadFiles(files) {
-  files = [...files]; if (!files.length) return;
-  let ok = 0;
-  const folder = $('#upFolder').value.trim().replace(/[\\/]+/g, ' ');
-  for (let i = 0; i < files.length; i++) {
-    try {
-      await DB.upload(files[i], folder, p => { $('#upProgress').textContent = t('uploading')(i + 1, files.length, p); });
-      ok++;
-    } catch (e) { toast(e.message); }
-  }
-  $('#upProgress').textContent = ok === files.length ? t('uploadDone') : t('uploadFail')(files.length - ok);
-  if (files.some(f => /\.(mov|hevc|heic|heif|mkv|avi|wmv)$/i.test(f.name) || /quicktime|hevc|heic/i.test(f.type)))
-    alert(t('fmtWarn'));
-  $('#fileInput').value = '';
-  lib = await DB.library(); renderLib();
+// ---------- the customer's own cloud storage (Google Drive folders, links) ----------
+let sources = [], srcFiles = {};          // srcFiles[id] = { files:[...] } | { err }
+const loadScript = src => new Promise((res, rej) => {
+  if (document.querySelector(`script[src="${src}"]`)) return res();
+  const el = document.createElement('script'); el.src = src; el.async = true; el.onload = res; el.onerror = () => rej(new Error('load ' + src));
+  document.head.appendChild(el);
+});
+const cloudMsg = m => { $('#cloudMsg').textContent = m || ''; };
+
+async function loadSourceFiles(src) {
+  try {
+    if (src.kind === 'gdrive') srcFiles[src.id] = { files: await DN.listDrive(src.ref) };
+    else if (src.kind === 'gfile') srcFiles[src.id] = { files: [{ fid: src.ref, path: src.name, type: DN.isVideo(src.name) ? 'video' : 'image' }] };
+    else srcFiles[src.id] = { files: [{ url: src.ref, path: src.name, type: DN.isVideo(src.ref) || DN.isVideo(src.name) ? 'video' : 'image' }] };
+  } catch (e) { srcFiles[src.id] = { err: e.status || e.message }; }
 }
-$('#pickBtn').onclick = () => $('#fileInput').click();
-$('#fileInput').onchange = e => uploadFiles(e.target.files);
-const dz = $('#dropZone');
-dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
-dz.addEventListener('dragleave', () => dz.classList.remove('over'));
-dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('over'); uploadFiles(e.dataTransfer.files); });
+async function loadSources() {
+  sources = await DB.sourcesList();
+  await Promise.all(sources.map(loadSourceFiles));
+}
+// a file from a source -> playlist / ad item
+function srcItem(src, f) {
+  const base = { id: uid(), type: f.type, path: (src.kind === 'gdrive' ? src.name + '/' : '') + f.path, duration: '' };
+  return f.fid ? { ...base, source: 'gdrive', fid: f.fid } : { ...base, source: 'url', url: f.url };
+}
+let srcTiles = [];
+function renderSources() {
+  srcTiles = [];
+  if (!sources.length) { $('#sources').innerHTML = `<div class="empty">${t('noSources')}</div>`; return; }
+  const have = new Set(cfg.playlist.map(it => it.source === 'gfolder' ? 'F' + it.fid : it.fid ? 'f' + it.fid : 'u' + it.url));
+  $('#sources').innerHTML = sources.map(src => {
+    const r = srcFiles[src.id] || {}, files = r.files || [];
+    const nV = files.filter(f => f.type === 'video').length, folder = src.kind === 'gdrive';
+    const tiles = files.slice(0, 200).map(f => {
+      const i = srcTiles.push({ src, f }) - 1;
+      const on = have.has(f.fid ? 'f' + f.fid : 'u' + f.url);
+      return `<div class="tile">${on ? `<span class="inpl">${t('inPl')}</span>` : ''}
+        <div class="thumb">${thumbHTML(f)}</div>
+        <div class="name" title="${esc(f.path)}">${f.type === 'video' ? '🎬' : '🖼'} ${esc(f.path)}</div>
+        <div class="acts"><button data-sadd="${i}">${t('addPl')}</button><button data-sad="${i}">${t('makeAd')}</button></div></div>`;
+    }).join('');
+    return `<div class="src">
+      <div class="srcHead"><span>${folder ? '📁' : '🔗'}</span><b>${esc(src.name)}</b>
+        <span class="status">${r.err ? '⚠ ' + t('srcErr') : folder ? t('srcCount')(files.length - nV, nV) : ''}</span>
+        <span class="acts">
+          ${folder ? `<button class="primary" data-sfold="${esc(src.id)}" title="${t('srcAllTitle')}" ${have.has('F' + src.ref) ? 'disabled' : ''}>${have.has('F' + src.ref) ? t('inPl') : t('srcAll')}</button>` : ''}
+          <button class="danger" data-srm="${esc(src.id)}">${t('srcRemove')}</button></span></div>
+      ${r.err && folder ? `<div class="status" style="padding:10px">${t('linkNoAccess')}</div>` : files.length ? `<div class="grid">${tiles}</div>` : folder ? `<div class="status" style="padding:10px">${t('srcEmpty')}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+$('#sources').addEventListener('click', async e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const d = b.dataset;
+  if (d.sadd !== undefined) { const x = srcTiles[+d.sadd]; cfg.playlist.push(srcItem(x.src, x.f)); renderPlaylist(); renderSources(); setDirty(); toast(t('addedPl')); }
+  if (d.sad !== undefined) {
+    const x = srcTiles[+d.sad], it = srcItem(x.src, x.f);
+    cfg.ads.push({ ...it, name: base(it.path), enabled: true, useInterval: true, startDate: '', endDate: '', startTime: '', endTime: '', days: [], fixedTimes: [] });
+    renderAds(); setDirty(); toast(t('adMade'));
+  }
+  if (d.sfold) {
+    const src = sources.find(x => x.id === d.sfold);
+    cfg.playlist.push({ id: uid(), source: 'gfolder', fid: src.ref, path: src.name, type: 'folder', duration: '' });
+    renderPlaylist(); renderSources(); setDirty(); toast(t('srcAdded'));
+  }
+  if (d.srm) {
+    const src = sources.find(x => x.id === d.srm);
+    if (!confirm(t('srcConfirmRm')(src.name))) return;
+    await DB.removeSource(src.id); await loadSources(); renderSources();
+  }
+});
+
+async function addSourceRow(kind, ref, name) {
+  const row = await DB.addSource(kind, ref, name);
+  await loadSourceFiles(row); sources.push(row); renderSources();
+  return srcFiles[row.id];
+}
+
+// Paste a link
+$('#cloudAdd').onclick = async () => {
+  const link = $('#cloudLink').value.trim(), L = DN.parseLink(link);
+  cloudMsg('');
+  if (L.kind === 'bad') return cloudMsg(t('linkBad'));
+  if (L.kind === 'onedrive') return cloudMsg(t('linkOneDrive'));
+  if (L.kind === 'dropbox-folder') return cloudMsg(t('linkDropboxFolder'));
+  try {
+    if (L.kind === 'gdrive-folder' || L.kind === 'gdrive-file') {
+      if (!DN.googleApiKey) return cloudMsg(t('gNotReady'));
+      let info;
+      try { info = await DN.driveInfo(L.id); } catch (e) { return cloudMsg(t('linkNoAccess')); }
+      const isFolder = info.mimeType === 'application/vnd.google-apps.folder';
+      const r = await addSourceRow(isFolder ? 'gdrive' : 'gfile', L.id, info.name);
+      cloudMsg(isFolder ? t('gAdded')((r.files || []).length) : t('linkAdded'));
+    } else {
+      await addSourceRow('url', L.url, L.name);
+      cloudMsg(t('linkAdded'));
+    }
+    $('#cloudLink').value = '';
+  } catch (e) { cloudMsg(e.message); }
+};
+
+// "Connect Google Drive": Google sign-in (only files/folders the customer picks) + Google's folder picker.
+// The picked folder is shared as "anyone with the link can view" so the TVs can play what is inside.
+let gToken = null, gTokenAt = 0;
+async function googleToken() {
+  if (gToken && Date.now() - gTokenAt < 50 * 60 * 1000) return gToken;
+  await loadScript('https://accounts.google.com/gsi/client');
+  return new Promise((resolve, reject) => {
+    const c = google.accounts.oauth2.initTokenClient({
+      client_id: DN.googleClientId,
+      scope: 'https://www.googleapis.com/auth/drive.file',
+      callback: r => { if (r.error) reject(new Error(r.error)); else { gToken = r.access_token; gTokenAt = Date.now(); resolve(gToken); } },
+      error_callback: e => reject(new Error((e && e.type) || 'cancelled'))
+    });
+    c.requestAccessToken();
+  });
+}
+async function shareFolder(id, token) {
+  const r = await fetch(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(id)}/permissions?supportsAllDrives=true&sendNotificationEmail=false`, {
+    method: 'POST', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ role: 'reader', type: 'anyone', allowFileDiscovery: false })
+  });
+  if (!r.ok) throw new Error('share');
+}
+$('#gConnect').onclick = async () => {
+  if (!DN.googleClientId || !DN.googleApiKey) return alert(t('gNotReady'));
+  cloudMsg(t('gWorking'));
+  try {
+    const token = await googleToken();
+    await loadScript('https://apis.google.com/js/api.js');
+    await new Promise(r => gapi.load('picker', r));
+    const view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
+      .setIncludeFolders(true).setSelectFolderEnabled(true).setMimeTypes('application/vnd.google-apps.folder');
+    const picked = await new Promise(resolve => {
+      const pk = new google.picker.PickerBuilder()
+        .setTitle(t('gPickTitle')).addView(view)
+        .addView(new google.picker.DocsView(google.picker.ViewId.FOLDERS).setEnableDrives(true).setIncludeFolders(true).setSelectFolderEnabled(true).setMimeTypes('application/vnd.google-apps.folder'))
+        .setOAuthToken(token).setDeveloperKey(DN.googleApiKey).setAppId(DN.googleAppId)
+        .setCallback(d => {
+          if (d.action === google.picker.Action.PICKED) resolve(d.docs[0]);
+          else if (d.action === google.picker.Action.CANCEL) resolve(null);
+        }).build();
+      pk.setVisible(true);
+    });
+    if (!picked) return cloudMsg('');
+    if (!confirm(t('gShareNote'))) return cloudMsg('');
+    cloudMsg(t('gSharing'));
+    try { await shareFolder(picked.id, token); } catch (e) { return cloudMsg(t('gShareFail')); }
+    let r = null;
+    for (let i = 0; i < 4; i++) {           // Google can take a few seconds before the link works
+      if (i) await new Promise(res => setTimeout(res, 2500));
+      try { await DN.listDrive(picked.id, 0); break; } catch (e) { if (i === 3) throw e; }
+    }
+    r = await addSourceRow('gdrive', picked.id, picked.name);
+    cloudMsg(t('gAdded')((r.files || []).length));
+  } catch (e) { cloudMsg(e.message === 'cancelled' || e.message === 'popup_closed' ? '' : '⚠ ' + e.message); }
+};
 
 // Save
 $('#saveBtn').onclick = async () => {
@@ -775,7 +951,7 @@ $('#logoutBtn').onclick = async () => {
 };
 
 // Reception display
-const brandUrl = f => DN.fileUrl(f);
+const brandUrl = f => DN.assetUrl(f);
 function renderReception() {
   const s = cfg.settings, w = s.welcome || {};
   $('#logoPv').innerHTML = s.logo ? `<img src="${brandUrl(s.logo)}" alt="">` : esc(t('logoNone'));
@@ -802,12 +978,26 @@ document.querySelector('.rx').addEventListener('input', e => {
   w.everyN = Math.max(1, +$('#wEvery').value || 4); w.seconds = Math.max(3, +$('#wSecs').value || 10);
   setDirty(); renderLayout();
 });
-$('#logoUp').onclick = () => $('#logoFile').click();
-$('#logoFile').onchange = async e => {
-  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
-  try {
-    cfg.settings.logo = await DB.uploadLogo(f); renderReception(); renderLayout(); setDirty();
-  } catch { alert(t('logoFail')); }
+$('#logoUp').onclick = () => {
+  const box = $('#logoPick');
+  if (!box.hidden) { box.hidden = true; return; }
+  const imgs = [];
+  for (const src of sources) for (const f of ((srcFiles[src.id] || {}).files || [])) if (f.type === 'image') imgs.push(f);
+  box.innerHTML = `<div class="hint">${imgs.length ? t('logoPickHint') : t('logoNoImages')}</div>
+    <div class="grid">${imgs.slice(0, 120).map((f, i) => `<div class="tile" data-logo="${i}"><div class="thumb">${thumbHTML(f)}</div><div class="name">${esc(f.path)}</div></div>`).join('')}</div>
+    <div class="linkRow" style="display:flex;gap:6px;margin-top:6px"><input type="url" id="logoLink" style="flex:1" placeholder="https://…"><button id="logoLinkOk">OK</button></div>`;
+  box.hidden = false;
+  box.onclick = e => {
+    const tl = e.target.closest('[data-logo]');
+    if (tl) { const f = imgs[+tl.dataset.logo]; cfg.settings.logo = f.fid ? 'gdrive:' + f.fid : f.url; }
+    else if (e.target.id === 'logoLinkOk') {
+      const L = DN.parseLink($('#logoLink').value);
+      if (L.kind === 'gdrive-file') cfg.settings.logo = 'gdrive:' + L.id;
+      else if (L.kind === 'url') cfg.settings.logo = L.url;
+      else return alert(t('linkBad'));
+    } else return;
+    box.hidden = true; renderReception(); renderLayout(); setDirty();
+  };
 };
 $('#logoRm').onclick = () => { cfg.settings.logo = ''; renderReception(); renderLayout(); setDirty(); };
 
@@ -958,9 +1148,9 @@ $('#lyReset').onclick = () => {
   setDirty(); renderLayout();
 };
 
-function renderAll() { renderSettings(); renderLib(); renderPlaylist(); renderAds(); renderReception(); renderLayout(); }
+function renderAll() { renderSettings(); renderLib(); renderSources(); renderPlaylist(); renderAds(); renderReception(); renderLayout(); }
 async function loadAll() {
-  [cfg, lib] = await Promise.all([DB.loadConfig(), DB.library()]);
+  [cfg, lib] = await Promise.all([DB.loadConfig(), DB.library(), loadSources()]);
   renderAll(); setDirty(false);
 }
 // ======================================================================
@@ -1001,6 +1191,20 @@ const DB = {
     const { data, error } = await sb.from('dn_playlists').update({ config: clean }).eq('id', this.playlistId).select('config').single();
     if (error) throw error;
     return { settings: { ...DEFAULT_SETTINGS, ...(data.config.settings || {}) }, playlist: data.config.playlist || [], ads: data.config.ads || [] };
+  },
+  async sourcesList() {
+    const { data, error } = await sb.from('dn_sources').select('id,kind,ref,name,created_at').eq('org_id', this.orgId).order('created_at');
+    if (error) throw error;
+    return data;
+  },
+  async addSource(kind, ref, name) {
+    const { data, error } = await sb.from('dn_sources').insert({ org_id: this.orgId, kind, ref, name: name || '' }).select('id,kind,ref,name,created_at').single();
+    if (error) throw error;
+    return data;
+  },
+  async removeSource(id) {
+    const { error } = await sb.from('dn_sources').delete().eq('id', id);
+    if (error) throw error;
   },
   async library() {
     const { data, error } = await sb.from('dn_media').select('id,key,name,type,size,created_at').eq('org_id', this.orgId).order('name');

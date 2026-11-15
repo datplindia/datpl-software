@@ -8,6 +8,7 @@ const SHELL = 'dn-shell-v2';
 const MEDIA = 'dn-media-v1';
 const SHELL_FILES = ['./', './index.html', '../config.js', '../qrcode.js', '../overlay.js'];
 const FILES_PREFIX = `${self.DN.supabaseUrl}/storage/v1/object/public/${self.DN.bucket}/`;
+const DRIVE_PREFIX = 'https://www.googleapis.com/drive/v3/files/';   // customers' Google Drive files
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(SHELL).then(c => c.addAll(SHELL_FILES)).catch(() => {}).then(() => self.skipWaiting()));
@@ -85,8 +86,14 @@ self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET') return;
   const url = req.url;
-  if (url.startsWith(FILES_PREFIX)) return e.respondWith(media(req));
+  if (url.startsWith(FILES_PREFIX) || (url.startsWith(DRIVE_PREFIX) && url.indexOf('alt=media') > 0)) return e.respondWith(media(req));
   const u = new URL(url);
+  // photos / videos from other websites (direct links): use the saved copy if we have one
+  if (u.origin !== self.location.origin && (req.destination === 'image' || req.destination === 'video'))
+    return e.respondWith(caches.open(MEDIA).then(c => c.match(url.split('#')[0])).then(hit => {
+      const range = req.headers.get('range');
+      return hit ? (range ? ranged(hit, range) : hit) : fetch(req);
+    }).catch(() => fetch(req)));
   if (u.origin === self.location.origin && (req.mode === 'navigate' || SHELL_FILES.some(f => u.pathname === new URL(f, self.location).pathname)))
     return e.respondWith(shell(req));
 });
@@ -96,7 +103,7 @@ let syncing = Promise.resolve();
 self.addEventListener('message', e => {
   const d = e.data || {};
   if (d.type !== 'cache' || !Array.isArray(d.urls)) return;
-  const want = new Set(d.urls.filter(u => typeof u === 'string' && u.startsWith(FILES_PREFIX)));
+  const want = new Set(d.urls.filter(u => typeof u === 'string' && /^https:\/\//.test(u)).map(u => u.split('#')[0]));
   syncing = syncing.then(async () => {
     const c = await caches.open(MEDIA);
     for (const req of await c.keys()) if (!want.has(req.url)) await c.delete(req);

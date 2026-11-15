@@ -8,7 +8,7 @@ self.DN = {
   appName: 'Digital Display',
   // Public address of the website (dashboard at /, TV player at /tv/)
   publicUrl: 'https://display.datpl.com/',
-  version: '1.0.7'
+  version: '1.0.8'
 };
 // Public address of an uploaded file (photos, videos, logo)
 self.DN.fileUrl = key => `${self.DN.supabaseUrl}/storage/v1/object/public/${self.DN.bucket}/${String(key).split('/').map(encodeURIComponent).join('/')}`;
@@ -16,9 +16,9 @@ self.DN.fileUrl = key => `${self.DN.supabaseUrl}/storage/v1/object/public/${self
 /* ---------- Customers' own cloud storage (files are never stored by Digital Display) ----------
  * Google: a browser API key (restricted to display.datpl.com + Drive/Picker APIs) and an OAuth client ID
  * for "Connect Google Drive". Both are public by design; Google restricts where they work. */
-self.DN.googleApiKey = '';
-self.DN.googleClientId = '';
-self.DN.googleAppId = '';          // Google Cloud project number (for the folder picker)
+self.DN.googleApiKey = 'AIzaSyAvweAOX_bF6ceO2BxkaJjQlQkV-qA7j2A';
+self.DN.googleClientId = '1006016416257-56fgcijfs8ihckhkadhi6f94egjudtab.apps.googleusercontent.com';
+self.DN.googleAppId = '1006016416257';        // Google Cloud project number (for the folder picker)
 
 self.DN.isVideo = function (name, mime) {
   return /^video\//.test(mime || '') || /\.(mp4|m4v|webm|mov|mkv|3gp)(\?|#|$)/i.test(name || '');

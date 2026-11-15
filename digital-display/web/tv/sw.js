@@ -104,10 +104,21 @@ self.addEventListener('message', e => {
   const d = e.data || {};
   if (d.type !== 'cache' || !Array.isArray(d.urls)) return;
   const want = new Set(d.urls.filter(u => typeof u === 'string' && /^https:\/\//.test(u)).map(u => u.split('#')[0]));
+  const client = e.source;
+  const tell = m => { try { if (client) client.postMessage(m); } catch (err) {} };
   syncing = syncing.then(async () => {
     const c = await caches.open(MEDIA);
     for (const req of await c.keys()) if (!want.has(req.url)) await c.delete(req);
-    for (const u of want) await store(u);
+    const missing = [];
+    for (const u of want) if (!(await c.match(u))) missing.push(u);
+    if (!missing.length) return tell({ type: 'sync', done: 0, total: 0 });
+    // tell the TV screen how the download of new photos/videos is going
+    const total = missing.length;
+    let done = 0;
+    tell({ type: 'sync', done, total });
+    const next = async () => { while (missing.length) { await store(missing.shift()); done++; if (done < total) tell({ type: 'sync', done, total }); } };
+    await Promise.all([next(), next()]);      // two downloads at a time
+    tell({ type: 'sync', done: total, total, end: true });
   }).catch(() => {});
   if (e.waitUntil) e.waitUntil(syncing);
 });

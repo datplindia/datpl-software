@@ -60,6 +60,11 @@
   #about td:first-child { color: #a1a1aa; white-space: nowrap; }
   #about td b { color: #fdba74; }
   #about .hint { margin-top: 1.6vmin; font-size: 1.8vmin; color: #71717a; }
+  #sync { position: fixed; left: 50%; top: 1.6vmin; transform: translateX(-50%); z-index: 71; display: none; background: rgba(15,23,42,.82);
+          color: #e0f2fe; font: 600 1.9vmin system-ui, sans-serif; padding: .8vmin 1.8vmin; border-radius: 99px; box-shadow: 0 .4vmin 1.6vmin rgba(0,0,0,.35); white-space: nowrap; }
+  #sync.ok { color: #bbf7d0; }
+  #sync i { display: inline-block; font-style: normal; animation: dnspin 1.2s linear infinite; margin-right: .6vmin; }
+  @keyframes dnspin { to { transform: rotate(360deg); } }
   #net { position: fixed; right: 1.4vmin; bottom: 1.4vmin; z-index: 70; display: none; background: rgba(0,0,0,.6); color: #fca5a5;
          font: 600 1.6vmin system-ui, sans-serif; padding: .6vmin 1.2vmin; border-radius: 99px; }
 
@@ -104,6 +109,7 @@
   </div>
 </div>
 <div id="net">● Offline — playing saved copy</div>
+<div id="sync"></div>
 <div id="updBadge"></div>
 <div id="about"></div>
 
@@ -112,7 +118,7 @@
 <script src="../overlay.js"></script>
 <script>
 (() => {
-  const POLL_MS = 20000;
+  const POLL_MS = 10000;
   const $ = id => document.getElementById(id);
   const stage = $('stage'), msg = $('msg'), startBtn = $('start');
 
@@ -184,7 +190,7 @@
   }
 
   // ---------- customers' Google Drive folders: a folder item plays every photo/video in it ----------
-  const FOLDER_TTL = 5 * 60 * 1000;           // look for new / removed files every 5 minutes
+  const FOLDER_TTL = 2 * 60 * 1000;           // look for new / removed files every 2 minutes
   let folders = {};
   try { folders = JSON.parse(localStorage.getItem('dn_folders') || '{}') || {}; } catch (e) { folders = {}; }
   function expand(list) {
@@ -220,7 +226,7 @@
       try { localStorage.setItem('dn_folders', JSON.stringify(folders)); } catch (e) {}
     } finally { folderBusy = false; }
     if (changed) {
-      if (!PREVIEW) prefetch(st);
+      if (!PREVIEW) { if (!syncWaiting) syncStart('New files found in Google Drive — syncing…'); prefetch(st); }
       if (!current) { queue = []; qi = 0; next(); } else if (!pendingState) pendingState = st;
     }
   }
@@ -561,12 +567,42 @@
   }
   const setNet = ok => { $('net').style.display = ok ? 'none' : 'block'; };
 
+  // ---------- "syncing with the dashboard" badge at the top of the screen ----------
+  let syncHide = null;
+  function syncBadge(text, ok) {
+    if (PREVIEW) return;
+    const el = $('sync');
+    clearTimeout(syncHide);
+    el.className = ok ? 'ok' : '';
+    el.innerHTML = ok ? '✓ ' + text : '<i>⟳</i>' + text;
+    el.style.display = 'block';
+    if (ok) syncHide = setTimeout(() => { el.style.display = 'none'; }, 4000);
+  }
+  let syncWaiting = false;   // new content arrived and we are waiting for the downloads
+  if (navigator.serviceWorker) navigator.serviceWorker.addEventListener('message', e => {
+    const d = e.data || {};
+    if (d.type !== 'sync') return;
+    if (!syncWaiting) return;   // only while new content from the dashboard / Drive is arriving
+    if (!d.total) { syncWaiting = false; syncBadge('Up to date', true); return; }
+    if (d.end || d.done >= d.total) { syncWaiting = false; syncBadge('Up to date — ' + d.total + ' new file' + (d.total > 1 ? 's' : '') + ' ready', true); }
+    else syncBadge('Downloading new photos/videos ' + d.done + ' / ' + d.total);
+  });
+  function syncStart(msg) {
+    syncWaiting = true;
+    syncBadge(msg);
+    if (!navigator.serviceWorker || !navigator.serviceWorker.controller) setTimeout(() => { if (syncWaiting) { syncWaiting = false; syncBadge('Up to date', true); } }, 2500);
+  }
+
   function adopt(s, v) {
+    if (state && v !== version) syncStart('New content from the dashboard — syncing…');
     version = v;
     if (!PREVIEW) { saveState(s, v); prefetch(s); }
     if (!current) { state = s; applySettings(); queue = []; qi = 0; next(); }
-    else { pendingState = s; const keep = state; state = s; applyOverlays(); state = keep; }
-    setTimeout(() => refreshFolders(false), 0);
+    else {
+      pendingState = s; const keep = state; state = s; applyOverlays(); state = keep;
+      if (current && current.tagName === 'IMG') setTimeout(next, 1500);   // a photo is showing: switch to the new playlist now
+    }
+    setTimeout(() => refreshFolders(true), 0);
   }
 
   // Check for changes; playlist changes take effect from the next item, overlays immediately

@@ -444,6 +444,7 @@
     tellApp(r);
     if (r.status !== 'paired') return { paired: false, code: r.code, expires: r.expires };
     setOff(r.mode === 'off');
+    modeCountdown(r.mode_next, r.mode_in);
     const h = r.house && r.house.items && r.house.items.length ? { every: Math.max(1, parseInt(r.house.every, 10) || 3), items: r.house.items } : null;
     if (JSON.stringify(h) !== JSON.stringify(house)) {
       house = h;
@@ -587,6 +588,27 @@
     if (d.end || d.done >= d.total) { syncWaiting = false; syncBadge('Up to date — ' + d.total + ' new file' + (d.total > 1 ? 's' : '') + ' ready', true); }
     else syncBadge('Downloading new photos/videos ' + d.done + ' / ' + d.total);
   });
+  // "Display turns off in 30 s" countdown when the dashboard scheduled an ON/OFF change
+  let mcTimer = null, mcEnd = 0, mcNext = null;
+  function modeCountdown(next, secs) {
+    if (!next || secs === null || secs === undefined) {
+      if (mcTimer) { clearInterval(mcTimer); mcTimer = null; $('sync').style.display = 'none'; }
+      mcNext = null; return;
+    }
+    const end = Date.now() + secs * 1000;
+    if (mcTimer && mcNext === next && Math.abs(end - mcEnd) < 3000) return;   // already counting down
+    mcNext = next; mcEnd = end;
+    clearInterval(mcTimer);
+    const tick = () => {
+      const left = Math.max(0, Math.ceil((mcEnd - Date.now()) / 1000));
+      clearTimeout(syncHide);
+      const el = $('sync'); el.className = ''; el.style.display = 'block';
+      el.textContent = (mcNext === 'off' ? '⏻ Display turns off in ' : '⏻ Display turns on in ') + left + ' s';
+      if (!left) { clearInterval(mcTimer); mcTimer = null; setTimeout(() => { poll(); }, 800); }
+    };
+    tick(); mcTimer = setInterval(tick, 1000);
+  }
+
   function syncStart(msg) {
     syncWaiting = true;
     syncBadge(msg);

@@ -6,7 +6,7 @@
 Every payment on your QR codes and bank accounts, live on the office computer.
 
 - डैशबोर्ड / Dashboard (office computer): **https://display.datpl.com/pay/**
-- Android ऐप / app: **[DAPayAlert-1.4.1.apk](https://github.com/datplindia/datpl-software/raw/main/pay-alert/DAPayAlert-1.4.1.apk)** (Android 7+)
+- Android ऐप / app: **[DAPayAlert-1.4.2.apk](https://github.com/datplindia/datpl-software/raw/main/pay-alert/DAPayAlert-1.4.2.apk)** (Android 7+)
 
 ## कैसे काम करता है / How it works
 
@@ -24,8 +24,8 @@ Every payment on your QR codes and bank accounts, live on the office computer.
 
 ## अपडेट / Updates
 
-ऐप (v1.4.1 से) हर 3 घंटे में और खोलते समय [`version.json`](version.json) देखता है। उसमें `versionCode` बड़ा हो तो नया APK डाउनलोड करता है, SHA-256 मिलाता है और इंस्टॉल करता है।
-The app (from v1.4.1) checks [`version.json`](version.json) every 3 hours and on open; a higher `versionCode` is downloaded, checked (SHA-256) and installed.
+ऐप (v1.4.2 से) हर 3 घंटे में और खोलते समय [`version.json`](version.json) देखता है। उसमें `versionCode` बड़ा हो तो नया APK डाउनलोड करता है, SHA-256 मिलाता है और इंस्टॉल करता है।
+The app (from v1.4.2) checks [`version.json`](version.json) every 3 hours and on open; a higher `versionCode` is downloaded, checked (SHA-256) and installed.
 
 नया वर्ज़न डालने के लिए / To release: नया APK इस फ़ोल्डर में रखें और `version.json` में `version`, `versionCode`, `url`, `sha256` बदलें, फिर main में push करें।
 Put the new APK in this folder, update `version`, `versionCode`, `url` and `sha256` in `version.json`, and push to main.

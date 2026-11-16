@@ -1,8 +1,8 @@
 {
-  "version": "1.4.1",
-  "versionCode": 10,
-  "url": "https://github.com/datplindia/datpl-software/raw/main/pay-alert/DAPayAlert-1.4.1.apk",
-  "sha256": "68075549955bc307a8d18d87d536d9d9a0113545c1bae1c9b3f54ff0d31ece34",
-  "notes_en": "Give each phone a name (shown on the dashboard). Phones check in every 5 minutes, so an offline phone shows up sooner.",
-  "notes_hi": "हर फ़ोन का नाम डालें (डैशबोर्ड पर दिखेगा)। फ़ोन हर 5 मिनट में जुड़ता है, बंद फ़ोन जल्दी पता चलता है।"
+  "version": "1.4.2",
+  "versionCode": 11,
+  "url": "https://github.com/datplindia/datpl-software/raw/main/pay-alert/DAPayAlert-1.4.2.apk",
+  "sha256": "a4ede021bce9589fa782915641c2033a8f18c341e20c61d524fc5077f5593043",
+  "notes_en": "Settings always shows the installed and the latest version; Check for update tells you the result.",
+  "notes_hi": "Settings में हमेशा दिखेगा कि फ़ोन में कौन सा वर्ज़न है और नया कौन सा है; Check for update का साफ़ जवाब।"
 }

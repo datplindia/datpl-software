@@ -1,8 +1,8 @@
 {
-  "version": "1.3.0",
-  "versionCode": 6,
-  "url": "https://github.com/datplindia/datpl-software/raw/main/pay-alert/DAPayAlert-1.3.0.apk",
-  "sha256": "ba0f47a25bb58c020008e54a1f6fdf55bb0f2fe0279137a6fcd3be3d68a330fb",
-  "notes_en": "Dashboard opens only on owner-approved devices. Collection phones only send payments.",
-  "notes_hi": "डैशबोर्ड सिर्फ़ मालिक के Approve किए डिवाइस पर खुलता है। कलेक्शन फ़ोन सिर्फ़ पेमेंट भेजते हैं।"
+  "version": "1.3.1",
+  "versionCode": 7,
+  "url": "https://github.com/datplindia/datpl-software/raw/main/pay-alert/DAPayAlert-1.3.1.apk",
+  "sha256": "8ea29ebd2c0f5a291a0bb2d35d48ccc3b7b3931d924e7812df00ca400a90f609",
+  "notes_en": "Collection phones stay signed in after closing the app. Easier setup: SMS reading switches on by itself and account names come from the server.",
+  "notes_hi": "ऐप बंद करके खोलने पर कलेक्शन फ़ोन लॉगआउट नहीं होगा। आसान सेटअप: SMS पढ़ना अपने-आप चालू, अकाउंट के नाम सर्वर से अपने-आप।"
 }

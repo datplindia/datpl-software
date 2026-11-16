@@ -95,7 +95,7 @@ footer{text-align:center;color:var(--mute);font-size:12px;padding:18px 0 28px}
 <body>
 <header>
   <h1 id="shopName">DA Pay Alert</h1>
-  <div class="live" id="liveBox"><span class="dot" id="liveDot"></span><span id="liveTxt">Live</span></div>
+  <div class="live" id="liveBox"><span class="dot" id="liveDot"></span><span id="liveTxt">Screen live</span></div>
 </header>
 
 <section id="login" class="login hide">
@@ -207,7 +207,9 @@ footer{text-align:center;color:var(--mute);font-size:12px;padding:18px 0 28px}
     <div class="card hide" id="collectorNote">
       <h2>📱 Collection phone</h2>
       <p style="margin:0 0 6px"><b>Setup: tap every ⚠️ button below until all are ✅.</b> Account names come automatically.</p>
-      <p class="mute" style="margin:0">This phone only sends payments. Payments are shown on the office computer, not here. You can close the app — it keeps working in the background.</p>
+      <p class="mute" style="margin:0 0 8px">This phone only sends payments. Payments are shown on the office computer, not here. You can close the app — it keeps working in the background.</p>
+      <label class="mute">Name of this phone (shown on the dashboard)</label>
+      <div class="row" style="margin:4px 0 6px"><input id="phoneName" type="text" maxlength="30" placeholder="e.g. Union Phone" style="flex:1;width:auto"><button class="b sm p" id="phoneNameSave">Save</button></div>
     </div>
     <div class="card hide" id="devicesCard">
       <h2>🔒 Approved devices</h2>
@@ -402,7 +404,7 @@ function start(first){
   $("login").classList.add("hide");$("pending").classList.add("hide");$("app").classList.remove("hide");clearInterval(pendTimer);
   $("codeShow").textContent=S.code;$("codeKind").textContent=S.code.indexOf("PH")===0?"(phone code – can also send payments)":"(view code – view only)";
   S.lastId=0;S.since=null;S.feed=[];S.first=true;
-  applyFeed(first);
+  S.owner=first.role==="owner";applyFeed(first);
   clearInterval(pollTimer);pollTimer=setInterval(poll,5000);
   S.owner=first.role==="owner";$("debitsNav").classList.toggle("hide",!S.owner);
   $("devicesCard").classList.toggle("hide",!S.owner);$("collectorNote").classList.add("hide");$("liveBox").classList.remove("hide");
@@ -418,7 +420,7 @@ function poll(){
     setOnline(true);applyFeed(r);
   }).catch(function(){setOnline(false)});
 }
-function setOnline(on){S.online=on;$("liveDot").classList.toggle("off",!on);$("liveTxt").textContent=on?"Live":"Offline"}
+function setOnline(on){S.online=on;$("liveDot").classList.toggle("off",!on);$("liveTxt").textContent=on?"Screen live":"This screen is offline"}
 function applyFeed(r){
   $("shopName").textContent=r.shop||"DA Pay Alert";
   document.title=(r.shop||"")+" – Payment dashboard";
@@ -429,7 +431,6 @@ function applyFeed(r){
   var changed=r.changed||[];
   changed.forEach(function(c){for(var i=0;i<S.feed.length;i++){if(S.feed[i].id===c.id){S.feed[i]=c;break}}});
   if(r.now)S.since=r.now;
-  (r.devices||[]).forEach(function(d){color(d.qr_label)});
   S.feed.forEach(function(p){color(p.qr_label)});
   renderDevices(r.devices||[],r.now);
   renderToday(r.today||[]);
@@ -437,18 +438,28 @@ function applyFeed(r){
   if(newOnes.length)announce(newOnes);
   S.first=false;
 }
+function devName(model){
+  model=model||"";var i=model.indexOf(" | ");
+  if(i>0)return {name:model.slice(0,i),hw:model.slice(i+3).replace(/ · Android.*/,"")};
+  return {name:model.replace(/ · Android.*/,"")||"Phone",hw:""};
+}
 function renderDevices(ds,now){
   var box=$("devs");
   if(!ds.length){box.innerHTML='<div class="dev warn">⚠ No collection phone connected yet. Install DA Pay Alert on the QR / SMS phone and enter the phone code.</div>';return}
   var nowMs=now?new Date(now).getTime():Date.now();
   box.innerHTML=ds.map(function(d){
-    var age=(nowMs-new Date(d.last_seen).getTime())/60000;
-    var cls="dev",txt;
-    if(d.listener_ok===false){cls+=" bad";txt="⚠ "+esc(d.qr_label)+": : notification access is OFF – payments won't show"}
-    else if(age>15){cls+=" bad";txt="⚠ "+esc(d.qr_label)+"  phone is offline ("+ago(d.last_seen)+") – check phone / internet"}
-    else txt='<span class="sw" style="background:'+color(d.qr_label)+'"></span> '+esc(d.qr_label)+" · phone online · "+ago(d.last_seen);
-    return '<div class="'+cls+'">'+txt+'</div>';
+    var age=(nowMs-new Date(d.last_seen).getTime())/60000,n=devName(d.model),cls="dev",txt;
+    var label='📱 <b>'+esc(n.name)+'</b>'+(n.hw&&n.hw!==n.name?' <span style="opacity:.7">('+esc(n.hw)+')</span>':'')+(d.qr_label&&d.qr_label!=="QR"?' · '+esc(d.qr_label):'');
+    if(d.listener_ok===false){cls+=" bad";txt="⚠ "+label+": notification access is OFF"}
+    else if(age>30){cls+=" bad";txt="⚠ "+label+" is OFFLINE – last seen "+ago(d.last_seen)+". Check the phone / internet"}
+    else if(age>12){cls+=" warn";txt="⏳ "+label+" not seen for "+ago(d.last_seen).replace(" ago","")+" – maybe no internet"}
+    else txt='<span class="dot" style="background:#18b47b"></span> '+label+" · online · checked in "+ago(d.last_seen);
+    var own=S.owner?'<span style="margin-left:auto;white-space:nowrap"><button class="b sm" data-ren="'+d.id+'" title="Rename">✎</button> <button class="b sm" data-hide="'+d.id+'" title="Remove from list">✕</button></span>':'';
+    return '<div class="'+cls+'"><span>'+txt+'</span>'+own+'</div>';
   }).join("");
+  Array.prototype.forEach.call(box.querySelectorAll("button[data-ren]"),function(b){b.onclick=function(){openRename(b.getAttribute("data-ren"),ds)}});
+  Array.prototype.forEach.call(box.querySelectorAll("button[data-hide]"),function(b){b.onclick=function(){
+    rpc("pa_device_set",{p_code:S.code,p_id:b.getAttribute("data-hide"),p_action:"hide"}).then(function(r){toast(r.ok?"Removed. It comes back if that phone sends again.":"Failed");poll()})}});
 }
 function renderToday(t){
   var total=0,n=0,pend=0;t.forEach(function(x){total+=Number(x.total);n+=x.n;pend+=Number(x.pending||0)});
@@ -467,11 +478,19 @@ function srcBadges(p){
   var s=p.sources||["app"];
   return s.map(function(x){return x==="sms"?'<span class="src sms">SMS</span>':'<span class="src">App</span>'}).join(" ");
 }
+function openRename(id,ds){
+  var d=null;ds.forEach(function(x){if(x.id===id)d=x});if(!d)return;var n=devName(d.model);
+  $("sheetBox").innerHTML='<div class="row" style="justify-content:space-between"><h2 style="margin:0">Rename phone</h2><button class="b sm" id="shClose">✕</button></div>'+
+    '<p class="mute">'+esc(n.hw||n.name)+'</p><input id="renIn" type="text" maxlength="30" value="'+esc(n.name)+'" style="margin:6px 0 12px"><button class="b p" id="renOk" style="width:100%">Save</button>'+
+    '<p class="mute" style="font-size:12px">Tip: the name can also be set on the phone (Settings → Name of this phone).</p>';
+  $("sheet").classList.remove("hide");$("shClose").onclick=closeSheet;
+  $("renOk").onclick=function(){rpc("pa_device_set",{p_code:S.code,p_id:id,p_action:"rename",p_name:$("renIn").value}).then(function(r){toast(r.ok?"Saved":"Failed");closeSheet();poll()})};
+}
 function payRow(p,isNew){
   var who=p.payer?esc(p.payer):'<span class="mute">Name not found</span>';
   var app=(p.sources||[]).length===1&&p.sources[0]==="app"?esc(p.source_app||""):"";
   var st=p.matched_at?'<span class="st ok">✔ Matched</span>':'<span class="st">To match</span>';
-  return '<div class="pay'+(isNew?" new":"")+(p.matched_at?" done":"")+'" data-id="'+p.id+'"><div class="amt">'+inr(p.amount)+'</div><div class="who"><b>'+who+'</b><span><span class="tag"><span class="sw" style="background:'+color(p.qr_label)+'"></span>'+esc(p.qr_label)+'</span> '+srcBadges(p)+' '+app+'</span>'+(p.matched_at&&p.match_note?'<span>✔ '+esc(p.match_note)+'</span>':'')+'</div><div class="t">'+tTime(p.notif_at)+'<br>'+tDate(p.notif_at)+'<br>'+st+'</div></div>';
+  return '<div class="pay'+(isNew?" new":"")+(p.matched_at?" done":"")+'" data-id="'+p.id+'"><div class="amt">'+inr(p.amount)+'</div><div class="who"><b>'+who+'</b><span><span class="tag"><span class="sw" style="background:'+color(p.qr_label)+'"></span>'+esc(p.qr_label)+'</span> '+srcBadges(p)+' '+app+(p.device?' <span style="font-size:11.5px">📱 '+esc(devName(p.device).name)+'</span>':'')+'</span>'+(p.matched_at&&p.match_note?'<span>✔ '+esc(p.match_note)+'</span>':'')+'</div><div class="t">'+tTime(p.notif_at)+'<br>'+tDate(p.notif_at)+'<br>'+st+'</div></div>';
 }
 function bindRows(box,list){
   Array.prototype.forEach.call(box.querySelectorAll("[data-id]"),function(el){
@@ -496,6 +515,7 @@ function openSheet(p){
     '<div>QR / account</div><div>'+esc(p.qr_label)+(p.account_last4?' <span class="mute">(XX'+esc(p.account_last4)+')</span>':'')+'</div>'+
     '<div>Time</div><div>'+ist(p.notif_at,{day:"numeric",month:"short",year:"numeric",hour:"numeric",minute:"2-digit"})+'</div>'+
     '<div>UTR / Ref</div><div class="utr" style="font-size:14px">'+(p.utr?esc(p.utr):"–")+'</div>'+
+    (p.device?'<div>Phone</div><div>📱 '+esc(devName(p.device).name)+'</div>':'')+
     '<div>Detected from</div><div>'+srcBadges(p)+' '+esc((p.sources||[]).indexOf("app")>=0?p.source_app||"":"")+'</div></div>'+
     (p.raw_text&&(p.sources||[]).indexOf("app")>=0?'<div class="raw">'+esc(p.raw_text)+'</div>':'')+
     (p.sms_text?'<div class="raw">SMS: '+esc(p.sms_text)+'</div>':'')+
@@ -615,8 +635,8 @@ $("csvBtn").onclick=function(){
   if(!S.rep){toast("Let the report load first");return}
   var rows=filteredRows();
   var q=function(s){s=String(s==null?"":s);return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s};
-  var lines=["Date,Time,Amount,Payer,QR / Account,A/c last digits,UTR / Ref,Source,Status,Matched by,Note,Notification / SMS text"].concat(rows.map(function(p){
-    return [ist(p.notif_at,{day:"2-digit",month:"2-digit",year:"numeric"}),ist(p.notif_at,{hour:"2-digit",minute:"2-digit"}),p.amount==null?"":p.amount,p.payer||"",p.qr_label,p.account_last4||"",p.utr?"'"+p.utr:"",(p.sources||[]).join("+"),p.matched_at?"Matched":"Pending",p.matched_by||"",p.match_note||"",p.sms_text||p.raw_text||""].map(q).join(",")}));
+  var lines=["Date,Time,Amount,Payer,QR / Account,A/c last digits,UTR / Ref,Source,Phone,Status,Matched by,Note,Notification / SMS text"].concat(rows.map(function(p){
+    return [ist(p.notif_at,{day:"2-digit",month:"2-digit",year:"numeric"}),ist(p.notif_at,{hour:"2-digit",minute:"2-digit"}),p.amount==null?"":p.amount,p.payer||"",p.qr_label,p.account_last4||"",p.utr?"'"+p.utr:"",(p.sources||[]).join("+"),p.device?devName(p.device).name:"",p.matched_at?"Matched":"Pending",p.matched_by||"",p.match_note||"",p.sms_text||p.raw_text||""].map(q).join(",")}));
   var csv="﻿"+lines.join("\r\n"),r=S.rep._range,name="payments_"+r.from+"_to_"+addDays(r.to,-1)+".csv";
   if(N){N.saveFile(name,"text/csv",csv);return}
   var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},500);
@@ -703,6 +723,7 @@ function renderSettings(){
   renderUpdate();
   var c=JSON.parse(N.config());
   $("ver").textContent="v"+c.version;
+  if(document.activeElement!==$("phoneName"))$("phoneName").value=c.phone_name||"";
   $("collector").checked=!!c.collector;$("alerts").checked=!!c.alerts;
   if(document.activeElement!==$("qrLabel"))$("qrLabel").value=c.qr_label||"";
   $("collectorBox").classList.toggle("hide",!c.collector);
@@ -748,6 +769,7 @@ if(N){
   $("rescan").onclick=function(){N.rescanSms();toast("Checking SMS…");setTimeout(renderSettings,3000)};
   $("sBtn").onclick=function(){var r=JSON.parse(N.testSms($("sSender").value,$("sBody").value));$("sOut").innerHTML=r.debit?(r.tracked?"🔒 Debit counted: ":"Debit (account not ticked for Debits / EMI): ")+inr(r.amount)+" · account "+esc(r.account||("XX"+(r.last4||"?")))+(r.payer?" · to "+esc(r.payer):""):r.credit&&!r.tracked?"⚠ Credit, but account XX"+esc(r.last4||"?")+" is not ticked for Payments in":r.credit?"✅ Counted as credit: "+inr(r.amount)+" · account "+esc(r.account||"?")+(r.payer?" · "+esc(r.payer):"")+(r.utr?" · UTR "+esc(r.utr):""):"❌ Not a credit ("+esc(r.reason||"")+")"};
   $("tBtn").onclick=function(){var r=JSON.parse(N.test($("tTitle").value,$("tText").value));$("tOut").innerHTML=r.credit?"✅ Counted as payment: "+inr(r.amount)+(r.payer?" · "+esc(r.payer):" · name not found"):"❌ Not a payment ("+esc(r.reason||"")+")"};
+  $("phoneNameSave").onclick=function(){var v=$("phoneName").value.trim();if(!v){toast("Type a name");return}N.save(JSON.stringify({phone_name:v}));toast("Saved – the dashboard will show \""+v+"\"")};
   window.renderAccounts=function(c){
     var acc=c.accounts||{},deb=c.debits||{},rows={},k;
     for(k in acc)rows[k]={name:acc[k],in:true};

@@ -2,13 +2,15 @@ name: Digital Display (TV app + website)
 
 # On every change to digital-display/:
 #  1. builds the Android TV app (APK)
-#  2. publishes the website — dashboard at /, TV player at /tv/, the APK at /DigitalDisplay.apk —
+#  2. publishes the website — dashboard at /, TV player at /tv/, the APK at /DigitalDisplay.apk,
+#     and the DA Pay Alert office dashboard (pay-alert/web) at /pay/ —
 #     with GitHub Pages on the custom domain set in Settings › Pages (display.datpl.com)
 on:
   push:
     branches: [main]
     paths:
       - 'digital-display/**'
+      - 'pay-alert/web/**'
       - '.github/workflows/digital-display.yml'
   workflow_dispatch:
 
@@ -108,6 +110,11 @@ jobs:
           json.dump(info, open(sys.argv[3], "w"))
           print(info)
           PY
+
+      - name: DA Pay Alert dashboard at /pay/
+        run: |
+          mkdir -p digital-display/web/pay
+          cp -r pay-alert/web/. digital-display/web/pay/
 
       - uses: actions/configure-pages@v5
 

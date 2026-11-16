@@ -201,7 +201,8 @@ footer{text-align:center;color:var(--mute);font-size:12px;padding:18px 0 28px}
   <section id="tab-settings" class="hide">
     <div class="card hide" id="collectorNote">
       <h2>📱 Collection phone</h2>
-      <p class="mute" style="margin:0">This phone only sends payments. For privacy, payments are shown only on the approved office computer.</p>
+      <p style="margin:0 0 6px"><b>Setup: tap every ⚠️ button below until all are ✅.</b> Account names come automatically.</p>
+      <p class="mute" style="margin:0">This phone only sends payments. Payments are shown on the office computer, not here. You can close the app — it keeps working in the background.</p>
     </div>
     <div class="card hide" id="devicesCard">
       <h2>🔒 Approved devices</h2>
@@ -350,7 +351,25 @@ function startCollector(){
   $("collectorNote").classList.remove("hide");$("devicesCard").classList.add("hide");$("liveBox").classList.add("hide");
   $("shopName").textContent="DA Pay Alert";
   $("codeShow").textContent=S.code;$("codeKind").textContent="(phone code – sends payments only)";
+  try{var c=JSON.parse(N.config());
+    // first time on this phone: switch everything on, so the owner only has to grant permissions
+    // bank-SMS phones: SMS on; payment-app reading stays off unless turned on (it needs one more permission)
+    if(!c.collector)N.save(JSON.stringify({collector:true,apps:false,sms:true}));
+  }catch(e){}
+  $("collectorNote").appendChild($("checks"));      // the ⚠️ / ✅ steps go right at the top
+  $("nativeAlerts").classList.add("hide");
   setTab("settings");
+  syncAccounts();
+}
+function syncAccounts(){
+  if(!N||S.role!=="phone")return;
+  rpc("pa_phone_config",{p_code:S.code}).then(function(r){
+    if(!r.ok)return;
+    var c=JSON.parse(N.config()),acc=Object.assign({},c.accounts||{},r.accounts||{}),deb=Object.assign({},c.debits||{},r.debits||{});
+    N.save(JSON.stringify({accounts:acc,debits:deb}));
+    if(r.shop)$("shopName").textContent=r.shop;
+    renderSettings();
+  }).catch(function(){});
 }
 $("loginBtn").onclick=function(){tryLogin($("codeIn").value)};
 $("codeIn").onkeydown=function(e){if(e.key==="Enter")tryLogin(this.value)};
@@ -386,7 +405,7 @@ function start(first){
   if(S.tab==="report")loadReport();
 }
 function poll(){
-  if(!S.code)return;
+  if(!S.code||S.role==="phone")return;
   rpc("pa_feed2",{p_code:S.code,p_device:devToken(),p_after_id:S.lastId,p_limit:50,p_since:S.since}).then(function(r){
     if(!r.ok){clearInterval(pollTimer);if(/device/.test(r.error||""))showPending(store.get("devname",""));else showLogin("Code is no longer valid");return}
     setOnline(true);applyFeed(r);
@@ -703,7 +722,8 @@ if(N){
   $("accAdd").onclick=function(){var v=$("accNew").value.replace(/\D/g,"");if(v.length<3){toast("Enter at least 3 digits");return}S.accExtra=S.accExtra||{};S.accExtra[v]="";$("accNew").value="";renderAccounts(JSON.parse(N.config()))};
   $("accSave").onclick=function(){var acc={},deb={};Array.prototype.forEach.call($("accList").querySelectorAll("input[data-l4]"),function(i){var l4=i.getAttribute("data-l4"),n=i.value.trim();if(!n)return;
       var cin=$("accList").querySelector('input[data-in="'+l4+'"]'),cout=$("accList").querySelector('input[data-out="'+l4+'"]');
-      if(cin&&cin.checked)acc[l4]=n;if(cout&&cout.checked)deb[l4]=n});N.save(JSON.stringify({accounts:acc,debits:deb}));S.accExtra={};toast("Account names saved");renderSettings()};
+      if(cin&&cin.checked)acc[l4]=n;if(cout&&cout.checked)deb[l4]=n});N.save(JSON.stringify({accounts:acc,debits:deb}));
+    if(S.role==="phone")rpc("pa_phone_save_accounts",{p_code:S.code,p_accounts:acc,p_debits:deb}).catch(function(){});S.accExtra={};toast("Account names saved");renderSettings()};
   $("rescan").onclick=function(){N.rescanSms();toast("Checking SMS…");setTimeout(renderSettings,3000)};
   $("sBtn").onclick=function(){var r=JSON.parse(N.testSms($("sSender").value,$("sBody").value));$("sOut").innerHTML=r.debit?(r.tracked?"🔒 Debit counted: ":"Debit (account not ticked for Debits / EMI): ")+inr(r.amount)+" · account "+esc(r.account||("XX"+(r.last4||"?")))+(r.payer?" · to "+esc(r.payer):""):r.credit&&!r.tracked?"⚠ Credit, but account XX"+esc(r.last4||"?")+" is not ticked for Payments in":r.credit?"✅ Counted as credit: "+inr(r.amount)+" · account "+esc(r.account||"?")+(r.payer?" · "+esc(r.payer):"")+(r.utr?" · UTR "+esc(r.utr):""):"❌ Not a credit ("+esc(r.reason||"")+")"};
   $("tBtn").onclick=function(){var r=JSON.parse(N.test($("tTitle").value,$("tText").value));$("tOut").innerHTML=r.credit?"✅ Counted as payment: "+inr(r.amount)+(r.payer?" · "+esc(r.payer):" · name not found"):"❌ Not a payment ("+esc(r.reason||"")+")"};
@@ -716,13 +736,14 @@ if(N){
     var keys=Object.keys(rows);
     $("accList").innerHTML=keys.length?keys.map(function(l4){var r=rows[l4];return '<div class="acc" style="grid-template-columns:auto 1fr;border-bottom:1px solid var(--line);padding-bottom:8px"><div><b>XX'+esc(l4)+'</b>'+(r.sender?'<div class="mute" style="font-size:11.5px">'+esc(r.sender)+' · '+r.count+' SMS</div>':'')+'</div><div><input type="text" data-l4="'+esc(l4)+'" value="'+esc(r.name||"")+'" placeholder="Name, e.g. Digital Arts" maxlength="60"><div class="row" style="margin-top:6px;gap:14px"><label class="mute"><input type="checkbox" data-in="'+esc(l4)+'"'+(r.in?" checked":"")+'> Payments in</label><label class="mute"><input type="checkbox" data-out="'+esc(l4)+'"'+(r.out?" checked":"")+'> Debits / EMI 🔒</label></div></div></div>'}).join(""):'<p class="mute">'+(c.sms_ok?"No bank SMS found in the last 60 days. Add an account below using its last digits.":"First allow SMS permission.")+'</p>';
   };
-  window.__paResume=function(){if(S.tab==="settings")renderSettings();poll()};
+  window.__paResume=function(){if(S.role==="phone"){renderSettings();return}if(S.tab==="settings")renderSettings();poll()};
 }
 
 /* ---------- boot ---------- */
 var saved=store.get("code","");
 if(N){try{var nc=JSON.parse(N.config());if(nc.code)saved=nc.code;$("ver").textContent="v"+nc.version}catch(e){}}
-if(saved){S.code=saved;enter(saved)}
+if(saved&&N&&/^PH/.test(saved)){S.code=saved;S.role="phone";startCollector()}  // collection phone: works offline, never asks again
+else if(saved){S.code=saved;enter(saved)}
 else showLogin("");
 document.addEventListener("visibilitychange",function(){if(!document.hidden)poll()});
 })();

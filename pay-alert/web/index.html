@@ -694,7 +694,7 @@ function renderSettings(){
     [isPh,"Phone code (PH…) entered",isPh?"":"A collection phone needs the phone code. Enter it with \"Change code\" below.",null],
     c.apps!==false?[!!(c.qr_label||"").trim(),"QR name entered","Enter the QR name above",null]:null,
     c.apps!==false?[c.listener,"Notification access","Turn on \"DA Pay Alert\" in Settings",["Allow","listener"]]:null,
-    c.sms?[c.sms_ok,"SMS permission","Needed to read bank SMS",["Allow","sms"]]:null,
+    c.sms?[c.sms_ok,"SMS permission","If Allow does nothing: phone Settings → Apps → DA Pay Alert → ⋮ → Allow restricted settings, then Permissions → SMS → Allow",["Allow","sms"]]:null,
     c.sms?[Object.keys(c.accounts||{}).length>0,"Account names set","Name your accounts below",null]:null,
     [c.battery_ok,"Excluded from battery saving","Otherwise the phone may stop the app",["Fix","battery"]],
     [c.notify_ok,"Permission to show notifications","",["Allow","notify"]]

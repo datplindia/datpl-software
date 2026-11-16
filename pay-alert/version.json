@@ -1,8 +1,8 @@
 {
-  "version": "1.3.1",
-  "versionCode": 7,
-  "url": "https://github.com/datplindia/datpl-software/raw/main/pay-alert/DAPayAlert-1.3.1.apk",
-  "sha256": "8ea29ebd2c0f5a291a0bb2d35d48ccc3b7b3931d924e7812df00ca400a90f609",
-  "notes_en": "Collection phones stay signed in after closing the app. Easier setup: SMS reading switches on by itself and account names come from the server.",
-  "notes_hi": "ऐप बंद करके खोलने पर कलेक्शन फ़ोन लॉगआउट नहीं होगा। आसान सेटअप: SMS पढ़ना अपने-आप चालू, अकाउंट के नाम सर्वर से अपने-आप।"
+  "version": "1.3.2",
+  "versionCode": 8,
+  "url": "https://github.com/datplindia/datpl-software/raw/main/pay-alert/DAPayAlert-1.3.2.apk",
+  "sha256": "d8420ca9065673afa9395ec74f5352bf5649950bf600242c09c1a882694ff430",
+  "notes_en": "If Android blocks the SMS permission (restricted setting), Allow now opens the app's settings page with the steps.",
+  "notes_hi": "अगर Android SMS अनुमति रोक दे, तो Allow दबाने पर ऐप की Settings खुलती है और तरीका दिखता है।"
 }

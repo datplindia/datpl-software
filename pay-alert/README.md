@@ -6,7 +6,7 @@
 Every payment on your QR codes and bank accounts, live on the office computer.
 
 - डैशबोर्ड / Dashboard (office computer): **https://display.datpl.com/pay/**
-- Android ऐप / app: **[DAPayAlert-1.3.1.apk](https://github.com/datplindia/datpl-software/raw/main/pay-alert/DAPayAlert-1.3.1.apk)** (Android 7+)
+- Android ऐप / app: **[DAPayAlert-1.3.2.apk](https://github.com/datplindia/datpl-software/raw/main/pay-alert/DAPayAlert-1.3.2.apk)** (Android 7+)
 
 ## कैसे काम करता है / How it works
 

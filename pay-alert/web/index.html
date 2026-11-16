@@ -199,6 +199,11 @@ footer{text-align:center;color:var(--mute);font-size:12px;padding:18px 0 28px}
 
   <!-- SETTINGS -->
   <section id="tab-settings" class="hide">
+    <div class="card hide" id="updCard" style="border-color:var(--brand)">
+      <h2>⬆️ App update</h2>
+      <div id="updTxt" class="mute"></div>
+      <div class="row" style="margin-top:8px" id="updBtns"></div>
+    </div>
     <div class="card hide" id="collectorNote">
       <h2>📱 Collection phone</h2>
       <p style="margin:0 0 6px"><b>Setup: tap every ⚠️ button below until all are ✅.</b> Account names come automatically.</p>
@@ -268,6 +273,7 @@ footer{text-align:center;color:var(--mute);font-size:12px;padding:18px 0 28px}
       <div class="row" style="margin-top:6px">
         <div style="flex:1"><div class="mute">Code</div><b id="codeShow"></b> <span class="mute" id="codeKind"></span></div>
         <button class="b sm" id="changeCode">Change code</button>
+        <button class="b sm hide" id="checkUpd">Check for update</button>
       </div>
     </div>
   </section>
@@ -374,6 +380,7 @@ function syncAccounts(){
 $("loginBtn").onclick=function(){tryLogin($("codeIn").value)};
 $("codeIn").onkeydown=function(e){if(e.key==="Enter")tryLogin(this.value)};
 $("changeCode").onclick=function(){showLogin("")};
+if(N&&N.updateNow){$("checkUpd").classList.remove("hide");$("checkUpd").onclick=function(){N.updateNow();toast("Checking for update…");setTimeout(renderUpdate,4000);setTimeout(renderUpdate,15000)}}
 
 /* ---------- tabs ---------- */
 Array.prototype.forEach.call(document.querySelectorAll("nav button"),function(b){
@@ -678,8 +685,22 @@ if(!N){
   if(window.Notification&&Notification.permission!=="granted")$("browserNotifyRow").classList.remove("hide");
   $("bnBtn").onclick=function(){Notification.requestPermission().then(function(p){if(p==="granted"){$("browserNotifyRow").classList.add("hide");toast("Turned on")}})};
 }
+function renderUpdate(){
+  if(!N||!N.updateInfo)return;
+  var u;try{u=JSON.parse(N.updateInfo())}catch(e){return}
+  var newer=u.latest_code>u.current_code;
+  var st={downloading:"Downloading "+u.detail+"…",installing:"Installing…",waiting_for_tap:"Tap Install / Update on the Android screen (or the notification).",
+    need_permission:"Allow DA Pay Alert to install updates, then tap Update now.",installed:"Updated.",error:"Last try failed: "+u.detail,up_to_date:""}[u.status]||"";
+  $("updCard").classList.toggle("hide",!newer&&u.status!=="error");
+  $("updTxt").innerHTML='This app: <b>v'+esc(u.current)+'</b>'+(newer?' · new: <b>v'+esc(u.latest)+'</b>'+(u.notes?'<br>'+esc(u.notes):''):' · up to date')+(st?'<br>'+esc(st):'')+
+    (u.last_check?'<br><span style="font-size:12px">Checked '+ago(new Date(u.last_check).toISOString())+'</span>':'');
+  $("updBtns").innerHTML=(!u.can_install?'<button class="b sm" id="updPerm">Allow installing updates</button>':'')+'<button class="b sm p" id="updGo">'+(newer?"Update now":"Check now")+'</button>';
+  if($("updPerm"))$("updPerm").onclick=function(){N.openInstallPermission()};
+  $("updGo").onclick=function(){N.updateNow();toast("Checking for update…");setTimeout(renderUpdate,4000);setTimeout(renderUpdate,15000)};
+}
 function renderSettings(){
   if(!N)return;
+  renderUpdate();
   var c=JSON.parse(N.config());
   $("ver").textContent="v"+c.version;
   $("collector").checked=!!c.collector;$("alerts").checked=!!c.alerts;

@@ -1,8 +1,8 @@
 {
-  "version": "1.4.2",
-  "versionCode": 11,
-  "url": "https://github.com/datplindia/datpl-software/raw/main/pay-alert/DAPayAlert-1.4.2.apk",
-  "sha256": "a4ede021bce9589fa782915641c2033a8f18c341e20c61d524fc5077f5593043",
-  "notes_en": "Settings always shows the installed and the latest version; Check for update tells you the result.",
-  "notes_hi": "Settings में हमेशा दिखेगा कि फ़ोन में कौन सा वर्ज़न है और नया कौन सा है; Check for update का साफ़ जवाब।"
+  "version": "1.4.3",
+  "versionCode": 12,
+  "sha256": "b24459059720745ab61c521b702f6cb1ea787d25d038474a3d43b40d34b99738",
+  "notes_en": "Updates and downloads now come from display.datpl.com (DATPL's own site).",
+  "notes_hi": "अपडेट और डाउनलोड अब DATPL की अपनी साइट display.datpl.com से।",
+  "url": "https://raw.githubusercontent.com/datplindia/datpl-software/main/pay-alert/web/DAPayAlert-1.4.3.apk"
 }

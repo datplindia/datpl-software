@@ -709,14 +709,14 @@ function renderUpdate(){
   if(!N||!N.updateInfo)return null;
   var u;try{u=JSON.parse(N.updateInfo())}catch(e){return null}
   var newer=u.latest_code>u.current_code;
-  var st={checking:"Checking GitHub for a new version…",downloading:"Downloading v"+u.detail+"…",installing:"Installing…",
+  var st={checking:"Checking display.datpl.com for a new version…",downloading:"Downloading v"+u.detail+"…",installing:"Installing…",
     waiting_for_tap:"Tap Install / Update on the Android screen (or the notification).",
     need_permission:"Allow DA Pay Alert to install updates, then tap Update now.",installed:"Updated.",error:"Could not check: "+u.detail,
     up_to_date:"✅ You have the latest version."}[u.status]||"";
   $("updCard").classList.remove("hide");
   $("updCard").style.borderColor=newer?"var(--brand)":"var(--line)";
   $("updTxt").innerHTML='Installed on this phone: <b style="color:var(--ink);font-size:16px">v'+esc(u.current)+'</b>'+
-    (u.latest?'<br>Latest on GitHub: <b style="color:var(--ink)">v'+esc(u.latest)+'</b>'+(newer?' 🆕':''):'')+
+    (u.latest?'<br>Latest available: <b style="color:var(--ink)">v'+esc(u.latest)+'</b>'+(newer?' 🆕':''):'')+
     (newer&&u.notes?'<br>'+esc(u.notes):'')+(st?'<br><b>'+esc(st)+'</b>':'')+
     (u.last_check?'<br><span style="font-size:12px">Last checked '+ago(new Date(u.last_check).toISOString())+'</span>':'');
   $("updBtns").innerHTML=(!u.can_install?'<button class="b sm" id="updPerm">Allow installing updates</button>':'')+'<button class="b sm p" id="updGo">'+(newer?"Update now":"Check for update")+'</button>';

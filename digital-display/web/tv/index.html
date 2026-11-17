@@ -60,6 +60,16 @@
   #about td:first-child { color: #a1a1aa; white-space: nowrap; }
   #about td b { color: #fdba74; }
   #about .hint { margin-top: 1.6vmin; font-size: 1.8vmin; color: #71717a; }
+  /* hotel: Wi-Fi card on the welcome screen, announcement banner */
+  .welcome .wifi { display: flex; align-items: center; gap: .5em; margin-top: .7em; background: rgba(255,255,255,.1); border: .012em solid rgba(255,255,255,.25);
+                   border-radius: .12em; padding: .3em .5em; font-size: .17em; text-align: left; }
+  .welcome .wifi canvas { width: 3.6em; height: 3.6em; background: #fff; padding: .25em; border-radius: .2em; image-rendering: pixelated; }
+  .welcome .wifi b { display: block; font-size: 1.15em; }
+  .welcome .wifi .k { opacity: .75; font-size: .8em; text-transform: uppercase; letter-spacing: .12em; }
+  .welcome .whint { font-size: .12em; opacity: .6; margin-top: 1.2em; }
+  #bcast { position: fixed; left: 0; right: 0; top: 0; z-index: 72; display: none; background: linear-gradient(90deg,#1e3a8a,#4338ca); color: #fff;
+           font: 700 2.8vmin system-ui, sans-serif; padding: 1.6vmin 3vmin; text-align: center; box-shadow: 0 .5vmin 2vmin rgba(0,0,0,.4); }
+  #bcast.urgent { background: linear-gradient(90deg,#b91c1c,#dc2626); }
   #sync { position: fixed; left: 50%; top: 1.6vmin; transform: translateX(-50%); z-index: 71; display: none; background: rgba(15,23,42,.82);
           color: #e0f2fe; font: 600 1.9vmin system-ui, sans-serif; padding: .8vmin 1.8vmin; border-radius: 99px; box-shadow: 0 .4vmin 1.6vmin rgba(0,0,0,.35); white-space: nowrap; }
   #sync.ok { color: #bbf7d0; }
@@ -110,6 +120,7 @@
 </div>
 <div id="net">● Offline — playing saved copy</div>
 <div id="sync"></div>
+<div id="bcast"></div>
 <div id="updBadge"></div>
 <div id="about"></div>
 
@@ -154,15 +165,52 @@
     Overlay.setCaption(ov, s.captions === false ? '' : captionFor(it), s.captionLabel || '');
   }
 
+  // ---------- Hotels & Resorts: room welcome with the guest's name and Wi-Fi, announcements ----------
+  let hotel = null, firstWelcome = true, welcomePhase = false;
+  document.addEventListener('keydown', e => {
+    if (!welcomePhase) return;
+    if (e.key === 'Enter' || e.keyCode === 13 || e.keyCode === 23 || e.key === 'Escape' || e.key === 'Backspace' || e.key === 'GoBack') {
+      welcomePhase = false; clearTimeout(timer); handOver(); next();
+    }
+  });
+  try { hotel = JSON.parse(localStorage.getItem('dn_hotel') || 'null'); } catch (e) { hotel = null; }
+  function fill(t, h) { return String(t || '').replace(/\{name\}/g, (h.guest && h.guest.name) || 'Guest').replace(/\{room\}/g, h.room || '').replace(/\{hotel\}/g, h.name || ''); }
+  function roomWelcome() {
+    const h = hotel;
+    if (!h || h.role !== 'room') return null;
+    const g = h.guest;
+    return {
+      title: g ? (h.title || 'Welcome') : (h.title || 'Welcome to'),
+      name: g ? g.name : (h.name || 'our hotel'),
+      company: [h.room ? 'Room ' + h.room : '', g && h.name ? h.name : ''].filter(Boolean).join(' · '),
+      message: g ? fill(g.message || h.template || '', h) : '',
+      wifi: h.wifi || null,
+      everyN: h.everyN || 4, seconds: (state && state.settings.welcome && state.settings.welcome.seconds) || 12
+    };
+  }
+  function wifiQr(w) {
+    const esc2 = v => String(v || '').replace(/([\\;,:"])/g, '\\$1');
+    return `WIFI:T:${w.sec === 'nopass' ? 'nopass' : (w.sec || 'WPA')};S:${esc2(w.ssid)};P:${w.sec === 'nopass' ? '' : esc2(w.pass)};;`;
+  }
+  function applyHotel() {
+    const b = $('bcast'), bc = hotel && hotel.broadcast;
+    if (bc && bc.text && !PREVIEW) { b.textContent = '📢 ' + bc.text; b.className = bc.style === 'urgent' ? 'urgent' : ''; b.style.display = 'block'; }
+    else b.style.display = 'none';
+  }
+  applyHotel();
+  // Room TV in the app: after the first welcome, OK / BACK or the timer hands the TV over to its own home screen / channels
+  function handOver() { try { if (window.DNApp && DNApp.handOver) DNApp.handOver(); } catch (e) {} }
+
   // ---------- welcome guest ----------
   function welcomeActive() {
+    if (roomWelcome()) return true;
     const w = (state.settings.welcome || {});
     if (!w.enabled || !(w.name || '').trim()) return false;
     if (w.until && localStamp(new Date()) > w.until) return false;
     return true;
   }
   function welcomeEl() {
-    const s = state.settings, w = s.welcome || {};
+    const s = state.settings, w = roomWelcome() || s.welcome || {};
     const el = document.createElement('div');
     el.className = 'layer welcome' + (s.transition === false ? ' notrans' : '');
     el.style.fontSize = (Overlay.layoutFor(s).welcome.fs * ov.k) + 'px';
@@ -171,7 +219,18 @@
       <div class="wn">${esc(w.name || '')}</div>
       ${w.company ? `<div class="wc">${esc(w.company)}</div>` : ''}
       ${w.message ? `<div class="wm">${esc(w.message)}</div>` : ''}
-      <div class="bar"></div>`;
+      <div class="bar"></div>
+      ${w.wifi ? `<div class="wifi"><canvas></canvas><div><span class="k">Free Wi-Fi</span><b>${esc(w.wifi.ssid)}</b>
+        ${w.wifi.sec !== 'nopass' && w.wifi.pass ? `<span class="k">Password</span><b>${esc(w.wifi.pass)}</b>` : ''}</div></div>` : ''}
+      ${w.wifi && APP && firstWelcome && roomWelcome() ? '<div class="whint">Press OK to watch TV</div>' : ''}`;
+    if (w.wifi && typeof qrcode === 'function') {
+      try {
+        const q = qrcode(0, 'M'); q.addData(wifiQr(w.wifi), 'Byte'); q.make();
+        const n = q.getModuleCount(), c = el.querySelector('canvas'); c.width = c.height = n; const x = c.getContext('2d');
+        x.fillStyle = '#fff'; x.fillRect(0, 0, n, n); x.fillStyle = '#000';
+        for (let r = 0; r < n; r++) for (let k = 0; k < n; k++) if (q.isDark(r, k)) x.fillRect(k, r, 1, 1);
+      } catch (e) {}
+    }
     return el;
   }
 
@@ -237,7 +296,7 @@
     const s = state.settings, list = expand(state.playlist);
     const n = parseInt(s.adEveryN, 10) || 0;
     const ads = state.ads.filter(a => a.useInterval !== false && adActive(a));
-    const wOn = welcomeActive(), wn = Math.max(1, parseInt((s.welcome || {}).everyN, 10) || 4);
+    const wOn = welcomeActive(), wn = Math.max(1, parseInt((roomWelcome() || s.welcome || {}).everyN, 10) || 4);
     const out = [];
     if (wOn) out.push({ type: 'welcome' });
     list.forEach((it, i) => {
@@ -338,7 +397,14 @@
 
     if (isWelcome) {
       stage.appendChild(el); reveal();
-      timer = setTimeout(next, (parseFloat((s.welcome || {}).seconds) || 10) * 1000);
+      const rw = roomWelcome();
+      if (rw && firstWelcome) {
+        // room TV just switched on: long welcome, then hand the TV to the guest
+        firstWelcome = false; welcomePhase = true;
+        timer = setTimeout(() => { welcomePhase = false; handOver(); next(); }, (parseInt(hotel.startSecs, 10) || 45) * 1000);
+      } else {
+        timer = setTimeout(next, (parseFloat((rw || s.welcome || {}).seconds) || 10) * 1000);
+      }
     } else if (it.type === 'video') {
       el.muted = !s.sound;
       el.playsInline = true;
@@ -445,6 +511,15 @@
     if (r.status !== 'paired') return { paired: false, code: r.code, expires: r.expires };
     setOff(r.mode === 'off');
     modeCountdown(r.mode_next, r.mode_in);
+    const hz = r.hotel || null;
+    if (JSON.stringify(hz) !== JSON.stringify(hotel)) {
+      const wasGuest = JSON.stringify(hotel && hotel.guest), roleWas = hotel && hotel.role;
+      hotel = hz;
+      try { localStorage.setItem('dn_hotel', JSON.stringify(hz)); } catch (e) {}
+      applyHotel();
+      // a new guest / changed welcome: show it at once
+      if (state && (JSON.stringify(hz && hz.guest) !== wasGuest || (hz && hz.role) !== roleWas)) { pendingState = pendingState || state; if (current && current.tagName === 'IMG') setTimeout(next, 1000); }
+    }
     const h = r.house && r.house.items && r.house.items.length ? { every: Math.max(1, parseInt(r.house.every, 10) || 3), items: r.house.items } : null;
     if (JSON.stringify(h) !== JSON.stringify(house)) {
       house = h;
@@ -482,7 +557,7 @@
       if (!window.DNApp || !DNApp.setInfo) return;
       DNApp.setInfo(JSON.stringify(r.status === 'paired'
         ? { linked: true, tv: (r.screen || {}).name || '', business: (r.org || {}).name || '', account: r.account || '', playlist: r.playlist || '', player: DN.version,
-            mode: r.mode || 'on', pin: r.pin || '' }
+            mode: r.mode || 'on', pin: r.pin || '', role: (r.hotel && r.hotel.role) || 'display' }
         : { linked: false, code: r.code || '', player: DN.version }));
     } catch (e) {}
   }

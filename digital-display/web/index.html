@@ -142,6 +142,20 @@
   .scr input[type=text] { flex:1; min-width:0; font-weight:600; }
   .scr .meta { font-size:12px; color:var(--mute); }
   .scr select { width:100%; }
+  /* ---------- Hotels & Resorts ---------- */
+  #hotelSec h3 { margin:18px 0 6px; font-size:16px; }
+  #hotelSec .hgrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:10px; }
+  #hotelSec label.f { display:flex; flex-direction:column; gap:4px; font-size:13px; color:var(--muted); }
+  #hotelSec label.f input, #hotelSec label.f select, #hotelSec label.f textarea { width:100%; box-sizing:border-box; }
+  #hotelSec .card { border:1px solid var(--line); border-radius:12px; padding:12px; background:#fff; }
+  #hotelSec .bcOn { border-color:#f59e0b; background:#fffbeb; }
+  .gtable { width:100%; border-collapse:collapse; font-size:14px; }
+  .gtable th { text-align:left; font-size:12px; color:var(--muted); font-weight:600; padding:6px 4px; border-bottom:1px solid var(--line); position:sticky; top:0; background:#fff; }
+  .gtable td { padding:4px; border-bottom:1px solid #f1f5f9; vertical-align:middle; }
+  .gtable input, .gtable select { width:100%; box-sizing:border-box; min-width:60px; }
+  .gtable tr.chg td { background:#fefce8; }
+  .gtable .on { color:#16a34a; font-size:18px; } .gtable .offl { color:#cbd5e1; font-size:18px; }
+  .gwrap { overflow:auto; max-height:70vh; border:1px solid var(--line); border-radius:12px; }
   .addtv { border:2px dashed var(--line); border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:8px; background:#fffaf5; }
   .addtv .code { font:700 22px/1 ui-monospace, monospace; letter-spacing:.2em; text-align:center; width:100%; }
   .addtv input[type=text] { width:100%; }
@@ -219,6 +233,67 @@
     <p class="status" style="margin-top:-4px" data-i18n="screensHelp"></p>
     <div id="planNote" hidden style="margin:6px 0 10px;padding:10px 12px;border-radius:10px;background:linear-gradient(120deg,#f5f3ff,#fdf2f8);border:1px solid #e9d5ff;font-size:13px;line-height:1.45"></div>
     <div class="screens" id="screens"></div>
+  </section>
+
+  <!-- HOTELS & RESORTS (only for hotel accounts) -->
+  <section class="full" id="hotelSec" hidden>
+    <h2>🏨 Display solution for Hotels &amp; Resorts</h2>
+    <p class="status" style="margin-top:-4px">Room TVs greet each guest by name with your Wi-Fi details; lobby, restaurant and pool screens keep playing your playlists. Changes reach the TVs within about 10 seconds.</p>
+
+    <h3>1 · Your hotel</h3>
+    <div class="card"><div class="hgrid">
+      <label class="f">Hotel / resort name<input type="text" id="hName" maxlength="80" placeholder="e.g. Hotel Lotus"></label>
+      <label class="f">Welcome heading<input type="text" id="hTitle" maxlength="40" placeholder="Welcome"></label>
+      <label class="f" style="grid-column:1/-1">Default welcome message — {name}, {room} and {hotel} are filled in
+        <input type="text" id="hTemplate" maxlength="300" placeholder="We are delighted to have you with us. Enjoy your stay in room {room}!"></label>
+      <label class="f">Wi-Fi name<input type="text" id="hSsid" maxlength="60" placeholder="e.g. Lotus-Guest"></label>
+      <label class="f">Wi-Fi password<input type="text" id="hPass" maxlength="60" autocomplete="off"></label>
+      <label class="f">Wi-Fi security<select id="hSec"><option value="WPA">WPA / WPA2 (most)</option><option value="WEP">WEP</option><option value="nopass">No password</option></select></label>
+      <label class="f">Welcome screen when the room TV turns on (seconds)<input type="number" id="hStart" min="10" max="600" placeholder="45"></label>
+      <label class="f">Show the welcome again after every … items<input type="number" id="hEvery" min="1" max="50" placeholder="4"></label>
+    </div>
+    <div style="margin-top:10px;display:flex;gap:8px;align-items:center"><button class="primary" id="hSave">Save hotel settings</button><span class="status" id="hMsg"></span></div></div>
+
+    <h3>2 · Rooms &amp; guests</h3>
+    <p class="hint" style="margin:0 0 6px">Type the guest's name for each room and press <b>Save all rooms</b>. After the check-out time the name disappears by itself. Leave the message empty to use the default message.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;align-items:center">
+      <label class="f" style="flex-direction:row;align-items:center;gap:6px">Show <select id="gFilter"><option value="">All TVs</option></select></label>
+      <button class="primary" id="gSave">Save all rooms</button>
+      <button id="gPasteBtn">📋 Paste guest list from Excel</button>
+      <button id="gClearOut">Clear checked-out guests</button>
+      <span class="status" id="gMsg"></span>
+    </div>
+    <div id="gPasteBox" hidden class="card" style="margin-bottom:8px">
+      <div class="hint">Copy columns from Excel / Google Sheets and paste here — one guest per line: <b>Room · Guest name · Check-out date (optional) · Message (optional)</b>. Example:<br><code>101&nbsp;&nbsp;Mr. &amp; Mrs. Sharma&nbsp;&nbsp;18-11-2026 11:00</code></div>
+      <textarea id="gPaste" rows="6" style="width:100%;box-sizing:border-box;margin-top:6px;font-family:ui-monospace,monospace"></textarea>
+      <div style="margin-top:6px;display:flex;gap:8px"><button class="primary" id="gPasteApply">Fill the rooms</button><span class="status" id="gPasteMsg"></span></div>
+    </div>
+    <div class="gwrap"><table class="gtable">
+      <thead><tr><th></th><th style="width:80px">Room</th><th style="width:110px">TV type</th><th style="width:120px">Group</th><th>Guest name</th><th>Message (optional)</th><th style="width:190px">Check-out</th><th></th></tr></thead>
+      <tbody id="gBody"></tbody></table></div>
+    <datalist id="grpList"></datalist>
+
+    <h3>3 · Add many TVs at once</h3>
+    <div class="card">
+      <div class="hint">Switch on the TVs with the Digital Display app — each shows a 6-digit code. Type one TV per line: <b>code = room or place</b>, e.g. <code>482913 = 101</code>, <code>551204 = Lobby</code>.</div>
+      <textarea id="bulkCodes" rows="6" style="width:100%;box-sizing:border-box;margin-top:6px;font-family:ui-monospace,monospace" placeholder="482913 = 101&#10;551204 = 102&#10;660318 = Lobby"></textarea>
+      <div class="hgrid" style="margin-top:6px">
+        <label class="f">These TVs are<select id="bulkRole"><option value="room">Room TVs (welcome the guest, Wi-Fi)</option><option value="display">Displays (lobby, restaurant, pool…)</option></select></label>
+        <label class="f">Group<input type="text" id="bulkGrp" list="grpList" placeholder="e.g. Rooms, Lobby, Restaurant"></label>
+      </div>
+      <div style="margin-top:8px;display:flex;gap:8px;align-items:center"><button class="primary" id="bulkGo">Link all TVs</button><span class="status" id="bulkMsg"></span></div>
+    </div>
+
+    <h3>4 · Announcement on all TVs</h3>
+    <div class="card" id="bcCard">
+      <div class="hgrid">
+        <label class="f" style="grid-column:1/-1">Message<input type="text" id="bcText" maxlength="200" placeholder="e.g. Live music tonight at 7 pm on the lawn 🎶"></label>
+        <label class="f">Show until<input type="datetime-local" id="bcUntil"></label>
+        <label class="f">Style<select id="bcStyle"><option value="info">Normal</option><option value="urgent">Important (red)</option></select></label>
+        <div class="f" style="font-size:13px;color:var(--muted)">On these groups (none ticked = all TVs)<div id="bcGroups" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px"></div></div>
+      </div>
+      <div style="margin-top:8px;display:flex;gap:8px;align-items:center"><button class="primary" id="bcSend">Show on TVs</button><button id="bcStop">Stop</button><span class="status" id="bcMsg"></span></div>
+    </div>
   </section>
 
   <!-- LIBRARY -->
@@ -1242,7 +1317,8 @@ const DB = {
     const { data, error } = await sb.rpc('dn_bootstrap', { p_name: bizName || null });
     if (error) throw error;
     this.orgId = data.org_id;
-    const o = await sb.from('dn_orgs').select('name,plan').eq('id', this.orgId).single();
+    const o = await sb.from('dn_orgs').select('name,plan,kind,hotel').eq('id', this.orgId).single();
+    this.kind = (o.data && o.data.kind) || 'shop'; this.hotel = (o.data && o.data.hotel) || {};
     this.orgName = (o.data && o.data.name) || '';
     this.plan = (o.data && o.data.plan) || 'free';
     await this.loadPlaylists();
@@ -1333,7 +1409,7 @@ const DB = {
     if (error) throw error;
   },
   async screensList() {
-    const { data, error } = await sb.from('dn_screens').select('id,name,playlist_id,last_seen,paired_at,info,mode,pin,mode_next,mode_at').eq('org_id', this.orgId).order('paired_at');
+    const { data, error } = await sb.from('dn_screens').select('id,name,playlist_id,last_seen,paired_at,info,mode,pin,mode_next,mode_at,role,room,grp,guest_name,guest_msg,guest_until').eq('org_id', this.orgId).order('paired_at');
     if (error) throw error;
     this.screens = data;
     return data;
@@ -1341,6 +1417,16 @@ const DB = {
   async claim(code, name) {
     const { error } = await sb.rpc('dn_claim_screen', { p_code: code, p_name: name, p_org: this.orgId });
     if (error) throw error;
+  },
+  async saveHotel(h) {
+    const { error } = await sb.from('dn_orgs').update({ hotel: h }).eq('id', this.orgId);
+    if (error) throw error;
+    this.hotel = h;
+  },
+  async claimId(code, name) {
+    const { data, error } = await sb.rpc('dn_claim_screen', { p_code: code, p_name: name, p_org: this.orgId });
+    if (error) throw error;
+    return data && data.id;
   },
   async updateScreen(id, patch) { const { error } = await sb.from('dn_screens').update(patch).eq('id', id); if (error) throw error; },
   async removeScreen(id) { const { error } = await sb.from('dn_screens').delete().eq('id', id); if (error) throw error; },
@@ -1467,6 +1553,170 @@ $('#screens').addEventListener('submit', async e => {
   } catch (err) { alert(/expired|not found/i.test(err.message) ? t('addTvBad') : err.message); }
 });
 async function refreshScreens() { await DB.screensList(); renderScreens(); }
+// ================= Hotels & Resorts =================
+const gEdits = {};                     // screen id -> unsaved changes in the rooms table
+const toLocalInput = iso => { if (!iso) return ''; const d = new Date(iso); if (isNaN(d)) return ''; const p = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`; };
+const fromLocalInput = v => v ? new Date(v).toISOString() : null;
+const roomSort = (a, b) => String(a.room || a.name || '').localeCompare(String(b.room || b.name || ''), undefined, { numeric: true });
+const gVal = (sc, k) => (gEdits[sc.id] && k in gEdits[sc.id]) ? gEdits[sc.id][k] : sc[k];
+function hotelGroups() { return [...new Set((DB.screens || []).map(sc => gVal(sc, 'grp')).filter(Boolean))].sort(); }
+
+function renderHotel() {
+  const sec = $('#hotelSec');
+  sec.hidden = DB.kind !== 'hotel';
+  if (sec.hidden) return;
+  const h = DB.hotel || {};
+  if (!renderHotel.filled) {             // fill the settings form once (don't overwrite typing)
+    renderHotel.filled = true;
+    $('#hName').value = h.name || ''; $('#hTitle').value = h.title || ''; $('#hTemplate').value = h.template || '';
+    $('#hSsid').value = h.wifiSsid || ''; $('#hPass').value = h.wifiPass || ''; $('#hSec').value = h.wifiSec || 'WPA';
+    $('#hStart').value = h.startSecs || ''; $('#hEvery').value = h.everyN || '';
+    const bc = h.broadcast || {};
+    $('#bcText').value = bc.text || ''; $('#bcUntil').value = toLocalInput(bc.until); $('#bcStyle').value = bc.style || 'info';
+  }
+  const groups = hotelGroups();
+  $('#grpList').innerHTML = groups.map(g => `<option value="${esc(g)}">`).join('');
+  const f = $('#gFilter'), fv = f.value;
+  f.innerHTML = `<option value="">All TVs</option><option value="__room">Room TVs only</option>` + groups.map(g => `<option value="${esc(g)}">${esc(g)}</option>`).join('');
+  f.value = fv;
+  const bcSel = new Set(((h.broadcast || {}).groups) || []);
+  $('#bcGroups').innerHTML = groups.length ? groups.map(g => `<label style="display:flex;gap:4px;align-items:center;color:var(--fg)"><input type="checkbox" value="${esc(g)}" ${bcSel.has(g) ? 'checked' : ''}> ${esc(g)}</label>`).join('') : '<span>Give your TVs a group in the rooms table first.</span>';
+  const bc = h.broadcast;
+  $('#bcCard').classList.toggle('bcOn', !!(bc && bc.text && (!bc.until || new Date(bc.until) > new Date())));
+  $('#bcMsg').textContent = $('#bcCard').classList.contains('bcOn') ? '● Showing on TVs now' : '';
+
+  const rows = (DB.screens || []).slice().sort(roomSort).filter(sc => !fv || (fv === '__room' ? gVal(sc, 'role') === 'room' : gVal(sc, 'grp') === fv));
+  const now = Date.now();
+  $('#gBody').innerHTML = rows.length ? rows.map(sc => {
+    const on = sc.last_seen && now - new Date(sc.last_seen) < 60000;
+    const until = gVal(sc, 'guest_until'), out = until && new Date(until) < new Date();
+    const isRoom = gVal(sc, 'role') === 'room';
+    return `<tr data-g="${sc.id}" class="${gEdits[sc.id] ? 'chg' : ''}">
+      <td title="${on ? 'TV is on' : 'TV is off / offline'}" class="${on ? 'on' : 'offl'}">●</td>
+      <td><input data-k="room" value="${esc(gVal(sc, 'room') || '')}" placeholder="${esc(sc.name)}"></td>
+      <td><select data-k="role"><option value="room" ${isRoom ? 'selected' : ''}>Room TV</option><option value="display" ${!isRoom ? 'selected' : ''}>Display</option></select></td>
+      <td><input data-k="grp" list="grpList" value="${esc(gVal(sc, 'grp') || '')}" placeholder="Rooms"></td>
+      <td><input data-k="guest_name" value="${esc(gVal(sc, 'guest_name') || '')}" placeholder="${isRoom ? 'Guest name' : '—'}" ${isRoom ? '' : 'disabled'} style="${out ? 'text-decoration:line-through;color:#94a3b8' : ''}"></td>
+      <td><input data-k="guest_msg" value="${esc(gVal(sc, 'guest_msg') || '')}" placeholder="${isRoom ? 'Default message' : ''}" ${isRoom ? '' : 'disabled'}></td>
+      <td><input type="datetime-local" data-k="guest_until" value="${toLocalInput(until)}" ${isRoom ? '' : 'disabled'} title="${out ? 'Checked out — name no longer shown' : ''}"></td>
+      <td><button data-gclear="${sc.id}" title="Clear guest" ${isRoom ? '' : 'disabled'}>✕</button></td></tr>`;
+  }).join('') : '<tr><td colspan="8" class="empty">No TVs yet — add them in step 3 below.</td></tr>';
+  const n = Object.keys(gEdits).length;
+  $('#gSave').textContent = n ? `Save all rooms (${n} changed)` : 'Save all rooms';
+}
+renderScreens = (orig => function () { orig(); renderHotel(); })(renderScreens);
+
+$('#gBody').addEventListener('input', e => {
+  const tr = e.target.closest('tr[data-g]'), k = e.target.dataset.k; if (!tr || !k) return;
+  const id = tr.dataset.g, ed = gEdits[id] = gEdits[id] || {};
+  let v = e.target.value;
+  if (k === 'guest_until') v = fromLocalInput(v);
+  ed[k] = v === '' ? null : v;
+  tr.classList.add('chg');
+  $('#gSave').textContent = `Save all rooms (${Object.keys(gEdits).length} changed)`;
+});
+$('#gBody').addEventListener('change', e => { if (e.target.dataset.k === 'role' || e.target.dataset.k === 'grp') renderHotel(); });
+$('#gBody').addEventListener('click', e => {
+  const id = e.target.dataset.gclear; if (!id) return;
+  gEdits[id] = { ...(gEdits[id] || {}), guest_name: null, guest_msg: null, guest_until: null };
+  renderHotel();
+});
+$('#gFilter').onchange = () => renderHotel();
+$('#gSave').onclick = async () => {
+  const ids = Object.keys(gEdits); if (!ids.length) return ($('#gMsg').textContent = 'Nothing changed');
+  $('#gSave').disabled = true; let ok = 0, bad = 0;
+  for (const id of ids) {
+    try { await DB.updateScreen(id, gEdits[id]); delete gEdits[id]; ok++; $('#gMsg').textContent = `Saving… ${ok}/${ids.length}`; }
+    catch (e) { bad++; }
+  }
+  $('#gSave').disabled = false;
+  await refreshScreens();
+  $('#gMsg').textContent = bad ? `${ok} saved, ${bad} failed — try again` : `✓ ${ok} room${ok > 1 ? 's' : ''} saved — the TVs update within ~10 seconds`;
+};
+$('#gClearOut').onclick = () => {
+  let n = 0;
+  for (const sc of DB.screens || []) {
+    const u = gVal(sc, 'guest_until');
+    if (u && new Date(u) < new Date() && gVal(sc, 'guest_name')) { gEdits[sc.id] = { ...(gEdits[sc.id] || {}), guest_name: null, guest_msg: null, guest_until: null }; n++; }
+  }
+  renderHotel(); $('#gMsg').textContent = n ? `${n} checked-out guest(s) cleared — press Save all rooms` : 'No checked-out guests';
+};
+
+// ---- paste a guest list from Excel / Google Sheets ----
+$('#gPasteBtn').onclick = () => { $('#gPasteBox').hidden = !$('#gPasteBox').hidden; };
+function parseCheckout(v) {
+  v = String(v || '').trim(); if (!v) return { ok: true, iso: null };
+  let m, d;
+  if ((m = /^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})(?:[ T,]+(\d{1,2})[:.](\d{2})\s*(am|pm)?)?$/i.exec(v))) {
+    let y = +m[3]; if (y < 100) y += 2000;
+    let hh = m[4] !== undefined ? +m[4] : 11; if (m[6] && /pm/i.test(m[6]) && hh < 12) hh += 12; if (m[6] && /am/i.test(m[6]) && hh === 12) hh = 0;
+    d = new Date(y, +m[2] - 1, +m[1], hh, m[5] !== undefined ? +m[5] : 0);
+  } else if ((m = /^(\d{4})-(\d{1,2})-(\d{1,2})(?:[ T](\d{1,2}):(\d{2}))?/.exec(v))) {
+    d = new Date(+m[1], +m[2] - 1, +m[3], m[4] !== undefined ? +m[4] : 11, m[5] !== undefined ? +m[5] : 0);
+  } else { d = new Date(v); }
+  return isNaN(d) ? { ok: false } : { ok: true, iso: d.toISOString() };
+}
+$('#gPasteApply').onclick = () => {
+  const lines = $('#gPaste').value.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  const byRoom = {}; for (const sc of DB.screens || []) byRoom[String(gVal(sc, 'room') || sc.name).trim().toLowerCase()] = sc;
+  let ok = 0; const miss = [], badDate = [];
+  for (const line of lines) {
+    const c = (line.includes('\t') ? line.split('\t') : line.split(/\s{2,}|\s*[,;|]\s*/)).map(x => x.trim());
+    if (/^room/i.test(c[0])) continue;                    // header row
+    const sc = byRoom[(c[0] || '').toLowerCase()];
+    if (!sc) { miss.push(c[0]); continue; }
+    const co = parseCheckout(c[2]); if (!co.ok) badDate.push(c[0]);
+    gEdits[sc.id] = { ...(gEdits[sc.id] || {}), role: 'room', guest_name: c[1] || null, guest_msg: c[3] || null, guest_until: co.ok ? co.iso : null };
+    ok++;
+  }
+  renderHotel();
+  $('#gPasteMsg').textContent = `${ok} room(s) filled — check them and press Save all rooms.` +
+    (miss.length ? ` Not found: ${miss.join(', ')}.` : '') + (badDate.length ? ` Check-out date not understood for: ${badDate.join(', ')}.` : '');
+};
+
+// ---- hotel settings ----
+$('#hSave').onclick = async () => {
+  const num = (v, lo, hi) => { const n = parseInt(v, 10); return isNaN(n) ? undefined : Math.min(hi, Math.max(lo, n)); };
+  const h = { ...(DB.hotel || {}), name: $('#hName').value.trim(), title: $('#hTitle').value.trim(), template: $('#hTemplate').value.trim(),
+              wifiSsid: $('#hSsid').value.trim(), wifiPass: $('#hPass').value, wifiSec: $('#hSec').value,
+              startSecs: num($('#hStart').value, 10, 600), everyN: num($('#hEvery').value, 1, 50) };
+  try { await DB.saveHotel(h); $('#hMsg').textContent = '✓ Saved — the TVs update within ~10 seconds'; } catch (e) { $('#hMsg').textContent = '⚠ ' + e.message; }
+};
+
+// ---- add many TVs at once ----
+$('#bulkGo').onclick = async () => {
+  const lines = $('#bulkCodes').value.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  if (!lines.length) return ($('#bulkMsg').textContent = 'Type at least one line: code = room');
+  const role = $('#bulkRole').value, grp = $('#bulkGrp').value.trim() || (role === 'room' ? 'Rooms' : null);
+  $('#bulkGo').disabled = true; let ok = 0; const fail = [], left = [];
+  for (const line of lines) {
+    const m = /^([\d\s]{6,9})\s*(?:=|:|-|\t|\s)\s*(.+)$/.exec(line);
+    if (!m) { fail.push(line + ' (write: code = room)'); left.push(line); continue; }
+    const code = m[1].replace(/\D/g, ''), place = m[2].trim();
+    try {
+      const id = await DB.claimId(code, place);
+      if (id) await DB.updateScreen(id, { role, room: place, grp });
+      ok++; $('#bulkMsg').textContent = `Linking… ${ok}/${lines.length}`;
+    } catch (e) { fail.push(`${place}: ${/expired|not found/i.test(e.message) ? 'code not found or expired' : e.message}`); left.push(line); }
+  }
+  $('#bulkGo').disabled = false;
+  $('#bulkCodes').value = left.join('\n');
+  await refreshScreens();
+  $('#bulkMsg').textContent = `✓ ${ok} TV(s) linked.` + (fail.length ? ` Not linked: ${fail.join('; ')} — the lines are left in the box.` : '');
+};
+
+// ---- announcement ----
+$('#bcSend').onclick = async () => {
+  const text = $('#bcText').value.trim(); if (!text) return ($('#bcMsg').textContent = 'Type the message first');
+  const groups = [...$('#bcGroups').querySelectorAll('input:checked')].map(x => x.value);
+  const h = { ...(DB.hotel || {}), broadcast: { text, until: fromLocalInput($('#bcUntil').value), style: $('#bcStyle').value, groups } };
+  try { await DB.saveHotel(h); renderHotel(); } catch (e) { $('#bcMsg').textContent = '⚠ ' + e.message; }
+};
+$('#bcStop').onclick = async () => {
+  const h = { ...(DB.hotel || {}) }; delete h.broadcast;
+  try { await DB.saveHotel(h); renderHotel(); $('#bcMsg').textContent = 'Stopped'; } catch (e) { $('#bcMsg').textContent = '⚠ ' + e.message; }
+};
+
 $('#refreshScr').onclick = () => refreshScreens().catch(e => alert(e.message));
 
 // ---------- playlists ----------

@@ -129,7 +129,17 @@ public class MainActivity extends Activity {
     private SharedPreferences prefs() { return getSharedPreferences("dn", MODE_PRIVATE); }
 
     /** Locked = linked to an account and switched ON: the remote can't exit, change the home app or open TV settings. */
+    /** Hotel room TV: greets the guest, then hands the TV over to the guest (no lock). */
+    private boolean isRoom() { return "room".equals(prefs().getString("role", "display")); }
+
+    /** Room TV: show the TV's own home screen / channels; Digital Display stays ready in the background. */
+    private void handOver() {
+        if (!isRoom()) return;
+        openTvLauncher();
+    }
+
     private boolean isLocked() {
+        if (isRoom()) return false;
         String pin = prefs().getString("pin", "");
         return pin.length() > 0 && System.currentTimeMillis() > unlockedUntil;
     }
@@ -138,12 +148,13 @@ public class MainActivity extends Activity {
     private void applyInfo(String json) {
         try {
             org.json.JSONObject j = new org.json.JSONObject(json);
-            String mode = "on", pin = "";
+            String mode = "on", pin = "", role = "display";
             if (j.optBoolean("linked")) {
                 mode = "off".equals(j.optString("mode")) ? "off" : "on";
                 pin = j.optString("pin", "");
+                role = "room".equals(j.optString("role")) ? "room" : "display";
             }
-            prefs().edit().putString("mode", mode).putString("pin", pin).apply();
+            prefs().edit().putString("mode", mode).putString("pin", pin).putString("role", role).apply();
             if ("off".equals(mode) && !isFinishing()) {
                 Toast.makeText(this, "Digital Display was switched off from the dashboard", Toast.LENGTH_LONG).show();
                 goOff();
@@ -230,6 +241,7 @@ public class MainActivity extends Activity {
         @JavascriptInterface public void checkUpdate() { handler.post(() -> updater.check(true)); }
         @JavascriptInterface public void setInfo(String json) { linkInfo = json; handler.post(() -> applyInfo(json)); }
         @JavascriptInterface public String model() { return Build.MANUFACTURER + " " + Build.MODEL; }
+        @JavascriptInterface public void handOver() { handler.post(() -> MainActivity.this.handOver()); }
     }
 
     private class Client extends WebViewClient {
@@ -416,6 +428,7 @@ public class MainActivity extends Activity {
         } catch (Exception e) { m.append("App ").append(appVersion()); }
         m.append("Open with the TV: ").append(isHomeApp() ? "ON" : "OFF").append('\n');
         m.append("Remote lock: ").append(isLocked() ? "ON (switch off or unlink from the dashboard)" : "OFF").append('\n');
+        if (isRoom()) m.append("Hotel room TV: welcome on start, then the TV is free to use").append('\n');
         if (Build.VERSION.SDK_INT >= 23) m.append("Display over other apps: ").append(Settings.canDrawOverlays(this)
                 ? "allowed" : "NOT allowed — the TV button can leave the display").append('\n');
         m.append("Device: ").append(Build.MANUFACTURER).append(' ').append(Build.MODEL).append(", Android ").append(Build.VERSION.RELEASE);
@@ -510,6 +523,7 @@ public class MainActivity extends Activity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (isRoom()) { handOver(); return true; }   // hotel room: BACK goes to the TV's channels / home screen
             if (isLocked()) return true;   // locked: BACK can't close the display (switch it off from the dashboard)
             // BACK twice within 2 s leaves the app, so a stray press doesn't stop the display
             long now = System.currentTimeMillis();

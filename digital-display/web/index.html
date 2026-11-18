@@ -269,7 +269,7 @@
       <div style="margin-top:6px;display:flex;gap:8px"><button class="primary" id="gPasteApply">Fill the rooms</button><span class="status" id="gPasteMsg"></span></div>
     </div>
     <div class="gwrap"><table class="gtable">
-      <thead><tr><th></th><th style="width:80px">Room</th><th style="width:110px">TV type</th><th style="width:120px">Group</th><th>Guest name</th><th>Message (optional)</th><th style="width:190px">Check-out</th><th></th></tr></thead>
+      <thead><tr><th></th><th style="width:80px">Room</th><th style="width:110px">TV type</th><th style="width:120px">Group</th><th>Guest name</th><th style="width:130px">Occasion</th><th>Message (optional)</th><th style="width:190px">Check-out</th><th></th></tr></thead>
       <tbody id="gBody"></tbody></table></div>
     <datalist id="grpList"></datalist>
 
@@ -293,6 +293,24 @@
         <div class="f" style="font-size:13px;color:var(--muted)">On these groups (none ticked = all TVs)<div id="bcGroups" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px"></div></div>
       </div>
       <div style="margin-top:8px;display:flex;gap:8px;align-items:center"><button class="primary" id="bcSend">Show on TVs</button><button id="bcStop">Stop</button><span class="status" id="bcMsg"></span></div>
+    </div>
+
+    <h3>5 · Weddings &amp; events</h3>
+    <p class="hint" style="margin:0 0 6px">A big welcome screen for a wedding, party or conference — e.g. on the banquet hall, gate and lobby TVs — only between the start and end time.</p>
+    <div id="evList"></div>
+    <div style="margin-top:8px;display:flex;gap:8px;align-items:center"><button id="evAdd">+ Add an event</button><button class="primary" id="evSave">Save events</button><span class="status" id="evMsg"></span></div>
+
+    <h3>6 · Information on room TVs</h3>
+    <div class="card">
+      <p class="hint" style="margin:0 0 6px">Room TVs show a page with your services between the photos — restaurant timings, room service, check-out time, spa, places to visit — and QR codes to order food and to rate the stay (on check-out day the welcome screen shows the rating QR too).</p>
+      <div id="infoRows"></div>
+      <div style="margin:6px 0;display:flex;gap:8px"><button id="infoAdd">+ Add a line</button><button id="infoEx">Fill with examples</button></div>
+      <div class="hgrid">
+        <label class="f">"Order food" link (DA Menu, WhatsApp or website)<input type="url" id="hOrder" placeholder="https://menu.datpl.com/… or https://wa.me/91…"></label>
+        <label class="f">"Rate your stay" link (Google / TripAdvisor review)<input type="url" id="hReview" placeholder="https://g.page/r/…/review"></label>
+        <label class="f">Show the page after every … items<input type="number" id="hInfoEvery" min="2" max="50" placeholder="6"></label>
+      </div>
+      <div style="margin-top:8px;display:flex;gap:8px;align-items:center"><button class="primary" id="infoSave">Save information</button><span class="status" id="infoMsg"></span></div>
     </div>
   </section>
 
@@ -1409,7 +1427,7 @@ const DB = {
     if (error) throw error;
   },
   async screensList() {
-    const { data, error } = await sb.from('dn_screens').select('id,name,playlist_id,last_seen,paired_at,info,mode,pin,mode_next,mode_at,role,room,grp,guest_name,guest_msg,guest_until').eq('org_id', this.orgId).order('paired_at');
+    const { data, error } = await sb.from('dn_screens').select('id,name,playlist_id,last_seen,paired_at,info,mode,pin,mode_next,mode_at,role,room,grp,guest_name,guest_msg,guest_until,guest_occasion').eq('org_id', this.orgId).order('paired_at');
     if (error) throw error;
     this.screens = data;
     return data;
@@ -1573,6 +1591,7 @@ function renderHotel() {
     $('#hStart').value = h.startSecs || ''; $('#hEvery').value = h.everyN || '';
     const bc = h.broadcast || {};
     $('#bcText').value = bc.text || ''; $('#bcUntil').value = toLocalInput(bc.until); $('#bcStyle').value = bc.style || 'info';
+    setTimeout(() => { renderEvents(); renderInfo(); }, 0);
   }
   const groups = hotelGroups();
   $('#grpList').innerHTML = groups.map(g => `<option value="${esc(g)}">`).join('');
@@ -1597,10 +1616,11 @@ function renderHotel() {
       <td><select data-k="role"><option value="room" ${isRoom ? 'selected' : ''}>Room TV</option><option value="display" ${!isRoom ? 'selected' : ''}>Display</option></select></td>
       <td><input data-k="grp" list="grpList" value="${esc(gVal(sc, 'grp') || '')}" placeholder="Rooms"></td>
       <td><input data-k="guest_name" value="${esc(gVal(sc, 'guest_name') || '')}" placeholder="${isRoom ? 'Guest name' : '—'}" ${isRoom ? '' : 'disabled'} style="${out ? 'text-decoration:line-through;color:#94a3b8' : ''}"></td>
+      <td><select data-k="guest_occasion" ${isRoom ? '' : 'disabled'}>${[['', '—'], ['birthday', '🎂 Birthday'], ['anniversary', '💍 Anniversary'], ['honeymoon', '💐 Honeymoon']].map(o => `<option value="${o[0]}" ${(gVal(sc, 'guest_occasion') || '') === o[0] ? 'selected' : ''}>${o[1]}</option>`).join('')}</select></td>
       <td><input data-k="guest_msg" value="${esc(gVal(sc, 'guest_msg') || '')}" placeholder="${isRoom ? 'Default message' : ''}" ${isRoom ? '' : 'disabled'}></td>
       <td><input type="datetime-local" data-k="guest_until" value="${toLocalInput(until)}" ${isRoom ? '' : 'disabled'} title="${out ? 'Checked out — name no longer shown' : ''}"></td>
       <td><button data-gclear="${sc.id}" title="Clear guest" ${isRoom ? '' : 'disabled'}>✕</button></td></tr>`;
-  }).join('') : '<tr><td colspan="8" class="empty">No TVs yet — add them in step 3 below.</td></tr>';
+  }).join('') : '<tr><td colspan="9" class="empty">No TVs yet — add them in step 3 below.</td></tr>';
   const n = Object.keys(gEdits).length;
   $('#gSave').textContent = n ? `Save all rooms (${n} changed)` : 'Save all rooms';
 }
@@ -1615,10 +1635,14 @@ $('#gBody').addEventListener('input', e => {
   tr.classList.add('chg');
   $('#gSave').textContent = `Save all rooms (${Object.keys(gEdits).length} changed)`;
 });
-$('#gBody').addEventListener('change', e => { if (e.target.dataset.k === 'role' || e.target.dataset.k === 'grp') renderHotel(); });
+$('#gBody').addEventListener('change', e => {
+  const k = e.target.dataset.k;
+  if (k === 'guest_occasion') { const tr = e.target.closest('tr[data-g]'), ed = gEdits[tr.dataset.g] = gEdits[tr.dataset.g] || {}; ed.guest_occasion = e.target.value || null; tr.classList.add('chg'); $('#gSave').textContent = `Save all rooms (${Object.keys(gEdits).length} changed)`; }
+  if (k === 'role' || k === 'grp') renderHotel();
+});
 $('#gBody').addEventListener('click', e => {
   const id = e.target.dataset.gclear; if (!id) return;
-  gEdits[id] = { ...(gEdits[id] || {}), guest_name: null, guest_msg: null, guest_until: null };
+  gEdits[id] = { ...(gEdits[id] || {}), guest_name: null, guest_msg: null, guest_until: null, guest_occasion: null };
   renderHotel();
 });
 $('#gFilter').onchange = () => renderHotel();
@@ -1637,7 +1661,7 @@ $('#gClearOut').onclick = () => {
   let n = 0;
   for (const sc of DB.screens || []) {
     const u = gVal(sc, 'guest_until');
-    if (u && new Date(u) < new Date() && gVal(sc, 'guest_name')) { gEdits[sc.id] = { ...(gEdits[sc.id] || {}), guest_name: null, guest_msg: null, guest_until: null }; n++; }
+    if (u && new Date(u) < new Date() && gVal(sc, 'guest_name')) { gEdits[sc.id] = { ...(gEdits[sc.id] || {}), guest_name: null, guest_msg: null, guest_until: null, guest_occasion: null }; n++; }
   }
   renderHotel(); $('#gMsg').textContent = n ? `${n} checked-out guest(s) cleared — press Save all rooms` : 'No checked-out guests';
 };
@@ -1703,6 +1727,80 @@ $('#bulkGo').onclick = async () => {
   $('#bulkCodes').value = left.join('\n');
   await refreshScreens();
   $('#bulkMsg').textContent = `✓ ${ok} TV(s) linked.` + (fail.length ? ` Not linked: ${fail.join('; ')} — the lines are left in the box.` : '');
+};
+
+// ---- weddings & events ----
+let evDraft = null, infoDraft = null;
+function renderEvents() {
+  if (!evDraft) evDraft = JSON.parse(JSON.stringify((DB.hotel || {}).events || []));
+  const groups = hotelGroups();
+  const now = new Date();
+  $('#evList').innerHTML = evDraft.length ? evDraft.map((ev, i) => {
+    const live = (!ev.start || new Date(ev.start) <= now) && (!ev.end || new Date(ev.end) > now);
+    const sel = new Set(ev.groups || []);
+    return `<div class="card" data-ev="${i}" style="margin-bottom:8px;${live ? 'border-color:#16a34a' : ''}">
+      <div class="hgrid">
+        <label class="f">Heading<input data-e="title" value="${esc(ev.title || '')}" placeholder="Welcome to the wedding of"></label>
+        <label class="f">Names / event<input data-e="names" value="${esc(ev.names || '')}" placeholder="Rohan & Priya"></label>
+        <label class="f">Details (optional)<input data-e="details" value="${esc(ev.details || '')}" placeholder="Reception · Lawn · 7 pm onwards"></label>
+        <label class="f">Look<select data-e="theme">${[['wedding', 'Wedding (gold)'], ['party', 'Party (colourful)'], ['corporate', 'Conference (blue)']].map(o => `<option value="${o[0]}" ${(ev.theme || 'wedding') === o[0] ? 'selected' : ''}>${o[1]}</option>`).join('')}</select></label>
+        <label class="f">From<input type="datetime-local" data-e="start" value="${toLocalInput(ev.start)}"></label>
+        <label class="f">Until<input type="datetime-local" data-e="end" value="${toLocalInput(ev.end)}"></label>
+        <div class="f" style="font-size:13px;color:var(--muted)">On these groups (none = all TVs)<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px">${groups.map(g => `<label style="display:flex;gap:4px;align-items:center"><input type="checkbox" data-eg="${esc(g)}" ${sel.has(g) ? 'checked' : ''}> ${esc(g)}</label>`).join('') || '—'}</div></div>
+      </div>
+      <div style="margin-top:6px;display:flex;gap:8px;align-items:center"><span class="status">${live ? '● Showing now' : ev.start && new Date(ev.start) > now ? 'Starts ' + new Date(ev.start).toLocaleString() : ev.end && new Date(ev.end) <= now ? 'Finished' : ''}</span>
+        <button class="danger" data-evrm="${i}" style="margin-left:auto">Remove</button></div></div>`;
+  }).join('') : '<div class="empty">No events yet.</div>';
+}
+$('#evList').addEventListener('input', e => {
+  const c = e.target.closest('[data-ev]'); if (!c) return;
+  const ev = evDraft[+c.dataset.ev], k = e.target.dataset.e;
+  if (k) ev[k] = (k === 'start' || k === 'end') ? fromLocalInput(e.target.value) : e.target.value;
+  if (e.target.dataset.eg !== undefined) ev.groups = [...c.querySelectorAll('[data-eg]:checked')].map(x => x.dataset.eg);
+  $('#evMsg').textContent = 'Not saved yet';
+});
+$('#evList').addEventListener('click', e => { const i = e.target.dataset.evrm; if (i === undefined) return; evDraft.splice(+i, 1); renderEvents(); $('#evMsg').textContent = 'Not saved yet'; });
+$('#evAdd').onclick = () => { evDraft.push({ theme: 'wedding', title: '', names: '', details: '', groups: [] }); renderEvents(); };
+$('#evSave').onclick = async () => {
+  const events = evDraft.filter(ev => (ev.names || ev.title || '').trim());
+  try { await DB.saveHotel({ ...(DB.hotel || {}), events }); evDraft = null; renderEvents(); $('#evMsg').textContent = '✓ Saved — the TVs update within ~10 seconds'; }
+  catch (e) { $('#evMsg').textContent = '⚠ ' + e.message; }
+};
+
+// ---- information page on room TVs ----
+const INFO_EXAMPLES = [
+  { icon: '🍽', title: 'Restaurant', text: 'Breakfast 7:00–10:30 · Lunch 12:30–3 · Dinner 7:30–10:30' },
+  { icon: '🛎', title: 'Room service', text: 'Dial 9 from your room phone — 24 hours' },
+  { icon: '🕚', title: 'Check-out', text: 'Check-out time is 11:00 am. Late check-out on request' },
+  { icon: '💆', title: 'Spa & pool', text: 'Pool 7 am–8 pm · Spa 10 am–8 pm, book at reception' },
+  { icon: '🚕', title: 'Travel desk', text: 'Taxis, ferries and sightseeing tours — ask the reception' },
+  { icon: '🏝', title: 'Places nearby', text: 'Radhanagar Beach · Cellular Jail · Ross Island' }
+];
+function renderInfo() {
+  const h = DB.hotel || {};
+  if (!infoDraft) {
+    infoDraft = JSON.parse(JSON.stringify(h.info || []));
+    $('#hOrder').value = h.orderUrl || ''; $('#hReview').value = h.reviewUrl || ''; $('#hInfoEvery').value = h.infoEvery || '';
+  }
+  $('#infoRows').innerHTML = infoDraft.map((c, i) => `<div data-ir="${i}" style="display:flex;gap:6px;margin-bottom:6px">
+    <input data-i="icon" value="${esc(c.icon || '')}" style="width:52px;text-align:center" placeholder="🍽">
+    <input data-i="title" value="${esc(c.title || '')}" style="width:160px" placeholder="Title">
+    <input data-i="text" value="${esc(c.text || '')}" style="flex:1;min-width:0" placeholder="Details">
+    <button data-irm="${i}">✕</button></div>`).join('') || '<div class="empty">No lines yet — press "Fill with examples" and change them.</div>';
+  $('#infoAdd').disabled = infoDraft.length >= 6;
+}
+$('#infoRows').addEventListener('input', e => { const r = e.target.closest('[data-ir]'); if (!r) return; infoDraft[+r.dataset.ir][e.target.dataset.i] = e.target.value; $('#infoMsg').textContent = 'Not saved yet'; });
+$('#infoRows').addEventListener('click', e => { const i = e.target.dataset.irm; if (i === undefined) return; infoDraft.splice(+i, 1); renderInfo(); });
+$('#infoAdd').onclick = () => { if (infoDraft.length < 6) { infoDraft.push({ icon: '', title: '', text: '' }); renderInfo(); } };
+$('#infoEx').onclick = () => { infoDraft = JSON.parse(JSON.stringify(INFO_EXAMPLES)); renderInfo(); $('#infoMsg').textContent = 'Examples filled in — change them for your hotel, then save'; };
+$('#infoSave').onclick = async () => {
+  const okUrl = v => !v || /^https?:\/\//i.test(v);
+  const orderUrl = $('#hOrder').value.trim(), reviewUrl = $('#hReview').value.trim();
+  if (!okUrl(orderUrl) || !okUrl(reviewUrl)) return ($('#infoMsg').textContent = 'Links must start with https://');
+  const n = parseInt($('#hInfoEvery').value, 10);
+  const h = { ...(DB.hotel || {}), info: infoDraft.filter(c => (c.title || c.text || '').trim()), orderUrl, reviewUrl, infoEvery: isNaN(n) ? undefined : Math.min(50, Math.max(2, n)) };
+  try { await DB.saveHotel(h); infoDraft = null; renderInfo(); $('#infoMsg').textContent = '✓ Saved — room TVs update within ~10 seconds'; }
+  catch (e) { $('#infoMsg').textContent = '⚠ ' + e.message; }
 };
 
 // ---- announcement ----
